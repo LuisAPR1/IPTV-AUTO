@@ -1,0 +1,1027 @@
+14:12:35 - INFO - A preparar foco do terminal...
+14:12:35 - INFO - Minimizadas 11 janelas
+14:12:35 - INFO - Terminal definido como sempre-no-topo
+14:12:35 - INFO - ============================================================
+14:12:35 - INFO - IPTV Fiesta Automatizador - Iniciando...
+14:12:35 - INFO - ============================================================
+14:12:35 - INFO - Usando Gmail pessoal com plus-addressing
+14:12:35 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+14:12:36 - INFO - ✅ 27 proxies obtidas do ProxyScrape (de 27 disponíveis)
+14:12:36 - INFO - ✅ 27 proxies do ProxyScrape carregadas
+14:12:36 - INFO - ✅ Total: 27 proxies disponíveis
+14:12:36 - INFO - Próximo proxy: socks5://147.45.186.28:1080 (26 restantes)
+14:12:36 - INFO - Próximo proxy: socks5://185.218.137.242:1080 (25 restantes)
+14:12:36 - INFO - Próximo proxy: socks5://206.123.156.214:7562 (24 restantes)
+14:12:36 - INFO - Próximo proxy: socks5://206.123.156.220:5729 (23 restantes)
+14:12:36 - INFO - Próximo proxy: socks5://185.125.201.149:7443 (22 restantes)
+14:12:36 - INFO - 🔍 A testar 5 proxies em paralelo... (5/500 testadas)
+14:12:37 - INFO - Proxy removido (falhou): socks5://147.45.186.28:1080 (26 restantes)
+14:12:37 - INFO - Proxy removido (falhou): socks5://185.218.137.242:1080 (25 restantes)
+14:12:37 - INFO - Proxy removido (falhou): socks5://206.123.156.214:7562 (24 restantes)
+14:12:37 - INFO - Proxy removido (falhou): socks5://206.123.156.220:5729 (23 restantes)
+14:12:37 - INFO - Proxy removido (falhou): socks5://185.125.201.149:7443 (22 restantes)
+14:12:37 - INFO - Batch descartado (22 proxies restantes)
+14:12:37 - INFO - Próximo proxy: socks5://206.123.156.228:5527 (21 restantes)
+14:12:37 - INFO - Próximo proxy: socks5://212.224.88.212:443 (20 restantes)
+14:12:37 - INFO - Próximo proxy: socks5://206.123.156.178:4649 (19 restantes)
+14:12:37 - INFO - Próximo proxy: socks5://206.123.156.222:4702 (18 restantes)
+14:12:37 - INFO - Próximo proxy: socks5://206.123.156.235:8638 (17 restantes)
+14:12:37 - INFO - 🔍 A testar 5 proxies em paralelo... (10/500 testadas)
+14:12:49 - INFO - Proxy removido (falhou): socks5://206.123.156.228:5527 (21 restantes)
+14:12:49 - INFO - Proxy removido (falhou): socks5://212.224.88.212:443 (20 restantes)
+14:12:49 - INFO - Proxy removido (falhou): socks5://206.123.156.178:4649 (19 restantes)
+14:12:49 - INFO - Proxy removido (falhou): socks5://206.123.156.222:4702 (18 restantes)
+14:12:49 - INFO - Proxy removido (falhou): socks5://206.123.156.235:8638 (17 restantes)
+14:12:49 - INFO - Batch descartado (17 proxies restantes)
+14:12:49 - INFO - Próximo proxy: socks5://45.140.147.155:1082 (16 restantes)
+14:12:49 - INFO - Próximo proxy: socks5://93.177.116.84:1080 (15 restantes)
+14:12:49 - INFO - Próximo proxy: socks5://132.243.235.134:1080 (14 restantes)
+14:12:49 - INFO - Próximo proxy: socks5://144.124.227.88:3129 (13 restantes)
+14:12:49 - INFO - Próximo proxy: socks5://206.123.156.187:6334 (12 restantes)
+14:12:49 - INFO - 🔍 A testar 5 proxies em paralelo... (15/500 testadas)
+14:12:54 - INFO - ✅ socks5://206.123.156.187:6334 → 4.8s (status 200)
+14:12:54 - INFO - 🏆 Melhor proxy: socks5://206.123.156.187:6334 (4.8s)
+14:12:54 - INFO - Proxy removido (falhou): socks5://45.140.147.155:1082 (16 restantes)
+14:12:54 - INFO - Proxy removido (falhou): socks5://93.177.116.84:1080 (15 restantes)
+14:12:54 - INFO - Proxy removido (falhou): socks5://132.243.235.134:1080 (14 restantes)
+14:12:54 - INFO - Proxy removido (falhou): socks5://144.124.227.88:3129 (13 restantes)
+14:13:03 - INFO - ✓ Proxy ativado: socks5://206.123.156.187:6334
+14:13:03 - INFO - Browser inicializado
+14:13:03 - INFO - Browser minimizado (1 janela(s))
+14:13:04 - INFO - === PASSO 1: Criar email temporário ===
+14:13:04 - INFO - A usar Gmail pessoal com plus-addressing...
+14:13:04 - INFO - ✓ Gmail gerado: larkspur73823+z3oz06pm@gmail.com
+14:13:04 - INFO - Email criado: larkspur73823+z3oz06pm@gmail.com
+14:13:04 - INFO - === PASSO 2: Submeter email no site ===
+14:13:04 - INFO - Navegando para https://myfiestatrial.com
+14:13:04 - ERROR - Erro ao submeter email: Page.goto: net::ERR_SOCKS_CONNECTION_FAILED at https://myfiestatrial.com/
+Call log:
+  - navigating to "https://myfiestatrial.com/", waiting until "networkidle"
+
+14:13:04 - INFO - Proxy removido (falhou): socks5://206.123.156.187:6334 (12 restantes)
+14:13:04 - WARNING - Tentativa 1 falhou
+14:13:04 - INFO - 
+============================================================
+14:13:04 - INFO - TENTATIVA 2/15
+14:13:04 - INFO - ============================================================
+14:13:04 - INFO - Próximo proxy: socks5://158.178.198.31:1080 (11 restantes)
+14:13:04 - INFO - Próximo proxy: socks5://206.123.156.224:4272 (10 restantes)
+14:13:04 - INFO - Próximo proxy: socks5://206.123.156.225:4698 (9 restantes)
+14:13:04 - INFO - Próximo proxy: socks5://206.123.156.222:4478 (8 restantes)
+14:13:04 - INFO - Próximo proxy: socks5://80.90.179.241:987 (7 restantes)
+14:13:04 - INFO - 🔍 A testar 5 proxies em paralelo... (5/500 testadas)
+14:13:16 - INFO - Proxy removido (falhou): socks5://158.178.198.31:1080 (11 restantes)
+14:13:16 - INFO - Proxy removido (falhou): socks5://206.123.156.224:4272 (10 restantes)
+14:13:16 - INFO - Proxy removido (falhou): socks5://206.123.156.225:4698 (9 restantes)
+14:13:16 - INFO - Proxy removido (falhou): socks5://206.123.156.222:4478 (8 restantes)
+14:13:16 - INFO - Proxy removido (falhou): socks5://80.90.179.241:987 (7 restantes)
+14:13:16 - INFO - Batch descartado (7 proxies restantes)
+14:13:16 - INFO - Próximo proxy: socks5://144.124.232.204:443 (6 restantes)
+14:13:16 - INFO - Próximo proxy: socks5://128.199.37.92:1080 (5 restantes)
+14:13:16 - INFO - Próximo proxy: socks5://5.255.113.177:1080 (4 restantes)
+14:13:16 - INFO - Próximo proxy: socks5://185.233.203.60:1080 (3 restantes)
+14:13:16 - INFO - Próximo proxy: socks5://206.123.156.201:7477 (2 restantes)
+14:13:16 - INFO - 🔍 A testar 5 proxies em paralelo... (10/500 testadas)
+14:13:28 - INFO - Proxy removido (falhou): socks5://144.124.232.204:443 (6 restantes)
+14:13:28 - INFO - Proxy removido (falhou): socks5://128.199.37.92:1080 (5 restantes)
+14:13:28 - INFO - Proxy removido (falhou): socks5://5.255.113.177:1080 (4 restantes)
+14:13:28 - INFO - Proxy removido (falhou): socks5://185.233.203.60:1080 (3 restantes)
+14:13:28 - INFO - Proxy removido (falhou): socks5://206.123.156.201:7477 (2 restantes)
+14:13:28 - INFO - Batch descartado (2 proxies restantes)
+14:13:28 - INFO - Próximo proxy: socks5://130.61.119.46:3128 (1 restantes)
+14:13:28 - INFO - Próximo proxy: socks5://5.255.99.75:1080 (0 restantes)
+14:13:28 - INFO - 🔄 A refrescar lista de proxies do ProxyScrape...
+14:13:28 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+14:13:28 - INFO - ✅ 27 proxies obtidas do ProxyScrape (de 27 disponíveis)
+14:13:28 - INFO - ✅ 0 proxies novas adicionadas (2 total)
+14:13:28 - WARNING - Todos os proxies já foram tentados, a reiniciar lista...
+14:13:28 - INFO - Próximo proxy: socks5://130.61.119.46:3128 (1 restantes)
+14:13:28 - INFO - Próximo proxy: socks5://5.255.99.75:1080 (0 restantes)
+14:13:28 - INFO - 🔄 A refrescar lista de proxies do ProxyScrape...
+14:13:28 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+14:13:28 - INFO - ✅ 27 proxies obtidas do ProxyScrape (de 27 disponíveis)
+14:13:28 - INFO - ✅ 0 proxies novas adicionadas (2 total)
+14:13:28 - WARNING - Todos os proxies já foram tentados, a reiniciar lista...
+14:13:28 - INFO - Próximo proxy: socks5://130.61.119.46:3128 (1 restantes)
+14:13:28 - INFO - 🔍 A testar 5 proxies em paralelo... (15/500 testadas)
+14:13:35 - INFO - Proxy removido (falhou): socks5://130.61.119.46:3128 (1 restantes)
+14:13:35 - INFO - Proxy removido (falhou): socks5://5.255.99.75:1080 (0 restantes)
+14:13:35 - INFO - Batch descartado (0 proxies restantes)
+14:13:35 - WARNING - Nenhum proxy rápido encontrado após 15 testes
+14:13:35 - INFO - A refrescar lista de proxies...
+14:13:35 - INFO - 🔄 A refrescar lista de proxies do ProxyScrape...
+14:13:35 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+14:13:35 - INFO - ✅ 27 proxies obtidas do ProxyScrape (de 27 disponíveis)
+14:13:35 - WARNING - ⚠️ Nenhuma proxy nova encontrada
+14:13:35 - WARNING - Sem proxies funcionais disponíveis
+14:13:35 - ERROR - Todas as tentativas falharam
+14:13:35 - INFO - Browser fechado
+14:13:35 - ERROR - Automação falhou.
+14:13:35 - INFO - Terminal restaurado ao comportamento normal
+14:13:44 - INFO - A preparar foco do terminal...
+14:13:44 - INFO - Minimizadas 12 janelas
+14:13:44 - INFO - Terminal definido como sempre-no-topo
+14:13:44 - INFO - ============================================================
+14:13:44 - INFO - IPTV Fiesta Automatizador - Iniciando...
+14:13:44 - INFO - ============================================================
+14:13:44 - INFO - Usando Gmail pessoal com plus-addressing
+14:13:44 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+14:13:45 - INFO - ✅ 27 proxies obtidas do ProxyScrape (de 27 disponíveis)
+14:13:45 - INFO - ✅ 27 proxies do ProxyScrape carregadas
+14:13:45 - INFO - ✅ Total: 27 proxies disponíveis
+14:13:45 - INFO - Próximo proxy: socks5://5.255.113.177:1080 (26 restantes)
+14:13:45 - INFO - Próximo proxy: socks5://206.123.156.220:5729 (25 restantes)
+14:13:45 - INFO - Próximo proxy: socks5://206.123.156.187:6334 (24 restantes)
+14:13:45 - INFO - Próximo proxy: socks5://206.123.156.222:4702 (23 restantes)
+14:13:45 - INFO - Próximo proxy: socks5://45.140.147.155:1082 (22 restantes)
+14:13:45 - INFO - 🔍 A testar 5 proxies em paralelo... (5/500 testadas)
+14:14:00 - INFO - Proxy removido (falhou): socks5://5.255.113.177:1080 (26 restantes)
+14:14:00 - INFO - Proxy removido (falhou): socks5://206.123.156.220:5729 (25 restantes)
+14:14:00 - INFO - Proxy removido (falhou): socks5://206.123.156.187:6334 (24 restantes)
+14:14:00 - INFO - Proxy removido (falhou): socks5://206.123.156.222:4702 (23 restantes)
+14:14:00 - INFO - Proxy removido (falhou): socks5://45.140.147.155:1082 (22 restantes)
+14:14:00 - INFO - Batch descartado (22 proxies restantes)
+14:14:00 - INFO - Próximo proxy: socks5://158.178.198.31:1080 (21 restantes)
+14:14:00 - INFO - Próximo proxy: socks5://130.61.119.46:3128 (20 restantes)
+14:14:00 - INFO - Próximo proxy: socks5://206.123.156.222:4478 (19 restantes)
+14:14:00 - INFO - Próximo proxy: socks5://144.124.227.88:3129 (18 restantes)
+14:14:00 - INFO - Próximo proxy: socks5://80.90.179.241:987 (17 restantes)
+14:14:00 - INFO - 🔍 A testar 5 proxies em paralelo... (10/500 testadas)
+14:14:01 - INFO - Proxy removido (falhou): socks5://158.178.198.31:1080 (21 restantes)
+14:14:01 - INFO - Proxy removido (falhou): socks5://130.61.119.46:3128 (20 restantes)
+14:14:01 - INFO - Proxy removido (falhou): socks5://206.123.156.222:4478 (19 restantes)
+14:14:01 - INFO - Proxy removido (falhou): socks5://144.124.227.88:3129 (18 restantes)
+14:14:01 - INFO - Proxy removido (falhou): socks5://80.90.179.241:987 (17 restantes)
+14:14:01 - INFO - Batch descartado (17 proxies restantes)
+14:14:01 - INFO - Próximo proxy: socks5://144.124.232.204:443 (16 restantes)
+14:14:01 - INFO - Próximo proxy: socks5://206.123.156.225:4698 (15 restantes)
+14:14:01 - INFO - Próximo proxy: socks5://206.123.156.235:8638 (14 restantes)
+14:14:01 - INFO - Próximo proxy: socks5://185.233.203.60:1080 (13 restantes)
+14:14:01 - INFO - Próximo proxy: socks5://206.123.156.201:7477 (12 restantes)
+14:14:01 - INFO - 🔍 A testar 5 proxies em paralelo... (15/500 testadas)
+14:14:13 - INFO - Proxy removido (falhou): socks5://144.124.232.204:443 (16 restantes)
+14:14:13 - INFO - Proxy removido (falhou): socks5://206.123.156.225:4698 (15 restantes)
+14:14:13 - INFO - Proxy removido (falhou): socks5://206.123.156.235:8638 (14 restantes)
+14:14:13 - INFO - Proxy removido (falhou): socks5://185.233.203.60:1080 (13 restantes)
+14:14:13 - INFO - Proxy removido (falhou): socks5://206.123.156.201:7477 (12 restantes)
+14:14:13 - INFO - Batch descartado (12 proxies restantes)
+14:14:13 - INFO - Próximo proxy: socks5://128.199.37.92:1080 (11 restantes)
+14:14:13 - INFO - Próximo proxy: socks5://212.224.88.212:443 (10 restantes)
+14:14:13 - INFO - Próximo proxy: socks5://147.45.186.28:1080 (9 restantes)
+14:14:13 - INFO - Próximo proxy: socks5://206.123.156.178:4649 (8 restantes)
+14:14:13 - INFO - Próximo proxy: socks5://185.218.137.242:1080 (7 restantes)
+14:14:13 - INFO - 🔍 A testar 5 proxies em paralelo... (20/500 testadas)
+14:14:27 - INFO - Proxy removido (falhou): socks5://128.199.37.92:1080 (11 restantes)
+14:14:27 - INFO - Proxy removido (falhou): socks5://212.224.88.212:443 (10 restantes)
+14:14:27 - INFO - Proxy removido (falhou): socks5://147.45.186.28:1080 (9 restantes)
+14:14:27 - INFO - Proxy removido (falhou): socks5://206.123.156.178:4649 (8 restantes)
+14:14:27 - INFO - Proxy removido (falhou): socks5://185.218.137.242:1080 (7 restantes)
+14:14:27 - INFO - Batch descartado (7 proxies restantes)
+14:14:27 - INFO - Próximo proxy: socks5://206.123.156.224:4272 (6 restantes)
+14:14:27 - INFO - Próximo proxy: socks5://206.123.156.228:5527 (5 restantes)
+14:14:27 - INFO - Próximo proxy: socks5://5.255.99.75:1080 (4 restantes)
+14:14:27 - INFO - Próximo proxy: socks5://132.243.235.134:1080 (3 restantes)
+14:14:27 - INFO - Próximo proxy: socks5://93.177.116.84:1080 (2 restantes)
+14:14:27 - INFO - 🔍 A testar 5 proxies em paralelo... (25/500 testadas)
+14:14:39 - INFO - Proxy removido (falhou): socks5://206.123.156.224:4272 (6 restantes)
+14:14:39 - INFO - Proxy removido (falhou): socks5://206.123.156.228:5527 (5 restantes)
+14:14:39 - INFO - Proxy removido (falhou): socks5://5.255.99.75:1080 (4 restantes)
+14:14:39 - INFO - Proxy removido (falhou): socks5://132.243.235.134:1080 (3 restantes)
+14:14:39 - INFO - Proxy removido (falhou): socks5://93.177.116.84:1080 (2 restantes)
+14:14:39 - INFO - Batch descartado (2 proxies restantes)
+14:14:39 - INFO - Próximo proxy: socks5://206.123.156.214:7562 (1 restantes)
+14:14:39 - INFO - Próximo proxy: socks5://185.125.201.149:7443 (0 restantes)
+14:14:39 - INFO - 🔄 A refrescar lista de proxies do ProxyScrape...
+14:14:39 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+14:14:39 - INFO - ✅ 27 proxies obtidas do ProxyScrape (de 27 disponíveis)
+14:14:39 - INFO - ✅ 0 proxies novas adicionadas (2 total)
+14:14:39 - WARNING - Todos os proxies já foram tentados, a reiniciar lista...
+14:14:39 - INFO - Próximo proxy: socks5://206.123.156.214:7562 (1 restantes)
+14:14:39 - INFO - Próximo proxy: socks5://185.125.201.149:7443 (0 restantes)
+14:14:39 - INFO - 🔄 A refrescar lista de proxies do ProxyScrape...
+14:14:39 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+14:14:39 - INFO - ✅ 27 proxies obtidas do ProxyScrape (de 27 disponíveis)
+14:14:39 - INFO - ✅ 0 proxies novas adicionadas (2 total)
+14:14:39 - WARNING - Todos os proxies já foram tentados, a reiniciar lista...
+14:14:39 - INFO - Próximo proxy: socks5://206.123.156.214:7562 (1 restantes)
+14:14:39 - INFO - 🔍 A testar 5 proxies em paralelo... (30/500 testadas)
+14:14:51 - INFO - Proxy removido (falhou): socks5://206.123.156.214:7562 (1 restantes)
+14:14:51 - INFO - Proxy removido (falhou): socks5://185.125.201.149:7443 (0 restantes)
+14:14:51 - INFO - Batch descartado (0 proxies restantes)
+14:14:51 - WARNING - Nenhum proxy rápido encontrado após 30 testes
+14:14:51 - INFO - A refrescar lista de proxies...
+14:14:51 - INFO - 🔄 A refrescar lista de proxies do ProxyScrape...
+14:14:51 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+14:14:51 - INFO - ✅ 27 proxies obtidas do ProxyScrape (de 27 disponíveis)
+14:14:51 - WARNING - ⚠️ Nenhuma proxy nova encontrada
+14:14:51 - WARNING - Sem proxies funcionais disponíveis
+14:14:51 - ERROR - Todas as tentativas falharam
+14:14:51 - INFO - Browser fechado
+14:14:51 - ERROR - Automação falhou.
+14:14:51 - INFO - Terminal restaurado ao comportamento normal
+14:16:53 - INFO - A preparar foco do terminal...
+14:16:53 - INFO - Minimizadas 12 janelas
+14:16:54 - INFO - Terminal definido como sempre-no-topo
+14:16:54 - INFO - ============================================================
+14:16:54 - INFO - IPTV Fiesta Automatizador - Iniciando...
+14:16:54 - INFO - ============================================================
+14:16:54 - INFO - Usando Gmail pessoal com plus-addressing
+14:16:54 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+14:16:54 - INFO - ✅ 27 proxies obtidas do ProxyScrape (de 27 disponíveis)
+14:16:54 - INFO - ✅ 27 proxies do ProxyScrape carregadas
+14:16:54 - INFO - ✅ Total: 27 proxies disponíveis
+14:16:54 - INFO - Próximo proxy: socks5://144.124.232.204:443 (26 restantes)
+14:16:54 - INFO - Próximo proxy: socks5://158.178.198.31:1080 (25 restantes)
+14:16:54 - INFO - Próximo proxy: socks5://45.140.147.155:1082 (24 restantes)
+14:16:54 - INFO - Próximo proxy: socks5://206.123.156.201:7477 (23 restantes)
+14:16:54 - INFO - Próximo proxy: socks5://130.61.119.46:3128 (22 restantes)
+14:16:54 - INFO - 🔍 A testar 5 proxies em paralelo... (5/500 testadas)
+14:17:06 - INFO - Proxy removido (falhou): socks5://144.124.232.204:443 (26 restantes)
+14:17:06 - INFO - Proxy removido (falhou): socks5://158.178.198.31:1080 (25 restantes)
+14:17:06 - INFO - Proxy removido (falhou): socks5://45.140.147.155:1082 (24 restantes)
+14:17:06 - INFO - Proxy removido (falhou): socks5://206.123.156.201:7477 (23 restantes)
+14:17:06 - INFO - Proxy removido (falhou): socks5://130.61.119.46:3128 (22 restantes)
+14:17:06 - INFO - Batch descartado (22 proxies restantes)
+14:17:07 - INFO - Próximo proxy: socks5://93.177.116.84:1080 (21 restantes)
+14:17:07 - INFO - Próximo proxy: socks5://80.90.179.241:987 (20 restantes)
+14:17:07 - INFO - Próximo proxy: socks5://147.45.186.28:1080 (19 restantes)
+14:17:07 - INFO - Próximo proxy: socks5://206.123.156.214:7562 (18 restantes)
+14:17:07 - INFO - Próximo proxy: socks5://206.123.156.178:4649 (17 restantes)
+14:17:07 - INFO - 🔍 A testar 5 proxies em paralelo... (10/500 testadas)
+14:17:19 - INFO - Proxy removido (falhou): socks5://93.177.116.84:1080 (21 restantes)
+14:17:19 - INFO - Proxy removido (falhou): socks5://80.90.179.241:987 (20 restantes)
+14:17:19 - INFO - Proxy removido (falhou): socks5://147.45.186.28:1080 (19 restantes)
+14:17:19 - INFO - Proxy removido (falhou): socks5://206.123.156.214:7562 (18 restantes)
+14:17:19 - INFO - Proxy removido (falhou): socks5://206.123.156.178:4649 (17 restantes)
+14:17:19 - INFO - Batch descartado (17 proxies restantes)
+14:17:19 - INFO - Próximo proxy: socks5://206.123.156.220:5729 (16 restantes)
+14:17:19 - INFO - Próximo proxy: socks5://5.255.99.75:1080 (15 restantes)
+14:17:19 - INFO - Próximo proxy: socks5://206.123.156.222:4478 (14 restantes)
+14:17:19 - INFO - Próximo proxy: socks5://185.233.203.60:1080 (13 restantes)
+14:17:19 - INFO - Próximo proxy: socks5://206.123.156.224:4272 (12 restantes)
+14:17:19 - INFO - 🔍 A testar 5 proxies em paralelo... (15/500 testadas)
+14:17:31 - INFO - Proxy removido (falhou): socks5://206.123.156.220:5729 (16 restantes)
+14:17:31 - INFO - Proxy removido (falhou): socks5://5.255.99.75:1080 (15 restantes)
+14:17:31 - INFO - Proxy removido (falhou): socks5://206.123.156.222:4478 (14 restantes)
+14:17:31 - INFO - Proxy removido (falhou): socks5://185.233.203.60:1080 (13 restantes)
+14:17:31 - INFO - Proxy removido (falhou): socks5://206.123.156.224:4272 (12 restantes)
+14:17:31 - INFO - Batch descartado (12 proxies restantes)
+14:17:31 - INFO - Próximo proxy: socks5://185.218.137.242:1080 (11 restantes)
+14:17:31 - INFO - Próximo proxy: socks5://128.199.37.92:1080 (10 restantes)
+14:17:31 - INFO - Próximo proxy: socks5://206.123.156.187:6334 (9 restantes)
+14:17:31 - INFO - Próximo proxy: socks5://132.243.235.134:1080 (8 restantes)
+14:17:31 - INFO - Próximo proxy: socks5://212.224.88.212:443 (7 restantes)
+14:17:31 - INFO - 🔍 A testar 5 proxies em paralelo... (20/500 testadas)
+14:17:41 - INFO - Proxy removido (falhou): socks5://185.218.137.242:1080 (11 restantes)
+14:17:41 - INFO - Proxy removido (falhou): socks5://128.199.37.92:1080 (10 restantes)
+14:17:41 - INFO - Proxy removido (falhou): socks5://206.123.156.187:6334 (9 restantes)
+14:17:41 - INFO - Proxy removido (falhou): socks5://132.243.235.134:1080 (8 restantes)
+14:17:41 - INFO - Proxy removido (falhou): socks5://212.224.88.212:443 (7 restantes)
+14:17:41 - INFO - Batch descartado (7 proxies restantes)
+14:17:41 - INFO - Próximo proxy: socks5://206.123.156.222:4702 (6 restantes)
+14:17:41 - INFO - Próximo proxy: socks5://185.125.201.149:7443 (5 restantes)
+14:17:41 - INFO - Próximo proxy: socks5://5.255.113.177:1080 (4 restantes)
+14:17:41 - INFO - Próximo proxy: socks5://206.123.156.225:4698 (3 restantes)
+14:17:41 - INFO - Próximo proxy: socks5://206.123.156.228:5527 (2 restantes)
+14:17:41 - INFO - 🔍 A testar 5 proxies em paralelo... (25/500 testadas)
+14:17:53 - INFO - Proxy removido (falhou): socks5://206.123.156.222:4702 (6 restantes)
+14:17:53 - INFO - Proxy removido (falhou): socks5://185.125.201.149:7443 (5 restantes)
+14:17:53 - INFO - Proxy removido (falhou): socks5://5.255.113.177:1080 (4 restantes)
+14:17:53 - INFO - Proxy removido (falhou): socks5://206.123.156.225:4698 (3 restantes)
+14:17:53 - INFO - Proxy removido (falhou): socks5://206.123.156.228:5527 (2 restantes)
+14:17:53 - INFO - Batch descartado (2 proxies restantes)
+14:17:53 - INFO - Próximo proxy: socks5://144.124.227.88:3129 (1 restantes)
+14:17:53 - INFO - Próximo proxy: socks5://206.123.156.235:8638 (0 restantes)
+14:17:53 - INFO - 🔄 A refrescar lista de proxies do ProxyScrape...
+14:17:53 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+14:17:54 - INFO - ✅ 21 proxies obtidas do ProxyScrape (de 21 disponíveis)
+14:17:54 - INFO - ✅ 14 proxies novas adicionadas (16 total)
+14:17:54 - INFO - Próximo proxy: socks5://206.123.156.182:12674 (13 restantes)
+14:17:54 - INFO - Próximo proxy: socks5://206.123.156.178:16632 (12 restantes)
+14:17:54 - INFO - Próximo proxy: socks5://206.123.156.178:5209 (11 restantes)
+14:17:54 - INFO - 🔍 A testar 5 proxies em paralelo... (30/500 testadas)
+14:17:55 - INFO - Proxy removido (falhou): socks5://144.124.227.88:3129 (15 restantes)
+14:17:55 - INFO - Proxy removido (falhou): socks5://206.123.156.235:8638 (14 restantes)
+14:17:55 - INFO - Proxy removido (falhou): socks5://206.123.156.182:12674 (13 restantes)
+14:17:55 - INFO - Proxy removido (falhou): socks5://206.123.156.178:16632 (12 restantes)
+14:17:55 - INFO - Proxy removido (falhou): socks5://206.123.156.178:5209 (11 restantes)
+14:17:55 - INFO - Batch descartado (11 proxies restantes)
+14:17:55 - INFO - Próximo proxy: socks5://213.165.38.234:1081 (10 restantes)
+14:17:55 - INFO - Próximo proxy: socks5://212.113.106.198:987 (9 restantes)
+14:17:55 - INFO - Próximo proxy: socks5://185.221.237.57:8443 (8 restantes)
+14:17:55 - INFO - Próximo proxy: socks5://206.123.156.215:5559 (7 restantes)
+14:17:55 - INFO - Próximo proxy: socks5://206.123.156.178:4465 (6 restantes)
+14:17:55 - INFO - 🔍 A testar 5 proxies em paralelo... (35/500 testadas)
+20:00:42 - INFO - A preparar foco do terminal...
+20:00:42 - INFO - Minimizadas 24 janelas
+20:00:42 - INFO - Terminal definido como sempre-no-topo
+20:00:42 - INFO - ============================================================
+20:00:42 - INFO - IPTV Fiesta Automatizador - Iniciando...
+20:00:42 - INFO - ============================================================
+20:00:42 - INFO - Usando Gmail pessoal com plus-addressing
+20:00:42 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+20:00:43 - INFO - ✅ 13 proxies obtidas do ProxyScrape (de 13 disponíveis)
+20:00:43 - INFO - ✅ 13 proxies do ProxyScrape carregadas
+20:00:43 - INFO - ✅ Total: 13 proxies disponíveis
+20:00:43 - INFO - Próximo proxy: socks5://5.255.123.162:1080 (12 restantes)
+20:00:43 - INFO - Próximo proxy: socks5://206.123.156.209:5271 (11 restantes)
+20:00:43 - INFO - Próximo proxy: socks5://109.104.154.37:1080 (10 restantes)
+20:00:43 - INFO - Próximo proxy: socks5://164.132.168.87:50161 (9 restantes)
+20:00:43 - INFO - Próximo proxy: socks5://152.70.57.143:1080 (8 restantes)
+20:00:43 - INFO - 🔍 A testar 5 proxies em paralelo... (5/500 testadas)
+20:00:45 - INFO - ✅ socks5://164.132.168.87:50161 → 1.2s (status 200)
+20:00:45 - INFO - ✅ socks5://206.123.156.209:5271 → 1.8s (status 200)
+20:00:48 - INFO - 🏆 Melhor proxy: socks5://164.132.168.87:50161 (1.2s)
+20:00:48 - INFO -    Alternativa: socks5://206.123.156.209:5271 (1.8s)
+20:00:48 - INFO - Proxy removido (falhou): socks5://5.255.123.162:1080 (12 restantes)
+20:00:48 - INFO - Proxy removido (falhou): socks5://206.123.156.209:5271 (11 restantes)
+20:00:48 - INFO - Proxy removido (falhou): socks5://109.104.154.37:1080 (10 restantes)
+20:00:48 - INFO - Proxy removido (falhou): socks5://152.70.57.143:1080 (9 restantes)
+20:01:04 - INFO - ✓ Proxy ativado: socks5://164.132.168.87:50161
+20:01:05 - INFO - Browser inicializado
+20:01:06 - INFO - Browser minimizado (2 janela(s))
+20:01:06 - INFO - === PASSO 1: Criar email temporário ===
+20:01:06 - INFO - A usar Gmail pessoal com plus-addressing...
+20:01:06 - INFO - ✓ Gmail gerado: larkspur73823+x64uluak@gmail.com
+20:01:06 - INFO - Email criado: larkspur73823+x64uluak@gmail.com
+20:01:06 - INFO - === PASSO 2: Submeter email no site ===
+20:01:06 - INFO - Navegando para https://myfiestatrial.com
+20:01:14 - INFO - Preenchendo formulário de email...
+20:01:18 - INFO - Email submetido, aguardando redirecionamento...
+20:01:18 - INFO - === PASSO 3: Aguardar página de verificação ===
+20:01:21 - INFO - Redirecionado para página de verificação: https://myfiestatrial.com/verify/KJA6MEJ54JIOB6UA2HZTO3GYSUSBHK23
+20:01:21 - INFO - === PASSO 4: Aguardar código por email ===
+20:01:21 - INFO - Aguardando email em larkspur73823@gmail.com...
+20:02:53 - INFO - ✓ Código encontrado: 411517
+20:02:53 - INFO - Código obtido: 411517
+20:02:53 - INFO - === PASSO 5: Submeter código de verificação ===
+20:02:53 - INFO - Preenchendo código de verificação: 411517
+20:02:53 - INFO - Encontrados 6 inputs visíveis
+20:02:53 - INFO - Preenchendo dígito 1: 4
+20:02:54 - INFO - Preenchendo dígito 2: 1
+20:02:55 - INFO - Preenchendo dígito 3: 1
+20:02:56 - INFO - Preenchendo dígito 4: 5
+20:02:57 - INFO - Preenchendo dígito 5: 1
+20:02:57 - INFO - Preenchendo dígito 6: 7
+20:02:59 - INFO - Botão de verificação clicado
+20:02:59 - INFO - Código submetido
+20:02:59 - INFO - === PASSO 6: Aguardar página final ===
+20:03:12 - INFO - Redirecionado para página final: https://myfiestatrial.com/plan/larkspur73823+x64uluak@gmail.com/237521-323216
+20:03:14 - INFO - === PASSO 7: Extrair credenciais ===
+20:03:14 - INFO - Encontrados 5 blocos formkit
+20:03:14 - INFO -   username -> TV-23752112336469
+20:03:14 - INFO -   passwrord -> 121360728652
+20:03:14 - INFO -   dns/domain -> http://trial.ifiesta.net
+20:03:14 - INFO -   epg (tv guide) -> http://trial.ifiesta.net/xmltv.php?username=TV-23752112336469&password=121360728652
+20:03:14 - INFO -   m3u playlist -> http://trial.ifiesta.net/playlist/TV-23752112336469/121360728652/m3u_plus
+20:03:14 - INFO - Credenciais extraídas: 5 campos encontrados
+20:03:14 - INFO - Automação completada com sucesso!
+20:03:15 - INFO - Browser fechado
+20:03:15 - INFO - Terminal restaurado ao comportamento normal
+09:45:39 - INFO - A preparar foco do terminal...
+09:45:39 - INFO - Minimizadas 19 janelas
+09:45:39 - INFO - Terminal definido como sempre-no-topo
+09:45:39 - INFO - ============================================================
+09:45:39 - INFO - IPTV Fiesta Automatizador - Iniciando...
+09:45:39 - INFO - ============================================================
+09:45:39 - INFO - Usando Gmail pessoal com plus-addressing
+09:45:39 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+09:45:40 - INFO - ✅ 52 proxies obtidas do ProxyScrape (de 52 disponíveis)
+09:45:40 - INFO - ✅ 52 proxies do ProxyScrape carregadas
+09:45:40 - INFO - ✅ Total: 52 proxies disponíveis
+09:45:40 - INFO - Próximo proxy: socks5://161.97.118.197:1080 (51 restantes)
+09:45:40 - INFO - Próximo proxy: socks5://213.176.16.10:1080 (50 restantes)
+09:45:40 - INFO - Próximo proxy: socks5://206.123.156.210:6361 (49 restantes)
+09:45:40 - INFO - Próximo proxy: socks5://144.124.232.204:1080 (48 restantes)
+09:45:40 - INFO - Próximo proxy: socks5://178.17.57.222:1080 (47 restantes)
+09:45:40 - INFO - 🔍 A testar 5 proxies em paralelo... (5/500 testadas)
+09:45:52 - INFO - Proxy removido (falhou): socks5://161.97.118.197:1080 (51 restantes)
+09:45:52 - INFO - Proxy removido (falhou): socks5://213.176.16.10:1080 (50 restantes)
+09:45:52 - INFO - Proxy removido (falhou): socks5://206.123.156.210:6361 (49 restantes)
+09:45:52 - INFO - Proxy removido (falhou): socks5://144.124.232.204:1080 (48 restantes)
+09:45:52 - INFO - Proxy removido (falhou): socks5://178.17.57.222:1080 (47 restantes)
+09:45:52 - INFO - Batch descartado (47 proxies restantes)
+09:45:52 - INFO - Próximo proxy: socks5://5.75.212.47:1080 (46 restantes)
+09:45:52 - INFO - Próximo proxy: socks5://206.123.156.216:45662 (45 restantes)
+09:45:52 - INFO - Próximo proxy: socks5://206.123.156.236:5870 (44 restantes)
+09:45:52 - INFO - Próximo proxy: socks5://72.56.107.177:1080 (43 restantes)
+09:45:52 - INFO - Próximo proxy: socks5://77.239.109.126:1080 (42 restantes)
+09:45:52 - INFO - 🔍 A testar 5 proxies em paralelo... (10/500 testadas)
+09:46:04 - INFO - Proxy removido (falhou): socks5://5.75.212.47:1080 (46 restantes)
+09:46:04 - INFO - Proxy removido (falhou): socks5://206.123.156.216:45662 (45 restantes)
+09:46:04 - INFO - Proxy removido (falhou): socks5://206.123.156.236:5870 (44 restantes)
+09:46:04 - INFO - Proxy removido (falhou): socks5://72.56.107.177:1080 (43 restantes)
+09:46:04 - INFO - Proxy removido (falhou): socks5://77.239.109.126:1080 (42 restantes)
+09:46:04 - INFO - Batch descartado (42 proxies restantes)
+09:46:04 - INFO - Próximo proxy: socks5://130.61.119.46:3128 (41 restantes)
+09:46:04 - INFO - Próximo proxy: socks5://217.12.209.4:1080 (40 restantes)
+09:46:04 - INFO - Próximo proxy: socks5://206.123.156.229:37550 (39 restantes)
+09:46:04 - INFO - Próximo proxy: socks5://134.122.64.174:1080 (38 restantes)
+09:46:04 - INFO - Próximo proxy: socks5://206.123.156.235:6726 (37 restantes)
+09:46:04 - INFO - 🔍 A testar 5 proxies em paralelo... (15/500 testadas)
+09:46:17 - INFO - Proxy removido (falhou): socks5://130.61.119.46:3128 (41 restantes)
+09:46:17 - INFO - Proxy removido (falhou): socks5://217.12.209.4:1080 (40 restantes)
+09:46:17 - INFO - Proxy removido (falhou): socks5://206.123.156.229:37550 (39 restantes)
+09:46:17 - INFO - Proxy removido (falhou): socks5://134.122.64.174:1080 (38 restantes)
+09:46:17 - INFO - Proxy removido (falhou): socks5://206.123.156.235:6726 (37 restantes)
+09:46:17 - INFO - Batch descartado (37 proxies restantes)
+09:46:17 - INFO - Próximo proxy: socks5://84.47.150.125:1080 (36 restantes)
+09:46:17 - INFO - Próximo proxy: socks5://206.123.156.210:6882 (35 restantes)
+09:46:17 - INFO - Próximo proxy: socks5://206.123.156.225:12698 (34 restantes)
+09:46:17 - INFO - Próximo proxy: socks5://206.123.156.202:6636 (33 restantes)
+09:46:17 - INFO - Próximo proxy: socks5://167.71.32.51:1080 (32 restantes)
+09:46:17 - INFO - 🔍 A testar 5 proxies em paralelo... (20/500 testadas)
+09:46:29 - INFO - Proxy removido (falhou): socks5://84.47.150.125:1080 (36 restantes)
+09:46:29 - INFO - Proxy removido (falhou): socks5://206.123.156.210:6882 (35 restantes)
+09:46:29 - INFO - Proxy removido (falhou): socks5://206.123.156.225:12698 (34 restantes)
+09:46:29 - INFO - Proxy removido (falhou): socks5://206.123.156.202:6636 (33 restantes)
+09:46:29 - INFO - Proxy removido (falhou): socks5://167.71.32.51:1080 (32 restantes)
+09:46:29 - INFO - Batch descartado (32 proxies restantes)
+09:46:29 - INFO - Próximo proxy: socks5://79.172.212.71:1080 (31 restantes)
+09:46:29 - INFO - Próximo proxy: socks5://206.123.156.209:6113 (30 restantes)
+09:46:29 - INFO - Próximo proxy: socks5://206.123.156.234:11435 (29 restantes)
+09:46:29 - INFO - Próximo proxy: socks5://185.125.171.171:1080 (28 restantes)
+09:46:29 - INFO - Próximo proxy: socks5://213.121.165.12:1080 (27 restantes)
+09:46:29 - INFO - 🔍 A testar 5 proxies em paralelo... (25/500 testadas)
+09:46:30 - INFO - ✅ socks5://79.172.212.71:1080 → 1.1s (status 200)
+09:46:41 - INFO - 🏆 Melhor proxy: socks5://79.172.212.71:1080 (1.1s)
+09:46:41 - INFO - Proxy removido (falhou): socks5://206.123.156.209:6113 (31 restantes)
+09:46:41 - INFO - Proxy removido (falhou): socks5://206.123.156.234:11435 (30 restantes)
+09:46:41 - INFO - Proxy removido (falhou): socks5://185.125.171.171:1080 (29 restantes)
+09:46:41 - INFO - Proxy removido (falhou): socks5://213.121.165.12:1080 (28 restantes)
+09:46:51 - INFO - ✓ Proxy ativado: socks5://79.172.212.71:1080
+09:46:52 - INFO - Browser inicializado
+09:46:52 - INFO - Browser minimizado (3 janela(s))
+09:46:52 - INFO - === PASSO 1: Criar email temporário ===
+09:46:52 - INFO - A usar Gmail pessoal com plus-addressing...
+09:46:52 - INFO - ✓ Gmail gerado: larkspur73823+0k02fbnm@gmail.com
+09:46:52 - INFO - Email criado: larkspur73823+0k02fbnm@gmail.com
+09:46:52 - INFO - === PASSO 2: Submeter email no site ===
+09:46:52 - INFO - Navegando para https://myfiestatrial.com
+09:46:55 - INFO - Preenchendo formulário de email...
+09:46:56 - INFO - Email submetido, aguardando redirecionamento...
+09:46:56 - INFO - === PASSO 3: Aguardar página de verificação ===
+09:46:59 - INFO - Redirecionado para página de verificação: https://myfiestatrial.com/verify/WWNDNK2UE2SGXPUDBXVIUGHBB2LKKEIT
+09:46:59 - INFO - === PASSO 4: Aguardar código por email ===
+09:46:59 - INFO - Aguardando email em larkspur73823@gmail.com...
+09:47:11 - INFO - ✓ Código encontrado: 710232
+09:47:11 - INFO - Código obtido: 710232
+09:47:11 - INFO - === PASSO 5: Submeter código de verificação ===
+09:47:11 - INFO - Preenchendo código de verificação: 710232
+09:47:11 - INFO - Encontrados 6 inputs visíveis
+09:47:11 - INFO - Preenchendo dígito 1: 7
+09:47:15 - INFO - Preenchendo dígito 2: 1
+09:47:19 - INFO - Preenchendo dígito 3: 0
+09:47:19 - INFO - Preenchendo dígito 4: 2
+09:47:20 - INFO - Preenchendo dígito 5: 3
+09:47:21 - INFO - Preenchendo dígito 6: 2
+09:47:25 - INFO - Botão de verificação clicado
+09:47:26 - INFO - Código submetido
+09:47:26 - INFO - === PASSO 6: Aguardar página final ===
+09:47:56 - ERROR - Erro ao aguardar página final: Timeout 30000ms exceeded.
+=========================== logs ===========================
+waiting for navigation to "**/plan/**" until 'load'
+============================================================
+09:47:56 - ERROR - === DIAGNÓSTICO DA PÁGINA ===
+09:47:56 - ERROR - URL atual: https://myfiestatrial.com/verify/WWNDNK2UE2SGXPUDBXVIUGHBB2LKKEIT
+09:47:56 - ERROR - Título: Seamless Streaming, Unrivaled Quality at Great Prices! — IPTVFiesta
+09:47:56 - ERROR - Conteúdo visível: Grab 48 hours of FREE IPTV now!
+
+Kindly check your email for the verification code
+
+A code has been sent to the email address you provided: la********************@gmail.com
+
+Not allowed user.
+Validate
+Didn't receive the code? Resend
+09:47:56 - ERROR - =============================
+09:47:56 - INFO - Proxy removido (falhou): socks5://79.172.212.71:1080 (27 restantes)
+09:47:56 - WARNING - Tentativa 1 falhou
+09:47:56 - INFO - 
+============================================================
+09:47:56 - INFO - TENTATIVA 2/15
+09:47:56 - INFO - ============================================================
+09:47:56 - INFO - Próximo proxy: socks5://167.71.42.89:1080 (26 restantes)
+09:47:56 - INFO - Próximo proxy: socks5://193.29.224.20:1080 (25 restantes)
+09:47:56 - INFO - Próximo proxy: socks5://144.31.192.13:1080 (24 restantes)
+09:47:56 - INFO - Próximo proxy: socks5://206.123.156.234:12354 (23 restantes)
+09:47:56 - INFO - Próximo proxy: socks5://85.155.96.109:1080 (22 restantes)
+09:47:56 - INFO - 🔍 A testar 5 proxies em paralelo... (5/500 testadas)
+09:47:57 - INFO - ✅ socks5://193.29.224.20:1080 → 1.3s (status 200)
+09:48:08 - INFO - 🏆 Melhor proxy: socks5://193.29.224.20:1080 (1.3s)
+09:48:08 - INFO - Proxy removido (falhou): socks5://167.71.42.89:1080 (26 restantes)
+09:48:08 - INFO - Proxy removido (falhou): socks5://144.31.192.13:1080 (25 restantes)
+09:48:08 - INFO - Proxy removido (falhou): socks5://206.123.156.234:12354 (24 restantes)
+09:48:08 - INFO - Proxy removido (falhou): socks5://85.155.96.109:1080 (23 restantes)
+09:48:09 - INFO - ✓ Proxy ativado: socks5://193.29.224.20:1080
+09:48:09 - INFO - Browser inicializado
+09:48:09 - INFO - Browser minimizado (3 janela(s))
+09:48:09 - INFO - === PASSO 1: Criar email temporário ===
+09:48:09 - INFO - A usar Gmail pessoal com plus-addressing...
+09:48:09 - INFO - ✓ Gmail gerado: larkspur73823+nu30nbh5@gmail.com
+09:48:09 - INFO - Email criado: larkspur73823+nu30nbh5@gmail.com
+09:48:09 - INFO - === PASSO 2: Submeter email no site ===
+09:48:09 - INFO - Navegando para https://myfiestatrial.com
+09:48:19 - INFO - Preenchendo formulário de email...
+09:48:22 - INFO - Email submetido, aguardando redirecionamento...
+09:48:22 - INFO - === PASSO 3: Aguardar página de verificação ===
+09:48:30 - INFO - Redirecionado para página de verificação: https://myfiestatrial.com/verify/73N2L4B6UKS7UEHYV2P5STSS4S5IOAC3
+09:48:30 - INFO - === PASSO 4: Aguardar código por email ===
+09:48:30 - INFO - Aguardando email em larkspur73823@gmail.com...
+09:48:37 - INFO - ✓ Código encontrado: 748268
+09:48:37 - INFO - Código obtido: 748268
+09:48:37 - INFO - === PASSO 5: Submeter código de verificação ===
+09:48:37 - INFO - Preenchendo código de verificação: 748268
+09:48:37 - INFO - Encontrados 6 inputs visíveis
+09:48:37 - INFO - Preenchendo dígito 1: 7
+09:48:38 - INFO - Preenchendo dígito 2: 4
+09:48:38 - INFO - Preenchendo dígito 3: 8
+09:48:39 - INFO - Preenchendo dígito 4: 2
+09:48:40 - INFO - Preenchendo dígito 5: 6
+09:48:40 - INFO - Preenchendo dígito 6: 8
+09:48:41 - INFO - Botão de verificação clicado
+09:48:42 - INFO - Código submetido
+09:48:42 - INFO - === PASSO 6: Aguardar página final ===
+09:48:56 - INFO - Redirecionado para página final: https://myfiestatrial.com/plan/larkspur73823+nu30nbh5@gmail.com/238384-324295
+09:48:57 - INFO - === PASSO 7: Extrair credenciais ===
+09:48:57 - INFO - Encontrados 5 blocos formkit
+09:48:57 - INFO -   username -> TV-23838484508193
+09:48:57 - INFO -   passwrord -> 407361249003
+09:48:57 - INFO -   dns/domain -> http://trial.ifiesta.net
+09:48:57 - INFO -   epg (tv guide) -> http://trial.ifiesta.net/xmltv.php?username=TV-23838484508193&password=407361249003
+09:48:57 - INFO -   m3u playlist -> http://trial.ifiesta.net/playlist/TV-23838484508193/407361249003/m3u_plus
+09:48:57 - INFO - Credenciais extraídas: 5 campos encontrados
+09:48:57 - INFO - Automação completada com sucesso!
+09:48:58 - INFO - Browser fechado
+09:48:58 - INFO - Terminal restaurado ao comportamento normal
+15:17:38 - INFO - A preparar foco do terminal...
+15:17:38 - INFO - Minimizadas 31 janelas
+15:17:39 - INFO - Terminal definido como sempre-no-topo
+15:17:39 - INFO - ============================================================
+15:17:39 - INFO - IPTV Fiesta Automatizador - Iniciando...
+15:17:39 - INFO - ============================================================
+15:17:39 - INFO - Usando Gmail pessoal com plus-addressing
+15:17:39 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+15:17:41 - INFO - ✅ 13 proxies obtidas do ProxyScrape (de 13 disponíveis)
+15:17:41 - INFO - ✅ 13 proxies do ProxyScrape carregadas
+15:17:41 - INFO - ✅ Total: 13 proxies disponíveis
+15:17:41 - INFO - Próximo proxy: socks5://141.147.10.92:555 (12 restantes)
+15:17:41 - INFO - Próximo proxy: socks5://212.113.99.167:10800 (11 restantes)
+15:17:41 - INFO - Próximo proxy: socks5://191.44.118.236:1080 (10 restantes)
+15:17:41 - INFO - Próximo proxy: socks5://62.133.62.27:1082 (9 restantes)
+15:17:41 - INFO - Próximo proxy: socks5://31.77.145.95:1080 (8 restantes)
+15:17:41 - INFO - 🔍 A testar 5 proxies em paralelo... (5/500 testadas)
+15:17:53 - INFO - Proxy removido (falhou): socks5://141.147.10.92:555 (12 restantes)
+15:17:53 - INFO - Proxy removido (falhou): socks5://212.113.99.167:10800 (11 restantes)
+15:17:53 - INFO - Proxy removido (falhou): socks5://191.44.118.236:1080 (10 restantes)
+15:17:53 - INFO - Proxy removido (falhou): socks5://62.133.62.27:1082 (9 restantes)
+15:17:53 - INFO - Proxy removido (falhou): socks5://31.77.145.95:1080 (8 restantes)
+15:17:53 - INFO - Batch descartado (8 proxies restantes)
+15:17:53 - INFO - Próximo proxy: socks5://213.136.92.91:1080 (7 restantes)
+15:17:53 - INFO - Próximo proxy: socks5://5.255.113.177:1080 (6 restantes)
+15:17:53 - INFO - Próximo proxy: socks5://31.76.15.189:1080 (5 restantes)
+15:17:53 - INFO - Próximo proxy: socks5://139.28.240.202:1082 (4 restantes)
+15:17:53 - INFO - Próximo proxy: socks5://130.49.187.61:1082 (3 restantes)
+15:17:53 - INFO - 🔍 A testar 5 proxies em paralelo... (10/500 testadas)
+15:18:05 - INFO - Proxy removido (falhou): socks5://213.136.92.91:1080 (7 restantes)
+15:18:05 - INFO - Proxy removido (falhou): socks5://5.255.113.177:1080 (6 restantes)
+15:18:05 - INFO - Proxy removido (falhou): socks5://31.76.15.189:1080 (5 restantes)
+15:18:05 - INFO - Proxy removido (falhou): socks5://139.28.240.202:1082 (4 restantes)
+15:18:05 - INFO - Proxy removido (falhou): socks5://130.49.187.61:1082 (3 restantes)
+15:18:05 - INFO - Batch descartado (3 proxies restantes)
+15:18:05 - INFO - Próximo proxy: socks5://77.110.102.252:1080 (2 restantes)
+15:18:05 - INFO - Próximo proxy: socks5://45.144.54.40:1080 (1 restantes)
+15:18:05 - INFO - Próximo proxy: socks5://144.91.111.48:1088 (0 restantes)
+15:18:05 - INFO - 🔄 A refrescar lista de proxies do ProxyScrape...
+15:18:05 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+15:18:05 - INFO - ✅ 13 proxies obtidas do ProxyScrape (de 13 disponíveis)
+15:18:05 - INFO - ✅ 0 proxies novas adicionadas (3 total)
+15:18:05 - WARNING - Todos os proxies já foram tentados, a reiniciar lista...
+15:18:05 - INFO - Próximo proxy: socks5://77.110.102.252:1080 (2 restantes)
+15:18:05 - INFO - Próximo proxy: socks5://45.144.54.40:1080 (1 restantes)
+15:18:05 - INFO - 🔍 A testar 5 proxies em paralelo... (15/500 testadas)
+15:18:17 - INFO - Proxy removido (falhou): socks5://77.110.102.252:1080 (2 restantes)
+15:18:17 - INFO - Proxy removido (falhou): socks5://45.144.54.40:1080 (1 restantes)
+15:18:17 - INFO - Proxy removido (falhou): socks5://144.91.111.48:1088 (0 restantes)
+15:18:17 - INFO - Batch descartado (0 proxies restantes)
+15:18:17 - WARNING - Nenhum proxy rápido encontrado após 15 testes
+15:18:17 - INFO - A refrescar lista de proxies...
+15:18:17 - INFO - 🔄 A refrescar lista de proxies do ProxyScrape...
+15:18:17 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+15:18:17 - INFO - ✅ 13 proxies obtidas do ProxyScrape (de 13 disponíveis)
+15:18:17 - WARNING - ⚠️ Nenhuma proxy nova encontrada
+15:18:17 - WARNING - Sem proxies funcionais disponíveis
+15:18:17 - ERROR - Todas as tentativas falharam
+15:18:17 - INFO - Browser fechado
+15:18:17 - ERROR - Automação falhou.
+15:18:17 - INFO - Terminal restaurado ao comportamento normal
+15:35:03 - INFO - A preparar foco do terminal...
+15:35:03 - INFO - Minimizadas 33 janelas
+15:35:03 - INFO - Terminal definido como sempre-no-topo
+15:35:03 - INFO - ============================================================
+15:35:03 - INFO - IPTV Fiesta Automatizador - Iniciando...
+15:35:03 - INFO - ============================================================
+15:35:03 - INFO - Usando Gmail pessoal com plus-addressing
+15:35:03 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+15:35:05 - INFO - ✅ 16 proxies obtidas do ProxyScrape (de 16 disponíveis)
+15:35:05 - INFO - ✅ 16 proxies do ProxyScrape carregadas
+15:35:05 - INFO - ✅ Total: 16 proxies disponíveis
+15:35:05 - INFO - Próximo proxy: socks5://5.255.103.55:1080 (15 restantes)
+15:35:05 - INFO - Próximo proxy: socks5://95.85.233.144:18443 (14 restantes)
+15:35:05 - INFO - Próximo proxy: socks5://161.35.90.93:1083 (13 restantes)
+15:35:05 - INFO - Próximo proxy: socks5://83.147.216.208:1080 (12 restantes)
+15:35:05 - INFO - Próximo proxy: socks5://5.255.113.177:1080 (11 restantes)
+15:35:05 - INFO - 🔍 A testar 5 proxies em paralelo... (5/500 testadas)
+16:07:11 - WARNING - Não foi possível obter handle do terminal
+16:07:11 - INFO - ============================================================
+16:07:11 - INFO - IPTV Fiesta Automatizador - Iniciando...
+16:07:11 - INFO - ============================================================
+16:07:11 - INFO - Usando Gmail pessoal com plus-addressing
+16:07:11 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+16:07:15 - INFO - ✅ 16 proxies obtidas do ProxyScrape (de 16 disponíveis)
+16:07:15 - INFO - ✅ 16 proxies do ProxyScrape carregadas
+16:07:15 - INFO - ✅ Total: 16 proxies disponíveis
+16:07:15 - INFO - Próximo proxy: socks5://5.255.113.177:1080 (15 restantes)
+16:07:15 - INFO - Próximo proxy: socks5://5.45.119.70:1080 (14 restantes)
+16:07:15 - INFO - Próximo proxy: socks5://45.10.42.68:1080 (13 restantes)
+16:07:15 - INFO - Próximo proxy: socks5://45.133.210.241:1080 (12 restantes)
+16:07:15 - INFO - Próximo proxy: socks5://150.241.115.185:1080 (11 restantes)
+16:07:23 - INFO - ✅ socks5://45.10.42.68:1080 → 7.8s (status 200)
+16:07:23 - INFO - ✅ socks5://5.45.119.70:1080 → 8.3s (status 200)
+16:07:27 - INFO - Proxy removido (falhou): socks5://5.255.113.177:1080 (15 restantes)
+16:07:27 - INFO - Proxy removido (falhou): socks5://5.45.119.70:1080 (14 restantes)
+16:07:27 - INFO - Proxy removido (falhou): socks5://45.133.210.241:1080 (13 restantes)
+16:07:27 - INFO - Proxy removido (falhou): socks5://150.241.115.185:1080 (12 restantes)
+16:07:27 - INFO - === PASSO 1: Criar email temporário ===
+16:07:27 - INFO - A usar Gmail pessoal com plus-addressing...
+16:07:27 - INFO - ✓ Gmail gerado: larkspur73823+lgeho6d4@gmail.com
+16:07:27 - INFO - Email criado: larkspur73823+lgeho6d4@gmail.com
+16:07:27 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:07:33 - ERROR - Erro na automação: name 'token_el' is not defined
+16:07:33 - INFO - Proxy removido (falhou): socks5://45.10.42.68:1080 (11 restantes)
+16:07:33 - INFO - 
+============================================================
+16:07:33 - INFO - TENTATIVA 2/15
+16:07:33 - INFO - ============================================================
+16:07:33 - INFO - Próximo proxy: socks5://191.44.118.236:1080 (10 restantes)
+16:07:33 - INFO - Próximo proxy: socks5://151.115.99.193:10006 (9 restantes)
+16:07:33 - INFO - Próximo proxy: socks5://157.90.113.23:9052 (8 restantes)
+16:07:33 - INFO - Próximo proxy: socks5://195.211.124.50:1080 (7 restantes)
+16:07:33 - INFO - Próximo proxy: socks5://47.245.143.17:10808 (6 restantes)
+16:07:39 - INFO - ✅ socks5://191.44.118.236:1080 → 6.3s (status 200)
+16:07:40 - INFO - ✅ socks5://151.115.99.193:10006 → 7.1s (status 200)
+16:07:46 - INFO - Proxy removido (falhou): socks5://151.115.99.193:10006 (10 restantes)
+16:07:46 - INFO - Proxy removido (falhou): socks5://157.90.113.23:9052 (9 restantes)
+16:07:46 - INFO - Proxy removido (falhou): socks5://195.211.124.50:1080 (8 restantes)
+16:07:46 - INFO - Proxy removido (falhou): socks5://47.245.143.17:10808 (7 restantes)
+16:07:46 - INFO - === PASSO 1: Criar email temporário ===
+16:07:46 - INFO - A usar Gmail pessoal com plus-addressing...
+16:07:46 - INFO - ✓ Gmail gerado: larkspur73823+frk8e02k@gmail.com
+16:07:46 - INFO - Email criado: larkspur73823+frk8e02k@gmail.com
+16:07:46 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:07:53 - ERROR - Erro na automação: name 'token_el' is not defined
+16:07:53 - INFO - Proxy removido (falhou): socks5://191.44.118.236:1080 (6 restantes)
+16:07:53 - INFO - 
+============================================================
+16:07:53 - INFO - TENTATIVA 3/15
+16:07:53 - INFO - ============================================================
+16:07:53 - INFO - Próximo proxy: socks5://213.136.92.91:1080 (5 restantes)
+16:07:53 - INFO - Próximo proxy: socks5://38.244.128.46:1080 (4 restantes)
+16:07:53 - INFO - Próximo proxy: socks5://45.144.54.40:1080 (3 restantes)
+16:07:53 - INFO - Próximo proxy: socks5://194.163.174.78:1084 (2 restantes)
+16:07:53 - INFO - Próximo proxy: socks5://152.228.134.176:48080 (1 restantes)
+16:07:58 - INFO - ✅ socks5://38.244.128.46:1080 → 5.5s (status 200)
+16:07:58 - INFO - ✅ socks5://45.144.54.40:1080 → 5.5s (status 200)
+16:07:58 - INFO - ✅ socks5://213.136.92.91:1080 → 5.5s (status 200)
+16:08:05 - INFO - Proxy removido (falhou): socks5://213.136.92.91:1080 (5 restantes)
+16:08:05 - INFO - Proxy removido (falhou): socks5://45.144.54.40:1080 (4 restantes)
+16:08:05 - INFO - Proxy removido (falhou): socks5://194.163.174.78:1084 (3 restantes)
+16:08:05 - INFO - Proxy removido (falhou): socks5://152.228.134.176:48080 (2 restantes)
+16:08:05 - INFO - === PASSO 1: Criar email temporário ===
+16:08:05 - INFO - A usar Gmail pessoal com plus-addressing...
+16:08:05 - INFO - ✓ Gmail gerado: larkspur73823+oeeeigj3@gmail.com
+16:08:05 - INFO - Email criado: larkspur73823+oeeeigj3@gmail.com
+16:08:05 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:08:11 - ERROR - Erro na automação: name 'token_el' is not defined
+16:08:11 - INFO - Proxy removido (falhou): socks5://38.244.128.46:1080 (1 restantes)
+16:08:11 - INFO - 
+============================================================
+16:08:11 - INFO - TENTATIVA 4/15
+16:08:11 - INFO - ============================================================
+16:08:11 - INFO - Próximo proxy: socks5://109.120.176.68:1080 (0 restantes)
+16:08:11 - INFO - 🔄 A refrescar lista de proxies do ProxyScrape...
+16:08:11 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+16:08:11 - INFO - ✅ 16 proxies obtidas do ProxyScrape (de 16 disponíveis)
+16:08:11 - INFO - ✅ 0 proxies novas adicionadas (1 total)
+16:08:11 - WARNING - Todos os proxies já foram tentados, a reiniciar lista...
+16:08:11 - INFO - Próximo proxy: socks5://109.120.176.68:1080 (0 restantes)
+16:08:11 - INFO - 🔄 A refrescar lista de proxies do ProxyScrape...
+16:08:11 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+16:08:11 - INFO - ✅ 16 proxies obtidas do ProxyScrape (de 16 disponíveis)
+16:08:11 - INFO - ✅ 0 proxies novas adicionadas (1 total)
+16:08:11 - WARNING - Todos os proxies já foram tentados, a reiniciar lista...
+16:08:11 - INFO - Próximo proxy: socks5://109.120.176.68:1080 (0 restantes)
+16:08:11 - INFO - 🔄 A refrescar lista de proxies do ProxyScrape...
+16:08:11 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+16:08:11 - INFO - ✅ 16 proxies obtidas do ProxyScrape (de 16 disponíveis)
+16:08:11 - INFO - ✅ 0 proxies novas adicionadas (1 total)
+16:08:11 - WARNING - Todos os proxies já foram tentados, a reiniciar lista...
+16:08:11 - INFO - Próximo proxy: socks5://109.120.176.68:1080 (0 restantes)
+16:08:11 - INFO - 🔄 A refrescar lista de proxies do ProxyScrape...
+16:08:11 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+16:08:11 - INFO - ✅ 16 proxies obtidas do ProxyScrape (de 16 disponíveis)
+16:08:11 - INFO - ✅ 0 proxies novas adicionadas (1 total)
+16:08:11 - WARNING - Todos os proxies já foram tentados, a reiniciar lista...
+16:08:11 - INFO - Próximo proxy: socks5://109.120.176.68:1080 (0 restantes)
+16:08:23 - INFO - Proxy removido (falhou): socks5://109.120.176.68:1080 (0 restantes)
+16:08:23 - INFO - === PASSO 1: Criar email temporário ===
+16:08:23 - INFO - A usar Gmail pessoal com plus-addressing...
+16:08:23 - INFO - ✓ Gmail gerado: larkspur73823+uif4k42s@gmail.com
+16:08:23 - INFO - Email criado: larkspur73823+uif4k42s@gmail.com
+16:08:23 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:08:29 - ERROR - Erro na automação: name 'token_el' is not defined
+16:08:29 - INFO - 
+============================================================
+16:08:29 - INFO - TENTATIVA 5/15
+16:08:29 - INFO - ============================================================
+16:08:29 - INFO - === PASSO 1: Criar email temporário ===
+16:08:29 - INFO - A usar Gmail pessoal com plus-addressing...
+16:08:29 - INFO - ✓ Gmail gerado: larkspur73823+2tf99zne@gmail.com
+16:08:29 - INFO - Email criado: larkspur73823+2tf99zne@gmail.com
+16:08:29 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:08:31 - ERROR - Erro na automação: name 'token_el' is not defined
+16:08:31 - INFO - 
+============================================================
+16:08:31 - INFO - TENTATIVA 6/15
+16:08:31 - INFO - ============================================================
+16:08:31 - INFO - === PASSO 1: Criar email temporário ===
+16:08:31 - INFO - A usar Gmail pessoal com plus-addressing...
+16:08:31 - INFO - ✓ Gmail gerado: larkspur73823+zjqb283a@gmail.com
+16:08:31 - INFO - Email criado: larkspur73823+zjqb283a@gmail.com
+16:08:31 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:08:33 - ERROR - Erro na automação: name 'token_el' is not defined
+16:08:33 - INFO - 
+============================================================
+16:08:33 - INFO - TENTATIVA 7/15
+16:08:33 - INFO - ============================================================
+16:08:33 - INFO - === PASSO 1: Criar email temporário ===
+16:08:33 - INFO - A usar Gmail pessoal com plus-addressing...
+16:08:33 - INFO - ✓ Gmail gerado: larkspur73823+jb1mbk4b@gmail.com
+16:08:33 - INFO - Email criado: larkspur73823+jb1mbk4b@gmail.com
+16:08:33 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:08:34 - WARNING - Não foi possível obter handle do terminal
+16:08:34 - INFO - ============================================================
+16:08:34 - INFO - IPTV Fiesta Automatizador - Iniciando...
+16:08:34 - INFO - ============================================================
+16:08:34 - INFO - Usando Gmail pessoal com plus-addressing
+16:08:34 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+16:08:35 - ERROR - Erro na automação: name 'token_el' is not defined
+16:08:35 - INFO - 
+============================================================
+16:08:35 - INFO - TENTATIVA 8/15
+16:08:35 - INFO - ============================================================
+16:08:35 - INFO - === PASSO 1: Criar email temporário ===
+16:08:35 - INFO - A usar Gmail pessoal com plus-addressing...
+16:08:35 - INFO - ✓ Gmail gerado: larkspur73823+pu9qxsy2@gmail.com
+16:08:35 - INFO - Email criado: larkspur73823+pu9qxsy2@gmail.com
+16:08:35 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:08:37 - INFO - ✅ 16 proxies obtidas do ProxyScrape (de 16 disponíveis)
+16:08:37 - INFO - ✅ 16 proxies do ProxyScrape carregadas
+16:08:37 - INFO - ✅ Total: 16 proxies disponíveis
+16:08:37 - ERROR - Erro na automação: name 'token_el' is not defined
+16:08:37 - INFO - 
+============================================================
+16:08:37 - INFO - TENTATIVA 9/15
+16:08:37 - INFO - ============================================================
+16:08:37 - INFO - Próximo proxy: socks5://157.90.113.23:9052 (15 restantes)
+16:08:37 - INFO - Próximo proxy: socks5://151.115.99.193:10006 (14 restantes)
+16:08:37 - INFO - Próximo proxy: socks5://47.245.143.17:10808 (13 restantes)
+16:08:37 - INFO - Próximo proxy: socks5://5.255.113.177:1080 (12 restantes)
+16:08:37 - INFO - Próximo proxy: socks5://45.10.42.68:1080 (11 restantes)
+16:08:38 - INFO - === PASSO 1: Criar email temporário ===
+16:08:38 - INFO - A usar Gmail pessoal com plus-addressing...
+16:08:38 - INFO - ✓ Gmail gerado: larkspur73823+wkijvavq@gmail.com
+16:08:38 - INFO - Email criado: larkspur73823+wkijvavq@gmail.com
+16:08:38 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:08:40 - ERROR - Erro na automação: name 'token_el' is not defined
+16:08:40 - INFO - 
+============================================================
+16:08:40 - INFO - TENTATIVA 10/15
+16:08:40 - INFO - ============================================================
+16:08:40 - INFO - === PASSO 1: Criar email temporário ===
+16:08:40 - INFO - A usar Gmail pessoal com plus-addressing...
+16:08:40 - INFO - ✓ Gmail gerado: larkspur73823+nq4i2t9o@gmail.com
+16:08:40 - INFO - Email criado: larkspur73823+nq4i2t9o@gmail.com
+16:08:41 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:08:43 - ERROR - Erro na automação: name 'token_el' is not defined
+16:08:43 - INFO - 
+============================================================
+16:08:43 - INFO - TENTATIVA 11/15
+16:08:43 - INFO - ============================================================
+16:08:43 - INFO - === PASSO 1: Criar email temporário ===
+16:08:43 - INFO - A usar Gmail pessoal com plus-addressing...
+16:08:43 - INFO - ✓ Gmail gerado: larkspur73823+6xqnazox@gmail.com
+16:08:43 - INFO - Email criado: larkspur73823+6xqnazox@gmail.com
+16:08:43 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:08:44 - INFO - ✅ socks5://45.10.42.68:1080 → 6.9s (status 200)
+16:08:45 - ERROR - Erro na automação: name 'token_el' is not defined
+16:08:45 - INFO - 
+============================================================
+16:08:45 - INFO - TENTATIVA 12/15
+16:08:45 - INFO - ============================================================
+16:08:45 - INFO - === PASSO 1: Criar email temporário ===
+16:08:45 - INFO - A usar Gmail pessoal com plus-addressing...
+16:08:45 - INFO - ✓ Gmail gerado: larkspur73823+wqq0oo9j@gmail.com
+16:08:45 - INFO - Email criado: larkspur73823+wqq0oo9j@gmail.com
+16:08:45 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:08:46 - INFO - ✅ socks5://5.255.113.177:1080 → 8.2s (status 200)
+16:08:46 - INFO - ✅ socks5://151.115.99.193:10006 → 9.0s (status 200)
+16:08:47 - ERROR - Erro na automação: name 'token_el' is not defined
+16:08:47 - INFO - 
+============================================================
+16:08:47 - INFO - TENTATIVA 13/15
+16:08:47 - INFO - ============================================================
+16:08:47 - INFO - === PASSO 1: Criar email temporário ===
+16:08:47 - INFO - A usar Gmail pessoal com plus-addressing...
+16:08:47 - INFO - ✓ Gmail gerado: larkspur73823+yfdlw0pv@gmail.com
+16:08:47 - INFO - Email criado: larkspur73823+yfdlw0pv@gmail.com
+16:08:47 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:08:49 - ERROR - Erro na automação: name 'token_el' is not defined
+16:08:49 - INFO - 
+============================================================
+16:08:49 - INFO - TENTATIVA 14/15
+16:08:49 - INFO - ============================================================
+16:08:49 - INFO - === PASSO 1: Criar email temporário ===
+16:08:49 - INFO - A usar Gmail pessoal com plus-addressing...
+16:08:49 - INFO - ✓ Gmail gerado: larkspur73823+tf9xhiuw@gmail.com
+16:08:49 - INFO - Email criado: larkspur73823+tf9xhiuw@gmail.com
+16:08:49 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:08:50 - INFO - Proxy removido (falhou): socks5://157.90.113.23:9052 (15 restantes)
+16:08:50 - INFO - Proxy removido (falhou): socks5://151.115.99.193:10006 (14 restantes)
+16:08:50 - INFO - Proxy removido (falhou): socks5://47.245.143.17:10808 (13 restantes)
+16:08:50 - INFO - Proxy removido (falhou): socks5://5.255.113.177:1080 (12 restantes)
+16:08:51 - INFO - === PASSO 1: Criar email temporário ===
+16:08:51 - INFO - A usar Gmail pessoal com plus-addressing...
+16:08:51 - INFO - ✓ Gmail gerado: larkspur73823+daclkg30@gmail.com
+16:08:51 - INFO - Email criado: larkspur73823+daclkg30@gmail.com
+16:08:51 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:08:51 - ERROR - Erro na automação: name 'token_el' is not defined
+16:08:51 - INFO - 
+============================================================
+16:08:51 - INFO - TENTATIVA 15/15
+16:08:51 - INFO - ============================================================
+16:08:51 - INFO - === PASSO 1: Criar email temporário ===
+16:08:51 - INFO - A usar Gmail pessoal com plus-addressing...
+16:08:51 - INFO - ✓ Gmail gerado: larkspur73823+jnsi9gj5@gmail.com
+16:08:51 - INFO - Email criado: larkspur73823+jnsi9gj5@gmail.com
+16:08:52 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:08:54 - ERROR - Erro na automação: name 'token_el' is not defined
+16:08:54 - ERROR - Todas as tentativas falharam
+16:08:54 - ERROR - Automação falhou.
+16:08:57 - INFO - === PASSO 3: Configurar produto ===
+16:09:01 - INFO - === PASSO 4: Aceder ao checkout ===
+16:09:02 - INFO - === PASSO 5: Solicitar código de verificação ===
+16:09:04 - INFO - Resposta envio código: {"result":"success","response":"Email Sent"}
+16:09:04 - INFO - === PASSO 6: Aguardar código por email ===
+16:09:04 - INFO - Aguardando email em larkspur73823@gmail.com...
+16:09:20 - WARNING - Não foi possível obter handle do terminal
+16:09:20 - INFO - ============================================================
+16:09:20 - INFO - IPTV Fiesta Automatizador - Iniciando...
+16:09:20 - INFO - ============================================================
+16:09:20 - INFO - Usando Gmail pessoal com plus-addressing
+16:09:20 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+16:09:24 - INFO - ✅ 16 proxies obtidas do ProxyScrape (de 16 disponíveis)
+16:09:24 - INFO - ✅ 16 proxies do ProxyScrape carregadas
+16:09:24 - INFO - ✅ Total: 16 proxies disponíveis
+16:09:24 - INFO - Próximo proxy: socks5://157.90.113.23:9052 (15 restantes)
+16:09:24 - INFO - Próximo proxy: socks5://38.244.128.46:1080 (14 restantes)
+16:09:24 - INFO - Próximo proxy: socks5://5.45.119.70:1080 (13 restantes)
+16:09:24 - INFO - Próximo proxy: socks5://45.10.42.68:1080 (12 restantes)
+16:09:24 - INFO - Próximo proxy: socks5://191.44.118.236:1080 (11 restantes)
+16:09:28 - INFO - ✅ socks5://191.44.118.236:1080 → 4.3s (status 200)
+16:09:31 - INFO - ✅ socks5://5.45.119.70:1080 → 7.3s (status 200)
+16:09:32 - INFO - ✅ socks5://38.244.128.46:1080 → 8.3s (status 200)
+16:09:34 - INFO - ✅ socks5://45.10.42.68:1080 → 10.0s (status 200)
+16:09:37 - INFO - Proxy removido (falhou): socks5://157.90.113.23:9052 (15 restantes)
+16:09:37 - INFO - Proxy removido (falhou): socks5://38.244.128.46:1080 (14 restantes)
+16:09:37 - INFO - Proxy removido (falhou): socks5://5.45.119.70:1080 (13 restantes)
+16:09:37 - INFO - Proxy removido (falhou): socks5://45.10.42.68:1080 (12 restantes)
+16:09:37 - INFO - === PASSO 1: Criar email temporário ===
+16:09:37 - INFO - A usar Gmail pessoal com plus-addressing...
+16:09:37 - INFO - ✓ Gmail gerado: larkspur73823+l39ds6qd@gmail.com
+16:09:37 - INFO - Email criado: larkspur73823+l39ds6qd@gmail.com
+16:09:37 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:09:44 - INFO - === PASSO 3: Configurar produto ===
+16:09:47 - INFO - === PASSO 4: Aceder ao checkout ===
+16:09:48 - INFO - === PASSO 5: Solicitar código de verificação ===
+16:09:50 - INFO - Resposta envio código: {"result":"success","response":"Email Sent"}
+16:09:50 - INFO - === PASSO 6: Aguardar código por email ===
+16:09:50 - INFO - Aguardando email em larkspur73823@gmail.com...
+16:10:14 - INFO - ✓ Código encontrado: 8YLL9001HH
+16:10:14 - INFO - ✓ Código obtido: 8YLL9001HH
+16:10:14 - INFO - === PASSO 7: Validar código no servidor ===
+16:10:19 - INFO - Resposta validação código: '1'
+16:10:19 - INFO - ✓ Código verificado com sucesso!
+16:10:19 - INFO - === PASSO 8: Finalizar checkout ===
+16:10:29 - INFO - Checkout submetido. URL: https://serviceportal.store/cart.php?a=complete
+16:10:30 - INFO - === PASSO 9: Extrair credenciais ===
+16:10:31 - INFO - Acedendo aos detalhes do produto: https://serviceportal.store/clientarea.php?action=productdetails&id=64895
+16:10:34 - INFO - Credenciais extraídas com sucesso!
+16:13:19 - INFO - ✓ Código encontrado: 6K0RXE3M17
+16:13:19 - INFO - ✓ Código obtido: 6K0RXE3M17
+16:13:19 - INFO - === PASSO 7: Validar código no servidor ===
+16:13:24 - INFO - Resposta validação código: '1'
+16:13:24 - INFO - ✓ Código verificado com sucesso!
+16:13:24 - INFO - === PASSO 8: Finalizar checkout ===
+16:13:33 - INFO - Checkout submetido. URL: https://serviceportal.store/cart.php?a=complete
+16:13:33 - INFO - === PASSO 9: Extrair credenciais ===
+16:13:34 - INFO - Acedendo aos detalhes do produto: https://serviceportal.store/clientarea.php?action=productdetails&id=64896
+16:13:37 - INFO - Credenciais extraídas com sucesso!
+16:14:20 - INFO - A preparar foco do terminal...
+16:14:20 - INFO - Minimizadas 34 janelas
+16:14:20 - INFO - Terminal definido como sempre-no-topo
+16:14:21 - INFO - ============================================================
+16:14:21 - INFO - IPTV Fiesta Automatizador - Iniciando...
+16:14:21 - INFO - ============================================================
+16:14:21 - INFO - Usando Gmail pessoal com plus-addressing
+16:14:21 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+16:14:24 - INFO - ✅ 11 proxies obtidas do ProxyScrape (de 11 disponíveis)
+16:14:24 - INFO - ✅ 11 proxies do ProxyScrape carregadas
+16:14:24 - INFO - ✅ Total: 11 proxies disponíveis
+16:14:24 - INFO - Próximo proxy: socks5://139.28.240.202:1082 (10 restantes)
+16:14:24 - INFO - Próximo proxy: socks5://191.44.118.236:1080 (9 restantes)
+16:14:24 - INFO - Próximo proxy: socks5://66.163.119.55:10006 (8 restantes)
+16:14:24 - INFO - Próximo proxy: socks5://77.110.102.252:1080 (7 restantes)
+16:14:24 - INFO - Próximo proxy: socks5://45.192.9.27:1080 (6 restantes)
+16:14:31 - INFO - ✅ socks5://191.44.118.236:1080 → 6.1s (status 200)
+16:14:31 - INFO - ✅ socks5://66.163.119.55:10006 → 6.2s (status 200)
+16:14:34 - INFO - ✅ socks5://45.192.9.27:1080 → 9.6s (status 200)
+16:14:36 - INFO - Proxy removido (falhou): socks5://139.28.240.202:1082 (10 restantes)
+16:14:36 - INFO - Proxy removido (falhou): socks5://66.163.119.55:10006 (9 restantes)
+16:14:36 - INFO - Proxy removido (falhou): socks5://77.110.102.252:1080 (8 restantes)
+16:14:36 - INFO - Proxy removido (falhou): socks5://45.192.9.27:1080 (7 restantes)
+16:14:36 - INFO - === PASSO 1: Criar email temporário ===
+16:14:36 - INFO - A usar Gmail pessoal com plus-addressing...
+16:14:36 - INFO - ✓ Gmail gerado: larkspur73823+zwbkf9hp@gmail.com
+16:14:36 - INFO - Email criado: larkspur73823+zwbkf9hp@gmail.com
+16:14:37 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:14:43 - INFO - === PASSO 3: Configurar produto ===
+16:14:47 - INFO - === PASSO 4: Aceder ao checkout ===
+16:14:49 - INFO - === PASSO 5: Solicitar código de verificação ===
+16:14:51 - INFO - Resposta envio código: {"result":"success","response":"Email Sent"}
+16:14:51 - INFO - === PASSO 6: Aguardar código por email ===
+16:14:51 - INFO - Aguardando email em larkspur73823@gmail.com...
+16:16:48 - INFO - ✓ Código encontrado: MBJ7HRTJNB
+16:16:48 - INFO - ✓ Código obtido: MBJ7HRTJNB
+16:16:48 - INFO - === PASSO 7: Validar código no servidor ===
+16:16:51 - INFO - Resposta validação código: '1'
+16:16:51 - INFO - ✓ Código verificado com sucesso!
+16:16:51 - INFO - === PASSO 8: Finalizar checkout ===
+16:16:53 - INFO - Checkout submetido. URL: https://serviceportal.store/cart.php?a=checkout
+16:16:53 - INFO - === PASSO 9: Extrair credenciais ===
+16:16:54 - INFO - Credenciais extraídas com sucesso!
+16:16:54 - INFO - Terminal restaurado ao comportamento normal
+16:17:25 - INFO - A preparar foco do terminal...
+16:17:25 - INFO - Minimizadas 34 janelas
+16:17:25 - INFO - Terminal definido como sempre-no-topo
+16:17:25 - INFO - ============================================================
+16:17:25 - INFO - IPTV Fiesta Automatizador - Iniciando...
+16:17:25 - INFO - ============================================================
+16:17:25 - INFO - Usando Gmail pessoal com plus-addressing
+16:17:25 - INFO - 🔄 A obter proxies frescas do ProxyScrape...
+16:17:26 - INFO - ✅ 11 proxies obtidas do ProxyScrape (de 11 disponíveis)
+16:17:26 - INFO - ✅ 11 proxies do ProxyScrape carregadas
+16:17:26 - INFO - ✅ Total: 11 proxies disponíveis
+16:17:26 - INFO - Próximo proxy: socks5://191.44.118.236:1080 (10 restantes)
+16:17:26 - INFO - Próximo proxy: socks5://77.110.102.252:1080 (9 restantes)
+16:17:26 - INFO - Próximo proxy: socks5://45.10.42.68:1080 (8 restantes)
+16:17:26 - INFO - Próximo proxy: socks5://66.163.119.55:10006 (7 restantes)
+16:17:26 - INFO - Próximo proxy: socks5://89.19.214.171:1080 (6 restantes)
+16:17:28 - INFO - ✅ socks5://191.44.118.236:1080 → 1.8s (status 200)
+16:17:29 - INFO - ✅ socks5://66.163.119.55:10006 → 2.8s (status 200)
+16:17:30 - INFO - ✅ socks5://45.10.42.68:1080 → 4.0s (status 200)
+16:17:38 - INFO - Proxy removido (falhou): socks5://77.110.102.252:1080 (10 restantes)
+16:17:38 - INFO - Proxy removido (falhou): socks5://45.10.42.68:1080 (9 restantes)
+16:17:38 - INFO - Proxy removido (falhou): socks5://66.163.119.55:10006 (8 restantes)
+16:17:38 - INFO - Proxy removido (falhou): socks5://89.19.214.171:1080 (7 restantes)
+16:17:38 - INFO - === PASSO 1: Criar email temporário ===
+16:17:38 - INFO - A usar Gmail pessoal com plus-addressing...
+16:17:38 - INFO - ✓ Gmail gerado: larkspur73823+h61044rf@gmail.com
+16:17:38 - INFO - Email criado: larkspur73823+h61044rf@gmail.com
+16:17:38 - INFO - === PASSO 2: Aceder ao portal de trial ===
+16:17:41 - INFO - === PASSO 3: Configurar produto ===
+16:17:43 - INFO - === PASSO 4: Aceder ao checkout ===
+16:17:44 - INFO - === PASSO 5: Solicitar código de verificação ===
+16:17:46 - INFO - Resposta envio código: {"result":"success","response":"Email Sent"}
+16:17:46 - INFO - === PASSO 6: Aguardar código por email ===
+16:17:46 - INFO - Aguardando email em larkspur73823@gmail.com...
+16:18:24 - INFO - ✓ Código encontrado: 2T553Z7OGS
+16:18:24 - INFO - ✓ Código obtido: 2T553Z7OGS
+16:18:24 - INFO - === PASSO 7: Validar código no servidor ===
+16:18:26 - INFO - Resposta validação código: '1'
+16:18:26 - INFO - ✓ Código verificado com sucesso!
+16:18:26 - INFO - === PASSO 8: Finalizar checkout ===
+16:18:30 - INFO - Checkout submetido. URL: https://serviceportal.store/cart.php?a=checkout
+16:18:30 - INFO - === PASSO 9: Extrair credenciais ===
+16:18:32 - INFO - Credenciais extraídas com sucesso!
+16:18:32 - INFO - Terminal restaurado ao comportamento normal
