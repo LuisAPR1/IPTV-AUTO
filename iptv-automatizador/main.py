@@ -155,8 +155,8 @@ def main(headless: bool = False, verbose: bool = False) -> int:
         credentials = scraper.run_automation()
 
         if not credentials:
-            ui.error("Automação falhou. Verifica iptv_automatizador.log")
-            logger.error("Automação falhou.")
+            ui.error("Automação não concluída a 100%. Verifica erros_automacao.log e iptv_automatizador.log")
+            logger.error("Automação falhou. Detalhes guardados em erros_automacao.log.")
             return 1
 
         # Mostrar credenciais no terminal

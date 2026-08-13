@@ -6,6 +6,7 @@ import logging
 import random
 import time
 import requests
+from datetime import datetime
 from typing import Optional, Dict, Any
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright, Page, Browser
@@ -15,7 +16,7 @@ from config import (
     BASE_URL, PORTAL_URL, HEADLESS, DEFAULT_TIMEOUT, NAVIGATION_TIMEOUT, USER_AGENT, 
     PROXY_URL, USE_TOR, TOR_PROXY, USE_PROXY_LIST, PROXY_LIST_FILE,
     USE_PROXYSCRAPE, PROXYSCRAPE_TYPES, PROXYSCRAPE_TIMEOUT,
-    PROXYSCRAPE_COUNTRY, PROXYSCRAPE_MAX, MAX_PROXY_RETRIES
+    PROXYSCRAPE_COUNTRY, PROXYSCRAPE_MAX, MAX_PROXY_RETRIES, ERROR_LOG_FILE
 )
 from proxy_manager import SimpleProxyManager
 from email_service import TempMailService
@@ -36,9 +37,12 @@ class IPTVScraper:
         self._current_proxy: Optional[str] = None
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": USER_AGENT})
+        self.current_step_name: str = "Início / Preparação"
+        self.last_email_created: str = ""
 
     def _ui_step(self, step_index: int, message: str = ""):
-        """Atualiza UI se disponível."""
+        """Atualiza UI se disponível e guarda o passo atual."""
+        self.current_step_name = f"Passo {step_index}: {message}" if message else f"Passo {step_index}"
         if self.ui:
             self.ui.update(step_index, message)
     
@@ -134,6 +138,7 @@ class IPTVScraper:
             self._ui_step(1, "Criando email temporário...")
             logger.info("=== PASSO 1: Criar email temporário ===")
             email = self.email_service.create_inbox()
+            self.last_email_created = email
             logger.info(f"Email criado: {email}")
 
             # 2. Aceder ao portal de trial
@@ -349,15 +354,18 @@ class IPTVScraper:
             credentials["url"] = f"{PORTAL_URL}/cart.php?a=complete"
 
             # Verificar se obtivemos pelo menos username e password
-            if credentials["username"] and credentials["password"]:
-                logger.info("✓ Todas as credenciais extraídas com sucesso!")
+            if credentials["username"] and credentials["password"] and credentials["m3u"]:
+                logger.info("✓ Todas as credenciais extraídas com sucesso a 100%!")
             else:
-                logger.warning("⚠ Algumas credenciais não foram encontradas.")
-                logger.warning(f"  Username: {'OK' if credentials['username'] else 'FALTA'}")
-                logger.warning(f"  Password: {'OK' if credentials['password'] else 'FALTA'}")
-                logger.warning(f"  DNS: {'OK' if credentials['dns'] else 'FALTA'}")
-                logger.warning(f"  M3U: {'OK' if credentials['m3u'] else 'FALTA'}")
-                logger.warning(f"  EPG: {'OK' if credentials['epg'] else 'FALTA'}")
+                missing = []
+                if not credentials["username"]: missing.append("Username")
+                if not credentials["password"]: missing.append("Password")
+                if not credentials["m3u"]: missing.append("M3U Playlist")
+                if not credentials["dns"]: missing.append("DNS / Server")
+                if not credentials["epg"]: missing.append("EPG")
+                
+                logger.warning(f"⚠ Extração incompleta. Campos em falta: {', '.join(missing)}")
+                
                 # Guardar HTML para debug
                 try:
                     debug_path = os.path.join(os.path.dirname(__file__), "debug_confirmation.html")
@@ -366,16 +374,51 @@ class IPTVScraper:
                     logger.info(f"HTML de confirmação guardado em: {debug_path}")
                 except Exception:
                     pass
+                
+                raise RuntimeError(f"Processo não completou a 100%: faltam dados essenciais ({', '.join(missing)})")
 
         except Exception as e:
             logger.error(f"Erro ao extrair credenciais: {e}")
             import traceback
             logger.debug(traceback.format_exc())
+            raise e
 
         return credentials
 
+    def _log_failure_to_file(self, attempt: int, total_attempts: int, error_msg: str, proxy_url: str = None, traceback_str: str = ""):
+        """Regista detalhes de qualquer falha / reinício do processo num ficheiro de log dedicado."""
+        try:
+            log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ERROR_LOG_FILE)
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            proxy_display = proxy_url if proxy_url else "Nenhum (Ligação direta / IP local)"
+            email_display = self.last_email_created if self.last_email_created else "N/A"
+            step_display = self.current_step_name if self.current_step_name else "Início / Preparação"
+            
+            divider = "=" * 75
+            entry = [
+                divider,
+                f"REGISTO DE FALHA - PROCESSO NÃO CONCLUÍDO A 100%",
+                f"Data e Hora    : {timestamp}",
+                f"Tentativa      : {attempt} de {total_attempts}",
+                f"Passo / Etapa  : {step_display}",
+                f"Proxy Utilizado: {proxy_display}",
+                f"Email Utilizado: {email_display}",
+                f"Motivo do Erro : {error_msg}",
+            ]
+            if traceback_str and traceback_str.strip():
+                entry.append(f"Traceback Técnico:\n{traceback_str.strip()}")
+            entry.append(divider + "\n\n")
+            
+            with open(log_path, "a", encoding="utf-8") as f:
+                f.write("\n".join(entry))
+            
+            logger.info(f"📁 Detalhes da falha guardados em: {ERROR_LOG_FILE}")
+        except Exception as ex:
+            logger.error(f"Não foi possível gravar no ficheiro de log de falhas: {ex}")
+
     def run_automation(self) -> Optional[Dict[str, str]]:
         """Executa a automação completa com retries."""
+        import traceback
         pm = self._get_proxy_manager()
         max_retries = MAX_PROXY_RETRIES if pm.has_proxies() else 3  # Tenta pelo menos 3 vezes se não houver proxies listados
 
@@ -395,11 +438,20 @@ class IPTVScraper:
                 if result is not None:
                     return result
             except Exception as e:
+                tb = traceback.format_exc()
                 logger.error(f"[ERRO TENTATIVA {attempt + 1}]: {e}")
+                self._log_failure_to_file(
+                    attempt=attempt + 1,
+                    total_attempts=max_retries,
+                    error_msg=str(e),
+                    proxy_url=proxy_url,
+                    traceback_str=tb
+                )
                 if attempt < max_retries - 1:
-                    logger.warning("Recomeçando o loop devido a falha anterior...")
+                    logger.warning(f"⚠️ Processo não concluído a 100%. A recomeçar o loop (Tentativa {attempt + 2}/{max_retries})...")
+                    logger.warning(f"ℹ️ Consulta '{ERROR_LOG_FILE}' para ver o motivo detalhado da falha.")
                 if proxy_url and pm.has_proxies():
                     pm.mark_failed(proxy_url)
 
-        logger.error("Todas as tentativas falharam")
+        logger.error(f"Todas as {max_retries} tentativas falharam. Consulta '{ERROR_LOG_FILE}' para mais detalhes.")
         return None
