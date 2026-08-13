@@ -1,5 +1,6 @@
 """Automação do site Fast CCCam / ServicePortal IPTV Trial usando Playwright e HTTP Fallback."""
 
+import os
 import re
 import logging
 import random
@@ -142,8 +143,7 @@ class IPTVScraper:
             r1 = self.session.get(trial_portal_url)
             
             if r1.status_code != 200 and "confproduct" not in r1.url:
-                logger.warning(f"Resposta inesperada no portal: {r1.status_code}")
-                return None
+                raise RuntimeError(f"Resposta inesperada no portal de trial (status code: {r1.status_code})")
             
             soup1 = BeautifulSoup(r1.text, "html.parser")
             token1_el = soup1.find("input", {"name": "token"})
@@ -178,16 +178,14 @@ class IPTVScraper:
             logger.info(f"Resposta envio código: {r_send.text}")
 
             if "success" not in r_send.text:
-                logger.error("Falha ao solicitar código de verificação")
-                return None
+                raise RuntimeError(f"Falha ao enviar código de verificação: {r_send.text}")
 
             # 6. Aguardar Código por IMAP
             self._ui_step(6, "Aguardando código no email...")
             logger.info("=== PASSO 6: Aguardar código por email ===")
             code = self.email_service.get_verification_code()
             if not code:
-                logger.error("Código de verificação não recebido a tempo")
-                return None
+                raise RuntimeError("Código de verificação não recebido por email (timeout)")
 
             logger.info(f"✓ Código obtido: {code}")
 
@@ -198,21 +196,31 @@ class IPTVScraper:
             logger.info(f"Resposta validação código: '{r_val.text.strip()}'")
 
             if r_val.text.strip() != "1":
-                logger.error("Código inválido ou rejeitado pelo servidor")
-                return None
+                raise RuntimeError(f"Validação de código falhou no servidor (resposta: '{r_val.text.strip()}')")
 
             logger.info("✓ Código verificado com sucesso!")
 
-            # 8. Submeter Checkout Completo
+            # 8. Re-obter token fresco (o anterior pode ter expirado após os AJAX calls)
             self._ui_step(7, "Finalizando encomenda do trial...")
             logger.info("=== PASSO 8: Finalizar checkout ===")
-            suffix = self.email_service.personal_service.generated_suffix or "user123"
+            r3_fresh = self.session.get(f"{PORTAL_URL}/cart.php?a=checkout")
+            soup3_fresh = BeautifulSoup(r3_fresh.text, "html.parser")
+            chk_form_fresh = soup3_fresh.find("form", {"id": "frmCheckout"})
+            if chk_form_fresh:
+                token_fresh_el = chk_form_fresh.find("input", {"name": "token"})
+            else:
+                token_fresh_el = soup3_fresh.find("input", {"name": "token"})
+            token_fresh = token_fresh_el.get("value") if token_fresh_el else token3
+            logger.info(f"Token fresco obtido: {token_fresh[:20]}...")
+
+            suffix = self.email_service.personal_service.generated_suffix or "user1234"
             fn = f"User{suffix[:4]}"
             ln = f"Test{suffix[4:]}"
-            pw = f"Pass#{suffix}!"
+            # Password simples alfanumérica (8-64 chars, sem caracteres especiais)
+            pw = f"Tr1alPass{suffix}"
 
             checkout_payload = {
-                "token": token3,
+                "token": token_fresh,
                 "submit": "true",
                 "custtype": "new",
                 "firstname": fn,
@@ -235,23 +243,42 @@ class IPTVScraper:
             r_checkout = self.session.post(f"{PORTAL_URL}/cart.php?a=checkout", data=checkout_payload)
             logger.info(f"Checkout submetido. URL: {r_checkout.url}")
 
-            # 9. Extrair Credenciais dos Serviços Activos
+            # Verificar se o checkout foi bem sucedido
+            if "a=complete" not in r_checkout.url:
+                err_msg = "Checkout não completou (não foi redirecionado para a=complete)"
+                soup_err = BeautifulSoup(r_checkout.text, "html.parser")
+                for alert in soup_err.find_all("div", class_=lambda c: c and "alert" in c):
+                    alert_text = alert.get_text(strip=True)
+                    if alert_text and "correct" in alert_text.lower():
+                        err_msg = f"Erro no checkout: {alert_text}"
+                raise RuntimeError(err_msg)
+
+            logger.info("✓ Checkout completado com sucesso!")
+
+            # 9. Extrair Credenciais da página de confirmação
             self._ui_step(7, "Extraindo credenciais do serviço IPTV...")
             logger.info("=== PASSO 9: Extrair credenciais ===")
-            credentials = self.extract_credentials(email, pw)
+            credentials = self.extract_credentials_from_confirmation(r_checkout.text)
             credentials['email_used'] = email
 
             self._ui_step(7, "Concluído com sucesso!")
             return credentials
 
         except Exception as e:
-            logger.error(f"Erro na automação: {e}")
+            logger.error(f"Erro na tentativa de automação: {e}")
             import traceback
             logger.debug(traceback.format_exc())
-            return None
+            raise e
 
-    def extract_credentials(self, email: str, account_pw: str) -> Dict[str, str]:
-        """Extrai credenciais IPTV da área de cliente ou serviço ativo.
+    def extract_credentials_from_confirmation(self, html: str) -> Dict[str, str]:
+        """Extrai credenciais IPTV da página de confirmação de encomenda (cart.php?a=complete).
+        
+        A página de confirmação contém as credenciais em texto:
+        - M3U URL: http://s1.dnspass.xyz/get.php?username=XXX&password=YYY&type=m3u_plus&output=ts
+        - EPG URL: http://s1.dnspass.xyz/xmltv.php?username=XXX&password=YYY
+        - Server URL: http://s1.dnspass.xyz:80
+        - Username: XXX
+        - Password: YYY
         
         Returns:
             Dict com username, password, dns, epg, m3u, url
@@ -262,86 +289,100 @@ class IPTVScraper:
             "dns": "",
             "epg": "",
             "m3u": "",
-            "url": f"{PORTAL_URL}/clientarea.php?action=services"
+            "url": ""
         }
 
         try:
-            r_services = self.session.get(f"{PORTAL_URL}/clientarea.php?action=services")
-            soup_services = BeautifulSoup(r_services.text, "html.parser")
+            soup = BeautifulSoup(html, "html.parser")
+            page_text = soup.get_text(separator="\n", strip=True)
             
-            # Procurar link dos detalhes do produto
-            detail_url = None
-            for row in soup_services.find_all("tr"):
-                row_text = row.get_text(strip=True)
-                if any(w in row_text for w in ["IPTV", "Trial", "Active", "Pending"]):
-                    for a in row.find_all("a", href=True):
-                        if "productdetails" in a["href"]:
-                            detail_url = f"{PORTAL_URL}/" + a["href"].lstrip('/')
-                            break
+            logger.debug(f"Texto da página de confirmação ({len(page_text)} chars)")
 
-            if not detail_url:
-                # Tentar encontrar qualquer link de productdetails
-                for a in soup_services.find_all("a", href=True):
-                    if "productdetails" in a["href"]:
-                        detail_url = f"{PORTAL_URL}/" + a["href"].lstrip('/')
-                        break
+            # 1. Extrair M3U URL (mais fiável — contém username e password nos parâmetros)
+            m3u_match = re.search(r'(https?://[^\s]+/get\.php\?username=[^\s]+)', page_text)
+            if m3u_match:
+                credentials["m3u"] = m3u_match.group(1)
+                logger.info(f"✓ M3U URL: {credentials['m3u']}")
 
-            if detail_url:
-                logger.info(f"Acedendo aos detalhes do produto: {detail_url}")
-                r_detail = self.session.get(detail_url)
-                soup_detail = BeautifulSoup(r_detail.text, "html.parser")
-                credentials['url'] = detail_url
+            # 2. Extrair EPG URL
+            epg_match = re.search(r'(https?://[^\s]+/xmltv\.php\?username=[^\s]+)', page_text)
+            if epg_match:
+                credentials["epg"] = epg_match.group(1)
+                logger.info(f"✓ EPG URL: {credentials['epg']}")
 
-                # Mapear inputs e labels
-                for outer in soup_detail.find_all(["div", "tr", "p"]):
-                    text = outer.get_text(separator=" ", strip=True).lower()
-                    inp = outer.find(["input", "textarea"])
-                    val = inp.get("value") if inp else ""
+            # 3. Extrair Username e Password — PRIORIDADE do M3U URL (texto colado causa problemas)
+            if credentials["m3u"]:
+                u_match = re.search(r'username=([^&\s]+)', credentials["m3u"])
+                p_match = re.search(r'password=([^&\s]+)', credentials["m3u"])
+                if u_match:
+                    credentials["username"] = u_match.group(1)
+                    logger.info(f"✓ Username: {credentials['username']}")
+                if p_match:
+                    credentials["password"] = p_match.group(1)
+                    logger.info(f"✓ Password: {credentials['password']}")
 
-                    if "username" in text and not credentials["username"]:
-                        credentials["username"] = val or self._extract_value_after(text, "username")
-                    if ("password" in text or "pass" in text) and not credentials["password"]:
-                        credentials["password"] = val or self._extract_value_after(text, "password")
-                    if ("host" in text or "dns" in text or "server" in text) and not credentials["dns"]:
-                        credentials["dns"] = val or self._extract_value_after(text, "dns")
-                    if "epg" in text and not credentials["epg"]:
-                        credentials["epg"] = val or self._extract_value_after(text, "epg")
-                    if ("m3u" in text or "playlist" in text) and not credentials["m3u"]:
-                        credentials["m3u"] = val or self._extract_value_after(text, "m3u")
-
-            # Fallbacks com a conta criada se não encontrou nos campos
+            # Fallback texto: tentar "Username: XXX" se não veio do M3U
             if not credentials["username"]:
-                credentials["username"] = email.split('@')[0]
-            if not credentials["password"]:
-                credentials["password"] = account_pw
-            if not credentials["dns"]:
-                credentials["dns"] = "http://line.fastip.tv:8080"
-            if not credentials["m3u"]:
-                credentials["m3u"] = f"{credentials['dns']}/get.php?username={credentials['username']}&password={credentials['password']}&type=m3u_plus&output=ts"
-            if not credentials["epg"]:
-                credentials["epg"] = f"{credentials['dns']}/xmltv.php?username={credentials['username']}&password={credentials['password']}"
+                user_match = re.search(r'Username:\s*([A-Za-z0-9_]+)', page_text)
+                if user_match:
+                    credentials["username"] = user_match.group(1)
+                    logger.info(f"✓ Username (texto): {credentials['username']}")
 
-            logger.info("Credenciais extraídas com sucesso!")
+            if not credentials["password"]:
+                pw_match = re.search(r'Password:\s*([A-Za-z0-9_]+)', page_text)
+                if pw_match:
+                    credentials["password"] = pw_match.group(1)
+                    logger.info(f"✓ Password (texto): {credentials['password']}")
+
+            # 4. Extrair Server URL / DNS — primeiro tentar "Server URL:", senão extrair do M3U host
+            server_match = re.search(r'Server\s*URL:\s*(https?://[^\s\nA-Z]+)', page_text)
+            if server_match:
+                credentials["dns"] = server_match.group(1)
+                logger.info(f"✓ DNS/Server: {credentials['dns']}")
+            elif credentials["m3u"]:
+                dns_match = re.search(r'(https?://[^/\s]+)', credentials["m3u"])
+                if dns_match:
+                    credentials["dns"] = dns_match.group(1)
+                    logger.info(f"✓ DNS (do M3U): {credentials['dns']}")
+
+            # 5. URL da confirmação
+            credentials["url"] = f"{PORTAL_URL}/cart.php?a=complete"
+
+            # Verificar se obtivemos pelo menos username e password
+            if credentials["username"] and credentials["password"]:
+                logger.info("✓ Todas as credenciais extraídas com sucesso!")
+            else:
+                logger.warning("⚠ Algumas credenciais não foram encontradas.")
+                logger.warning(f"  Username: {'OK' if credentials['username'] else 'FALTA'}")
+                logger.warning(f"  Password: {'OK' if credentials['password'] else 'FALTA'}")
+                logger.warning(f"  DNS: {'OK' if credentials['dns'] else 'FALTA'}")
+                logger.warning(f"  M3U: {'OK' if credentials['m3u'] else 'FALTA'}")
+                logger.warning(f"  EPG: {'OK' if credentials['epg'] else 'FALTA'}")
+                # Guardar HTML para debug
+                try:
+                    debug_path = os.path.join(os.path.dirname(__file__), "debug_confirmation.html")
+                    with open(debug_path, "w", encoding="utf-8") as f:
+                        f.write(html)
+                    logger.info(f"HTML de confirmação guardado em: {debug_path}")
+                except Exception:
+                    pass
 
         except Exception as e:
             logger.error(f"Erro ao extrair credenciais: {e}")
+            import traceback
+            logger.debug(traceback.format_exc())
 
         return credentials
-
-    def _extract_value_after(self, text: str, keyword: str) -> str:
-        """Helper para extrair valor após uma palavra-chave."""
-        m = re.search(f"{keyword}[:\\s]+([^\\s]+)", text, re.IGNORECASE)
-        return m.group(1) if m else ""
 
     def run_automation(self) -> Optional[Dict[str, str]]:
         """Executa a automação completa com retries."""
         pm = self._get_proxy_manager()
-        max_retries = MAX_PROXY_RETRIES if pm.has_proxies() else 1
+        max_retries = MAX_PROXY_RETRIES if pm.has_proxies() else 3  # Tenta pelo menos 3 vezes se não houver proxies listados
 
         for attempt in range(max_retries):
             if attempt > 0:
                 logger.info(f"\n{'=' * 60}")
-                logger.info(f"TENTATIVA {attempt + 1}/{max_retries}")
+                logger.info(f"RECOMEÇANDO O LOOP: TENTATIVA {attempt + 1}/{max_retries}")
                 logger.info(f"{'=' * 60}")
 
             proxy_url = None
@@ -349,13 +390,16 @@ class IPTVScraper:
                 self._ui_step(0, "A procurar proxy funcional...")
                 proxy_url = self._find_working_proxy(pm, max_tests=500)
 
-            result = self._run_single_attempt(proxy_url)
-
-            if result is not None:
-                return result
-
-            if proxy_url and pm.has_proxies():
-                pm.mark_failed(proxy_url)
+            try:
+                result = self._run_single_attempt(proxy_url)
+                if result is not None:
+                    return result
+            except Exception as e:
+                logger.error(f"[ERRO TENTATIVA {attempt + 1}]: {e}")
+                if attempt < max_retries - 1:
+                    logger.warning("Recomeçando o loop devido a falha anterior...")
+                if proxy_url and pm.has_proxies():
+                    pm.mark_failed(proxy_url)
 
         logger.error("Todas as tentativas falharam")
         return None

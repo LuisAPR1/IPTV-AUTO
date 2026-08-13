@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Environment variables
+.env
+iptv-automatizador/.env
+
+# Logs
+*.log
+iptv-automatizador/*.log
+iptv_automatizador.log
+iptv-automatizador/iptv_automatizador.log
+
+# Databases / config storage
+proxy_counter.json
+iptv-automatizador/proxy_counter.json
+
+# Temporary / diagnostic files
+*.html
+iptv-automatizador/*.html
+trash/
+iptv-automatizador/trash/
+debug_confirmation.html
+iptv-automatizador/debug_confirmation.html
