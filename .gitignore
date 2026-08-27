@@ -37,10 +37,14 @@ iptv-automatizador/iptv_automatizador.log
 # Databases / config storage
 proxy_counter.json
 iptv-automatizador/proxy_counter.json
+latest_trial.json
+iptv-automatizador/latest_trial.json
 
 # Temporary / diagnostic files
 *.html
+!templates/*.html
 iptv-automatizador/*.html
+!iptv-automatizador/templates/*.html
 trash/
 iptv-automatizador/trash/
 debug_confirmation.html

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="pt" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IPTV Trial Generator - Mobile Web</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            900: '#4c1d95',
+                        }
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%': { boxShadow: '0 0 15px -3px rgba(139, 92, 246, 0.4)' },
+                            '100%': { boxShadow: '0 0 25px 5px rgba(139, 92, 246, 0.8)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Touch feedback & smooth mobile scroll */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+        }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glow-button {
+            background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+            box-shadow: 0 4px 20px -2px rgba(124, 58, 237, 0.5);
+        }
+        .glow-button:active {
+            transform: scale(0.98);
+        }
+        .progress-bar-fill {
+            transition: width 0.4s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-3 sm:p-6 antialiased selection:bg-purple-500 selection:text-white">
+
+    <!-- Top Header -->
+    <header class="w-full max-w-lg mx-auto mb-4 flex items-center justify-between pt-2">
+        <div class="flex items-center space-x-2.5">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                <i data-lucide="tv" class="w-5 h-5 text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
+                    IPTV Trial Auto
+                    <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30">48h Free</span>
+                </h1>
+                <p class="text-xs text-gray-400">Gerador rápido e automático</p>
+            </div>
+        </div>
+
+        <button id="btn-refresh-latest" onclick="loadLatestTrial()" title="Ver último trial gerado" class="p-2 rounded-xl glass-card text-gray-400 hover:text-white active:scale-95 transition">
+            <i data-lucide="history" class="w-5 h-5"></i>
+        </button>
+    </header>
+
+    <!-- Main Mobile Container -->
+    <main class="w-full max-w-lg mx-auto flex-1 flex flex-col space-y-4">
+
+        <!-- Main Action Card -->
+        <section class="glass-card rounded-2xl p-5 sm:p-6 relative overflow-hidden shadow-2xl">
+            <!-- Background Glow Decor -->
+            <div class="absolute -top-16 -right-16 w-36 h-36 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-16 -left-16 w-36 h-36 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col items-center text-center space-y-4">
+                
+                <!-- Icon Circle -->
+                <div id="hero-icon" class="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 transition-all duration-300">
+                    <i data-lucide="zap" class="w-8 h-8"></i>
+                </div>
+
+                <div class="space-y-1">
+                    <h2 class="text-xl font-bold text-white tracking-tight" id="hero-title">Pronto para Gerar</h2>
+                    <p class="text-xs text-gray-400" id="hero-desc">Clica no botão abaixo para iniciar a automação completa do trial de 48 horas.</p>
+                </div>
+
+                <!-- Big Action Button -->
+                <button id="btn-generate" onclick="startGeneration()" class="w-full py-4 px-6 rounded-xl font-semibold text-base text-white glow-button flex items-center justify-center space-x-2 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                    <i data-lucide="play" class="w-5 h-5 fill-current"></i>
+                    <span>⚡ Gerar Novo Trial 48h</span>
+                </button>
+
+                <!-- Status Live Badge -->
+                <div id="status-badge" class="hidden items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-800/80 border border-gray-700 text-gray-300">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                    <span id="status-badge-text">Iniciando automação...</span>
+                </div>
+
+            </div>
+
+            <!-- Progress Area (Hidden initially) -->
+            <div id="progress-area" class="hidden mt-6 pt-5 border-t border-gray-800 space-y-3">
+                <div class="flex justify-between items-center text-xs">
+                    <span id="progress-step-text" class="font-medium text-purple-400 flex items-center gap-1.5">
+                        <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
+                        <span id="step-label">Passo 1/8: A preparar...</span>
+                    </span>
+                    <span id="progress-percent" class="font-bold text-gray-300">0%</span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full h-2.5 bg-gray-800/90 rounded-full overflow-hidden p-0.5 border border-gray-700/50">
+                    <div id="progress-bar" class="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full progress-bar-fill w-[5%]"></div>
+                </div>
+
+                <!-- Live Logs / Status Log Details -->
+                <div id="log-details" class="p-2.5 rounded-lg bg-gray-950/70 border border-gray-800/70 text-[11px] font-mono text-gray-400 max-h-24 overflow-y-auto space-y-1">
+                    <div class="text-gray-500">A iniciar sessão de automação segura...</div>
+                </div>
+            </div>
+
+            <!-- Error Banner (Hidden initially) -->
+            <div id="error-banner" class="hidden mt-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs space-y-2">
+                <div class="flex items-start space-x-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5"></i>
+                    <div class="flex-1">
+                        <p class="font-semibold text-red-200" id="error-title">Erro na geração do trial</p>
+                        <p class="text-red-300/80 text-[11px] mt-0.5" id="error-message">Ocorreu um erro durante a automação.</p>
+                    </div>
+                </div>
+                <button onclick="startGeneration()" class="w-full py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-200 text-xs font-medium transition">
+                    Tentar Novamente
+                </button>
+            </div>
+        </section>
+
+        <!-- Result Card (Credentials) -->
+        <section id="results-card" class="hidden glass-card rounded-2xl p-5 sm:p-6 space-y-4 border-emerald-500/30 shadow-2xl">
+            <!-- Header Success -->
+            <div class="flex items-center justify-between pb-3 border-b border-gray-800">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                        <i data-lucide="check-circle" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Trial Gerado com Sucesso!</h3>
+                        <p class="text-[11px] text-emerald-400/80" id="result-timestamp">Válido por 48 horas</p>
+                    </div>
+                </div>
+
+                <button onclick="copyAllCredentials()" class="px-3 py-1.5 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 text-purple-300 text-xs font-semibold flex items-center space-x-1 transition active:scale-95">
+                    <i data-lucide="copy-check" class="w-3.5 h-3.5"></i>
+                    <span>Copiar Tudo</span>
+                </button>
+            </div>
+
+            <!-- Credential Fields List -->
+            <div class="space-y-2.5 text-xs">
+
+                <!-- Username -->
+                <div class="p-2.5 rounded-xl bg-gray-900/60 border border-gray-800 flex items-center justify-between">
+                    <div class="min-w-0 pr-2">
+                        <span class="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">Username</span>
+                        <span id="cred-username" class="font-mono font-semibold text-white truncate block text-sm select-all">--</span>
+                    </div>
+                    <button onclick="copyField('cred-username', this)" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition active:scale-90 flex-shrink-0">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Password -->
+                <div class="p-2.5 rounded-xl bg-gray-900/60 border border-gray-800 flex items-center justify-between">
+                    <div class="min-w-0 pr-2">
+                        <span class="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">Password</span>
+                        <span id="cred-password" class="font-mono font-semibold text-white truncate block text-sm select-all">--</span>
+                    </div>
+                    <button onclick="copyField('cred-password', this)" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition active:scale-90 flex-shrink-0">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- DNS / Host -->
+                <div class="p-2.5 rounded-xl bg-gray-900/60 border border-gray-800 flex items-center justify-between">
+                    <div class="min-w-0 pr-2">
+                        <span class="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">Host / DNS (Xtream Codes)</span>
+                        <span id="cred-dns" class="font-mono font-semibold text-purple-300 truncate block text-xs select-all">--</span>
+                    </div>
+                    <button onclick="copyField('cred-dns', this)" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition active:scale-90 flex-shrink-0">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- M3U Playlist URL -->
+                <div class="p-2.5 rounded-xl bg-gray-900/60 border border-gray-800 flex items-center justify-between">
+                    <div class="min-w-0 pr-2">
+                        <span class="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">M3U Playlist URL</span>
+                        <span id="cred-m3u" class="font-mono text-gray-300 truncate block text-[11px] select-all">--</span>
+                    </div>
+                    <div class="flex items-center space-x-1 flex-shrink-0">
+                        <button onclick="copyField('cred-m3u', this)" title="Copiar URL" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition active:scale-90">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                        <a id="btn-download-m3u" href="#" target="_blank" download="iptv_trial.m3u" title="Descarregar M3U" class="p-2 rounded-lg bg-purple-600/30 text-purple-300 hover:bg-purple-600/50 transition active:scale-90">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- EPG URL -->
+                <div class="p-2.5 rounded-xl bg-gray-900/60 border border-gray-800 flex items-center justify-between">
+                    <div class="min-w-0 pr-2">
+                        <span class="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">EPG TV Guide</span>
+                        <span id="cred-epg" class="font-mono text-gray-300 truncate block text-[11px] select-all">--</span>
+                    </div>
+                    <button onclick="copyField('cred-epg', this)" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition active:scale-90 flex-shrink-0">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Email Usado -->
+                <div class="p-2.5 rounded-xl bg-gray-900/40 border border-gray-800/60 flex items-center justify-between">
+                    <div class="min-w-0 pr-2">
+                        <span class="text-[10px] uppercase font-bold text-gray-500 block tracking-wider">Email Temporário</span>
+                        <span id="cred-email" class="font-mono text-gray-400 truncate block text-[11px]">--</span>
+                    </div>
+                    <button onclick="copyField('cred-email', this)" class="p-1.5 rounded-lg bg-gray-800/60 text-gray-400 hover:text-gray-200 transition active:scale-90 flex-shrink-0">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- App Config Tips -->
+            <div class="p-3 rounded-xl bg-indigo-950/30 border border-indigo-900/40 text-[11px] text-indigo-200/90 space-y-1">
+                <div class="font-bold flex items-center gap-1 text-indigo-300">
+                    <i data-lucide="smartphone" class="w-3.5 h-3.5"></i> Como usar na TV / Telemóvel:
+                </div>
+                <p>1. Abre a app (ex: <b>IPTV Smarters Pro</b> ou <b>TiviMate</b>).</p>
+                <p>2. Escolhe <b>Xtream Codes API</b> e insere o Host, Username e Password acima.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-lg mx-auto text-center py-3 text-[11px] text-gray-500">
+        IPTV Trial Auto • Powered by LuisR
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-emerald-500 text-white font-medium text-xs shadow-lg shadow-emerald-500/30 flex items-center space-x-1.5 opacity-0 pointer-events-none transition-all duration-300 z-50">
+        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+        <span id="toast-text">Copiado com sucesso!</span>
+    </div>
+
+    <!-- Frontend Logic -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        let pollInterval = null;
+        let currentJobId = null;
+
+        // Auto-check for latest trial on load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLatestTrial(true);
+        });
+
+        async function startGeneration() {
+            const btn = document.getElementById('btn-generate');
+            const progressArea = document.getElementById('progress-area');
+            const errorBanner = document.getElementById('error-banner');
+            const statusBadge = document.getElementById('status-badge');
+            const heroIcon = document.getElementById('hero-icon');
+            const heroTitle = document.getElementById('hero-title');
+            const heroDesc = document.getElementById('hero-desc');
+            const resultsCard = document.getElementById('results-card');
+
+            // Reset UI states
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i><span>A Gerar Trial...</span>`;
+            lucide.createIcons();
+
+            progressArea.classList.remove('hidden');
+            errorBanner.classList.add('hidden');
+            statusBadge.classList.remove('hidden');
+            statusBadge.classList.add('flex');
+            document.getElementById('status-badge-text').innerText = 'Iniciando automação...';
+            
+            heroIcon.className = 'w-16 h-16 rounded-2xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 animate-pulse';
+            heroTitle.innerText = 'Processo em Execução';
+            heroDesc.innerText = 'A ligar aos serviços de email e ao portal IPTV...';
+
+            updateProgress(1, 'A preparar ambiente e criar email...', 10);
+            clearLogs();
+
+            try {
+                const response = await fetch('/api/generate', { method: 'POST' });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Falha ao iniciar processo');
+                }
+
+                currentJobId = data.job_id;
+                startPolling(currentJobId);
+
+            } catch (err) {
+                showError('Falha ao Iniciar', err.message || 'Não foi possível comunicar com o servidor.');
+                resetButton();
+            }
+        }
+
+        function startPolling(jobId) {
+            if (pollInterval) clearInterval(pollInterval);
+
+            pollInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`/api/progress/${jobId}`);
+                    if (!res.ok) throw new Error('Falha ao obter estado');
+                    const job = await res.json();
+
+                    if (job.status === 'running') {
+                        updateProgress(job.step, job.message, job.percent);
+                        if (job.log) addLog(job.log);
+                    } else if (job.status === 'completed') {
+                        clearInterval(pollInterval);
+                        updateProgress(8, 'Concluído com sucesso!', 100);
+                        showResults(job.credentials);
+                        resetButton(true);
+                    } else if (job.status === 'error') {
+                        clearInterval(pollInterval);
+                        showError('Erro na Automação', job.error || 'O processo falhou antes de obter credenciais.');
+                        resetButton(false);
+                    }
+                } catch (e) {
+                    console.error('Polling error:', e);
+                }
+            }, 1000);
+        }
+
+        function updateProgress(step, message, percent) {
+            document.getElementById('step-label').innerText = `Passo ${step}/8: ${message}`;
+            document.getElementById('progress-percent').innerText = `${percent}%`;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('status-badge-text').innerText = message;
+            addLog(message);
+        }
+
+        function clearLogs() {
+            document.getElementById('log-details').innerHTML = '';
+        }
+
+        function addLog(msg) {
+            if (!msg) return;
+            const logBox = document.getElementById('log-details');
+            const time = new Date().toLocaleTimeString('pt-PT');
+            const row = document.createElement('div');
+            row.innerHTML = `<span class="text-gray-500">[${time}]</span> ${msg}`;
+            logBox.appendChild(row);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function showResults(creds) {
+            if (!creds) return;
+            const card = document.getElementById('results-card');
+            const heroIcon = document.getElementById('hero-icon');
+            const heroTitle = document.getElementById('hero-title');
+            const heroDesc = document.getElementById('hero-desc');
+
+            document.getElementById('cred-username').innerText = creds.username || 'N/A';
+            document.getElementById('cred-password').innerText = creds.password || 'N/A';
+            document.getElementById('cred-dns').innerText = creds.dns || 'N/A';
+            document.getElementById('cred-m3u').innerText = creds.m3u || 'N/A';
+            document.getElementById('cred-epg').innerText = creds.epg || 'N/A';
+            document.getElementById('cred-email').innerText = creds.email_used || 'N/A';
+            document.getElementById('result-timestamp').innerText = `Gerado a ${new Date().toLocaleDateString('pt-PT')} ${new Date().toLocaleTimeString('pt-PT')}`;
+
+            if (creds.m3u) {
+                document.getElementById('btn-download-m3u').href = `/api/download-m3u?url=${encodeURIComponent(creds.m3u)}`;
+            }
+
+            card.classList.remove('hidden');
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            heroIcon.className = 'w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400';
+            heroIcon.innerHTML = `<i data-lucide="check-check" class="w-8 h-8"></i>`;
+            heroTitle.innerText = 'Trial Pronto a Usar!';
+            heroDesc.innerText = 'Credenciais extraídas com sucesso. Copia os dados abaixo para a tua aplicação.';
+            lucide.createIcons();
+        }
+
+        function showError(title, msg) {
+            const errorBanner = document.getElementById('error-banner');
+            document.getElementById('error-title').innerText = title;
+            document.getElementById('error-message').innerText = msg;
+            errorBanner.classList.remove('hidden');
+
+            const heroIcon = document.getElementById('hero-icon');
+            heroIcon.className = 'w-16 h-16 rounded-2xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400';
+            heroIcon.innerHTML = `<i data-lucide="x-circle" class="w-8 h-8"></i>`;
+            document.getElementById('hero-title').innerText = 'Falha na Tentativa';
+            document.getElementById('hero-desc').innerText = 'Ocorreu um erro durante o processo. Podes tentar novamente.';
+            lucide.createIcons();
+        }
+
+        function resetButton(success = false) {
+            const btn = document.getElementById('btn-generate');
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="zap" class="w-5 h-5 fill-current"></i><span>⚡ Gerar Novo Trial 48h</span>`;
+            lucide.createIcons();
+            document.getElementById('status-badge').classList.add('hidden');
+            document.getElementById('status-badge').classList.remove('flex');
+        }
+
+        async function loadLatestTrial(silent = false) {
+            try {
+                const res = await fetch('/api/latest');
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data && data.username) {
+                    showResults(data);
+                    if (!silent) showToast('Último trial carregado!');
+                } else if (!silent) {
+                    showToast('Nenhum trial gerado anteriormente.');
+                }
+            } catch (e) {
+                if (!silent) showToast('Erro ao carregar histórico.');
+            }
+        }
+
+        function copyField(elementId, btn) {
+            const el = document.getElementById(elementId);
+            const text = el.innerText.trim();
+            if (!text || text === '--') return;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`Copiado: ${text.length > 25 ? text.substring(0, 25) + '...' : text}`);
+                if (btn) {
+                    const orig = btn.innerHTML;
+                    btn.innerHTML = `<i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>`;
+                    lucide.createIcons();
+                    setTimeout(() => {
+                        btn.innerHTML = orig;
+                        lucide.createIcons();
+                    }, 1500);
+                }
+            }).catch(() => {
+                showToast('Erro ao copiar. Seleciona manualmente.');
+            });
+        }
+
+        function copyAllCredentials() {
+            const u = document.getElementById('cred-username').innerText.trim();
+            const p = document.getElementById('cred-password').innerText.trim();
+            const d = document.getElementById('cred-dns').innerText.trim();
+            const m = document.getElementById('cred-m3u').innerText.trim();
+            const e = document.getElementById('cred-epg').innerText.trim();
+
+            const text = `=== IPTV TRIAL 48H ===\nUsername: ${u}\nPassword: ${p}\nDNS/Host: ${d}\nM3U Playlist: ${m}\nEPG TV Guide: ${e}\n======================`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Todas as credenciais copiadas!');
+            }).catch(() => {
+                showToast('Erro ao copiar dados.');
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').innerText = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>

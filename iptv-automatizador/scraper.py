@@ -27,9 +27,10 @@ logger = logging.getLogger(__name__)
 class IPTVScraper:
     """Automação do site Fast CCCam / ServicePortal IPTV Trial."""
 
-    def __init__(self, email_service: TempMailService, ui=None):
+    def __init__(self, email_service: TempMailService, ui=None, progress_callback=None):
         self.email_service = email_service
         self.ui = ui
+        self.progress_callback = progress_callback
         self.browser: Optional[Browser] = None
         self.page: Optional[Page] = None
         self.playwright = None
@@ -45,6 +46,11 @@ class IPTVScraper:
         self.current_step_name = f"Passo {step_index}: {message}" if message else f"Passo {step_index}"
         if self.ui:
             self.ui.update(step_index, message)
+        if self.progress_callback:
+            try:
+                self.progress_callback(step_index, message)
+            except Exception:
+                pass
     
     def _get_proxy_manager(self) -> SimpleProxyManager:
         """Inicializa o proxy manager."""
