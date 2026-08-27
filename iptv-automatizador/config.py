@@ -22,8 +22,8 @@ PORTAL_URL = "https://serviceportal.store"
 # Cria emails como: tua_conta+abc123@gmail.com
 # Requer App Password (não a password normal!)
 # Como criar: https://myaccount.google.com/apppasswords
-PERSONAL_GMAIL = os.getenv("PERSONAL_GMAIL", "")  # ex: "tua_conta@gmail.com"
-GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "")  # App Password de 16 caracteres
+PERSONAL_GMAIL = os.getenv("PERSONAL_GMAIL", "").strip().strip('"\'')  # ex: "tua_conta@gmail.com"
+GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "").replace(" ", "").strip().strip('"\'')  # App Password de 16 caracteres
 
 # Usar Gmail pessoal (única opção - mais fiável)
 USE_PERSONAL_GMAIL = bool(PERSONAL_GMAIL and GMAIL_APP_PASSWORD)

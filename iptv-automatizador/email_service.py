@@ -103,6 +103,17 @@ class PersonalGmailService:
             mail.logout()
             return result
             
+        except imaplib.IMAP4.error as e:
+            err_str = str(e)
+            if "AUTHENTICATIONFAILED" in err_str or "Invalid credentials" in err_str:
+                logger.error(f"❌ Erro de Autenticação no Gmail ({self.gmail_account}): Palavra-passe de aplicação rejeitada.")
+                logger.error("👉 Como resolver:")
+                logger.error("  1. Verifica se a variável GMAIL_APP_PASSWORD no Render contém a Palavra-passe de Aplicação de 16 letras (e NÃO a password normal da conta Google).")
+                logger.error("  2. Gera uma nova em: https://myaccount.google.com/apppasswords")
+                logger.error("  3. Confirma se o IMAP está ATIVO em: Gmail -> Definições -> Encaminhamento e POP/IMAP -> Ativar IMAP.")
+            else:
+                logger.warning(f"Erro IMAP: {e}")
+            return []
         except Exception as e:
             logger.warning(f"Erro IMAP: {e}")
             return []
