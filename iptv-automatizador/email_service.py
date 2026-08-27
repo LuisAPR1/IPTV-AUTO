@@ -36,8 +36,8 @@ class PersonalGmailService:
             gmail_account: Email base (ex: "tua_conta@gmail.com")
             app_password: App Password do Gmail (16 caracteres)
         """
-        self.gmail_account = gmail_account
-        self.app_password = app_password
+        self.gmail_account = gmail_account.strip() if gmail_account else ""
+        self.app_password = app_password.replace(" ", "").strip() if app_password else ""
         self.email: Optional[str] = None
         self.generated_suffix: Optional[str] = None
         self.imap_server = "imap.gmail.com"

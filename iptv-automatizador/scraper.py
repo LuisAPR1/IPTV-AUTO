@@ -9,9 +9,7 @@ import requests
 from datetime import datetime
 from typing import Optional, Dict, Any
 from bs4 import BeautifulSoup
-from playwright.sync_api import sync_playwright, Page, Browser
 
-from window_manager import minimize_chromium_windows
 from config import (
     BASE_URL, PORTAL_URL, HEADLESS, DEFAULT_TIMEOUT, NAVIGATION_TIMEOUT, USER_AGENT, 
     PROXY_URL, USE_TOR, TOR_PROXY, USE_PROXY_LIST, PROXY_LIST_FILE,
@@ -31,9 +29,6 @@ class IPTVScraper:
         self.email_service = email_service
         self.ui = ui
         self.progress_callback = progress_callback
-        self.browser: Optional[Browser] = None
-        self.page: Optional[Page] = None
-        self.playwright = None
         self.proxy_manager: Optional[SimpleProxyManager] = None
         self._current_proxy: Optional[str] = None
         self.session = requests.Session()
