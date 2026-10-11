@@ -128,6 +128,57 @@ class IPTVScraper:
         """Adiciona delay aleatório para simular comportamento humano."""
         time.sleep(random.uniform(min_seconds, max_seconds))
 
+    def _detect_payment_method(self, soup: BeautifulSoup) -> str:
+        """Auto-deteta o método de pagamento disponível na página de checkout.
+        
+        Procura inputs radio com name='paymentmethod' e retorna o valor do
+        primeiro que estiver checked, ou o primeiro disponível.
+        
+        Ordem de preferência:
+        1. Gateway marcado como checked (default do site)
+        2. 'creditcardmodule' (funciona para trials $0.00)
+        3. 'plisio' (crypto - alternativa)
+        4. Qualquer outro gateway disponível
+        5. Fallback: 'creditcardmodule'
+        
+        Returns:
+            str: Valor do paymentmethod a enviar no checkout
+        """
+        payment_inputs = soup.find_all("input", {"name": "paymentmethod"})
+        
+        if not payment_inputs:
+            logger.warning("Nenhum gateway encontrado na página. A usar 'creditcardmodule' como fallback.")
+            return "creditcardmodule"
+        
+        available = []
+        checked_value = None
+        
+        for inp in payment_inputs:
+            value = inp.get("value", "")
+            if value:
+                available.append(value)
+                if inp.get("checked") is not None:
+                    checked_value = value
+        
+        logger.info(f"Gateways disponíveis: {available}")
+        
+        # 1. Usar o que está checked por defeito
+        if checked_value:
+            logger.info(f"Gateway default (checked): {checked_value}")
+            return checked_value
+        
+        # 2. Ordem de preferência para trials gratuitos
+        preferred = ["creditcardmodule", "plisio"]
+        for pref in preferred:
+            if pref in available:
+                return pref
+        
+        # 3. Qualquer um disponível
+        if available:
+            return available[0]
+        
+        return "creditcardmodule"
+
     def _run_single_attempt(self, proxy_url: str = None) -> Optional[Dict[str, str]]:
         """Executa uma tentativa completa de obtenção de trial."""
         try:
@@ -219,6 +270,10 @@ class IPTVScraper:
             token_fresh = token_fresh_el.get("value") if token_fresh_el else token3
             logger.info(f"Token fresco obtido: {token_fresh[:20]}...")
 
+            # Auto-detetar método de pagamento disponível na página
+            payment_method = self._detect_payment_method(soup3_fresh)
+            logger.info(f"Método de pagamento selecionado: {payment_method}")
+
             suffix = self.email_service.personal_service.generated_suffix or "user1234"
             fn = f"User{suffix[:4]}"
             ln = f"Test{suffix[4:]}"
@@ -242,7 +297,7 @@ class IPTVScraper:
                 "country": "PT",
                 "password": pw,
                 "password2": pw,
-                "paymentmethod": "banktransfer",
+                "paymentmethod": payment_method,
                 "accepttos": "on"
             }
 
