@@ -334,18 +334,25 @@
             }
         }
 
+        let lastLoggedMessage = '';
+
         function startPolling(jobId) {
             if (pollInterval) clearInterval(pollInterval);
 
             pollInterval = setInterval(async () => {
                 try {
                     const res = await fetch(`/api/progress/${jobId}`);
+                    if (res.status === 404) {
+                        clearInterval(pollInterval);
+                        showError('Sessão Expirada', 'O servidor reiniciou a sessão. Clica em Tentar Novamente.');
+                        resetButton(false);
+                        return;
+                    }
                     if (!res.ok) throw new Error('Falha ao obter estado');
                     const job = await res.json();
 
                     if (job.status === 'running') {
                         updateProgress(job.step, job.message, job.percent);
-                        if (job.log) addLog(job.log);
                     } else if (job.status === 'completed') {
                         clearInterval(pollInterval);
                         updateProgress(8, 'Concluído com sucesso!', 100);
@@ -359,7 +366,7 @@
                 } catch (e) {
                     console.error('Polling error:', e);
                 }
-            }, 1000);
+            }, 1500);
         }
 
         function updateProgress(step, message, percent) {
@@ -367,10 +374,14 @@
             document.getElementById('progress-percent').innerText = `${percent}%`;
             document.getElementById('progress-bar').style.width = `${percent}%`;
             document.getElementById('status-badge-text').innerText = message;
-            addLog(message);
+            if (message && message !== lastLoggedMessage) {
+                lastLoggedMessage = message;
+                addLog(message);
+            }
         }
 
         function clearLogs() {
+            lastLoggedMessage = '';
             document.getElementById('log-details').innerHTML = '';
         }
 

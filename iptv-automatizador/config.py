@@ -48,7 +48,7 @@ PROXYSCRAPE_TYPES = os.getenv("PROXYSCRAPE_TYPES", "socks5")
 
 # Timeout máximo das proxies em ms (filtro de velocidade)
 # Valor mais baixo = proxies mais rápidas, mas menos disponíveis
-PROXYSCRAPE_TIMEOUT = int(os.getenv("PROXYSCRAPE_TIMEOUT", "500"))
+PROXYSCRAPE_TIMEOUT = int(os.getenv("PROXYSCRAPE_TIMEOUT", "200"))
 
 # Filtro por país (código ISO: 'US', 'DE', 'PT', etc). Vazio = todos
 PROXYSCRAPE_COUNTRY = os.getenv("PROXYSCRAPE_COUNTRY", "")

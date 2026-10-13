@@ -35,6 +35,7 @@ class IPTVScraper:
         self.session.headers.update({"User-Agent": USER_AGENT})
         self.current_step_name: str = "Início / Preparação"
         self.last_email_created: str = ""
+        self.last_error: str = ""
 
     def _ui_step(self, step_index: int, message: str = ""):
         """Atualiza UI se disponível e guarda o passo atual."""
@@ -48,11 +49,11 @@ class IPTVScraper:
                 pass
     
     def _get_proxy_manager(self) -> SimpleProxyManager:
-        """Inicializa o proxy manager."""
+        """Inicializa o proxy manager (sempre com ProxyScrape ativo para evitar bloqueio de IP no checkout)."""
         if self.proxy_manager is None:
             self.proxy_manager = SimpleProxyManager(
                 proxy_file=PROXY_LIST_FILE if USE_PROXY_LIST else "",
-                use_proxyscrape=USE_PROXYSCRAPE,
+                use_proxyscrape=True,
                 proxyscrape_types=PROXYSCRAPE_TYPES,
                 proxyscrape_timeout=PROXYSCRAPE_TIMEOUT,
                 proxyscrape_country=PROXYSCRAPE_COUNTRY,
@@ -61,17 +62,17 @@ class IPTVScraper:
             )
         return self.proxy_manager
     
-    def _pre_test_proxy(self, proxy_url: str, timeout: int = 12) -> Optional[float]:
-        """Testa se um proxy consegue aceder ao site via HTTPS."""
+    def _pre_test_proxy(self, proxy_url: str, timeout: int = 8) -> Optional[float]:
+        """Testa se um proxy consegue aceder diretamente ao portal de trial via HTTPS."""
         try:
             masked = proxy_url.split('@')[-1] if '@' in proxy_url else proxy_url
             start = time.time()
             resp = requests.get(
-                BASE_URL,
+                f"{PORTAL_URL}/store/single-users/trial-admin",
                 proxies={"http": proxy_url, "https": proxy_url},
                 timeout=timeout,
                 headers={"User-Agent": USER_AGENT},
-                allow_redirects=True
+                allow_redirects=False
             )
             latency = time.time() - start
             if resp.status_code in (200, 301, 302):
@@ -85,7 +86,7 @@ class IPTVScraper:
     def _find_working_proxy(self, pm: SimpleProxyManager, max_tests: int = 500) -> Optional[str]:
         """Encontra o proxy funcional mais rápido."""
         from concurrent.futures import ThreadPoolExecutor, as_completed
-        MAX_LATENCY = 10.0
+        MAX_LATENCY = 8.0
         BATCH_SIZE = 5
         tested = 0
         
@@ -103,7 +104,7 @@ class IPTVScraper:
             
             results = {}
             with ThreadPoolExecutor(max_workers=len(batch)) as executor:
-                futures = {executor.submit(self._pre_test_proxy, p, 12): p for p in batch}
+                futures = {executor.submit(self._pre_test_proxy, p, 8): p for p in batch}
                 for future in as_completed(futures):
                     proxy = futures[future]
                     try:
@@ -181,8 +182,11 @@ class IPTVScraper:
 
     def _run_single_attempt(self, proxy_url: str = None) -> Optional[Dict[str, str]]:
         """Executa uma tentativa completa de obtenção de trial."""
+        REQUEST_TIMEOUT = 25
         try:
-            # Configure proxy on HTTP session if used
+            # Reiniciar sessão HTTP para limpar cookies, carrinho e proxies de tentativas anteriores
+            self.session = requests.Session()
+            self.session.headers.update({"User-Agent": USER_AGENT})
             if proxy_url:
                 self.session.proxies = {"http": proxy_url, "https": proxy_url}
 
@@ -197,7 +201,7 @@ class IPTVScraper:
             self._ui_step(2, "Acedendo ao portal de trial Fast CCCam...")
             logger.info("=== PASSO 2: Aceder ao portal de trial ===")
             trial_portal_url = f"{PORTAL_URL}/store/single-users/trial-admin"
-            r1 = self.session.get(trial_portal_url)
+            r1 = self.session.get(trial_portal_url, timeout=REQUEST_TIMEOUT)
             
             if r1.status_code != 200 and "confproduct" not in r1.url:
                 raise RuntimeError(f"Resposta inesperada no portal de trial (status code: {r1.status_code})")
@@ -215,12 +219,16 @@ class IPTVScraper:
                 "i": "0",
                 "customfield[126]": ""  # Bouquets (vazio = todos)
             }
-            r2 = self.session.post(f"{PORTAL_URL}/cart.php?a=confproduct&i=0", data=conf_payload)
+            r2 = self.session.post(
+                f"{PORTAL_URL}/cart.php?a=confproduct&i=0",
+                data=conf_payload,
+                timeout=REQUEST_TIMEOUT
+            )
             
             # 4. Aceder à página de Checkout
             self._ui_step(4, "Preparando página de checkout...")
             logger.info("=== PASSO 4: Aceder ao checkout ===")
-            r3 = self.session.get(f"{PORTAL_URL}/cart.php?a=checkout")
+            r3 = self.session.get(f"{PORTAL_URL}/cart.php?a=checkout", timeout=REQUEST_TIMEOUT)
             soup3 = BeautifulSoup(r3.text, "html.parser")
             
             chk_form = soup3.find("form", {"id": "frmCheckout"})
@@ -231,7 +239,11 @@ class IPTVScraper:
             self._ui_step(5, "Solicitando código de verificação por email...")
             logger.info("=== PASSO 5: Solicitar código de verificação ===")
             ajax_url = f"{PORTAL_URL}/modules/addons/ValidEmail/ajaxhandler.php"
-            r_send = self.session.post(ajax_url, data={"action": "sendvalidcode", "email": email})
+            r_send = self.session.post(
+                ajax_url,
+                data={"action": "sendvalidcode", "email": email},
+                timeout=REQUEST_TIMEOUT
+            )
             logger.info(f"Resposta envio código: {r_send.text}")
 
             if "success" not in r_send.text:
@@ -249,7 +261,11 @@ class IPTVScraper:
             # 7. Validar Código no Servidor
             self._ui_step(6, "Validando código no servidor...")
             logger.info("=== PASSO 7: Validar código no servidor ===")
-            r_val = self.session.post(ajax_url, data={"action": "validatecode", "email": email, "validatecode": code})
+            r_val = self.session.post(
+                ajax_url,
+                data={"action": "validatecode", "email": email, "validatecode": code},
+                timeout=REQUEST_TIMEOUT
+            )
             logger.info(f"Resposta validação código: '{r_val.text.strip()}'")
 
             if r_val.text.strip() != "1":
@@ -260,7 +276,7 @@ class IPTVScraper:
             # 8. Re-obter token fresco (o anterior pode ter expirado após os AJAX calls)
             self._ui_step(7, "Finalizando encomenda do trial...")
             logger.info("=== PASSO 8: Finalizar checkout ===")
-            r3_fresh = self.session.get(f"{PORTAL_URL}/cart.php?a=checkout")
+            r3_fresh = self.session.get(f"{PORTAL_URL}/cart.php?a=checkout", timeout=REQUEST_TIMEOUT)
             soup3_fresh = BeautifulSoup(r3_fresh.text, "html.parser")
             chk_form_fresh = soup3_fresh.find("form", {"id": "frmCheckout"})
             if chk_form_fresh:
@@ -301,7 +317,11 @@ class IPTVScraper:
                 "accepttos": "on"
             }
 
-            r_checkout = self.session.post(f"{PORTAL_URL}/cart.php?a=checkout", data=checkout_payload)
+            r_checkout = self.session.post(
+                f"{PORTAL_URL}/cart.php?a=checkout",
+                data=checkout_payload,
+                timeout=REQUEST_TIMEOUT
+            )
             logger.info(f"Checkout submetido. URL: {r_checkout.url}")
 
             # Verificar se o checkout foi bem sucedido
@@ -476,17 +496,19 @@ class IPTVScraper:
         """Executa a automação completa com retries."""
         import traceback
         pm = self._get_proxy_manager()
-        max_retries = MAX_PROXY_RETRIES if pm.has_proxies() else 3  # Tenta pelo menos 3 vezes se não houver proxies listados
+        max_retries = MAX_PROXY_RETRIES if pm.has_proxies() else 5
 
         for attempt in range(max_retries):
             if attempt > 0:
                 logger.info(f"\n{'=' * 60}")
                 logger.info(f"RECOMEÇANDO O LOOP: TENTATIVA {attempt + 1}/{max_retries}")
                 logger.info(f"{'=' * 60}")
+                self._ui_step(0, f"Tentativa {attempt}/{max_retries} falhou. A procurar novo proxy ({attempt + 1}/{max_retries})...")
 
             proxy_url = None
             if pm.has_proxies():
-                self._ui_step(0, "A procurar proxy funcional...")
+                if attempt == 0:
+                    self._ui_step(0, "A procurar proxy funcional...")
                 proxy_url = self._find_working_proxy(pm, max_tests=500)
 
             try:
@@ -495,6 +517,7 @@ class IPTVScraper:
                     return result
             except Exception as e:
                 tb = traceback.format_exc()
+                self.last_error = str(e)
                 logger.error(f"[ERRO TENTATIVA {attempt + 1}]: {e}")
                 self._log_failure_to_file(
                     attempt=attempt + 1,
@@ -503,11 +526,11 @@ class IPTVScraper:
                     proxy_url=proxy_url,
                     traceback_str=tb
                 )
+                if proxy_url:
+                    pm.mark_failed(proxy_url)
                 if attempt < max_retries - 1:
                     logger.warning(f"⚠️ Processo não concluído a 100%. A recomeçar o loop (Tentativa {attempt + 2}/{max_retries})...")
                     logger.warning(f"ℹ️ Consulta '{ERROR_LOG_FILE}' para ver o motivo detalhado da falha.")
-                if proxy_url and pm.has_proxies():
-                    pm.mark_failed(proxy_url)
 
         logger.error(f"Todas as {max_retries} tentativas falharam. Consulta '{ERROR_LOG_FILE}' para mais detalhes.")
         return None

@@ -61,7 +61,7 @@ class PersonalGmailService:
             return []
         
         try:
-            mail = imaplib.IMAP4_SSL(self.imap_server, self.imap_port)
+            mail = imaplib.IMAP4_SSL(self.imap_server, self.imap_port, timeout=15)
             mail.login(self.gmail_account, self.app_password)
             mail.select("inbox")
             

@@ -40,7 +40,7 @@ Na mesma página, rola até à secção **"Environment Variables"** e adiciona a
 * **Chave 2**: `GMAIL_APP_PASSWORD`
   * **Valor**: `a_tua_app_password_de_16_digitos`
 * **Chave 3 (Opcional)**: `USE_PROXYSCRAPE`
-  * **Valor**: `false` *(recomendado se o IP do servidor Render estiver limpo)*
+  * **Valor**: `true` *(necessário para rodar proxies SOCKS5 e evitar bloqueio do IP do servidor no checkout)*
 
 ### Passo 5: Iniciar o Deploy!
 1. Clica no botão final **"Create Web Service"**.

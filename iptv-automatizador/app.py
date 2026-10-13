@@ -62,11 +62,13 @@ def run_scraper_task(job_id: str):
     job = jobs[job_id]
 
     def on_progress(step_index: int, message: str):
-        percent = min(100, int((step_index / 8.0) * 100))
+        percent = max(5, min(95, int((step_index / 8.0) * 100)))
         job["step"] = step_index
         job["percent"] = percent
         job["message"] = message
-        job["logs"].append(f"[Passo {step_index}] {message}")
+        log_entry = f"[Passo {step_index}] {message}"
+        if not job["logs"] or job["logs"][-1] != log_entry:
+            job["logs"].append(log_entry)
 
     try:
         on_progress(1, "Inicializando serviço de email e parâmetros...")
@@ -93,8 +95,9 @@ def run_scraper_task(job_id: str):
             logger.info(f"Job {job_id} concluído com sucesso.")
         else:
             job["status"] = "error"
-            job["error"] = "Não foi possível extrair todas as credenciais. Consulta erros_automacao.log para mais detalhes."
-            logger.warning(f"Job {job_id} falhou na extração de credenciais.")
+            detail = f" Último erro: {scraper.last_error}" if getattr(scraper, "last_error", "") else ""
+            job["error"] = f"Não foi possível extrair todas as credenciais.{detail}"
+            logger.warning(f"Job {job_id} falhou na extração de credenciais.{detail}")
 
     except Exception as e:
         logger.error(f"Job {job_id} falhou com erro: {e}")
@@ -116,14 +119,20 @@ def index():
 @app.route("/api/generate", methods=["POST"])
 def generate_trial():
     """Inicia um novo processo de geração de trial IPTV."""
-    # Verificar se já existe algum job a correr
+    import time
+    now = time.time()
+    # Verificar se já existe algum job ativo (menos de 300s) a correr
     for j_id, j_data in jobs.items():
         if j_data.get("status") == "running":
-            return jsonify({
-                "success": True,
-                "job_id": j_id,
-                "message": "Já existe uma automação em curso. A acompanhar progresso..."
-            })
+            if now - j_data.get("created_at", now) < 300:
+                return jsonify({
+                    "success": True,
+                    "job_id": j_id,
+                    "message": "Já existe uma automação em curso. A acompanhar progresso..."
+                })
+            else:
+                j_data["status"] = "error"
+                j_data["error"] = "Tempo limite excedido."
 
     job_id = str(uuid.uuid4())[:8]
     jobs[job_id] = {
@@ -134,7 +143,8 @@ def generate_trial():
         "message": "Iniciando sessão de automação...",
         "logs": [],
         "credentials": None,
-        "error": None
+        "error": None,
+        "created_at": now
     }
 
     # Iniciar worker thread

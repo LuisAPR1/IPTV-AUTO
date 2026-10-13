@@ -187,6 +187,7 @@ class SimpleProxyManager:
         """Refresca a lista de proxies buscando novas do ProxyScrape.
         
         Útil quando todas as proxies atuais foram usadas/falharam.
+        Se o timeout atual não retornar novas proxies, alarga gradualmente o timeout.
         
         Returns:
             Número de novas proxies adicionadas
@@ -196,25 +197,34 @@ class SimpleProxyManager:
             return 0
         
         logger.info("🔄 A refrescar lista de proxies do ProxyScrape...")
-        new_proxies = self._proxyscrape_provider.fetch_proxies(max_proxies=self.proxyscrape_max)
         
-        # Filtrar proxies que já falharam antes
-        fresh_proxies = [p for p in new_proxies if p not in self.failed_proxies]
-        
-        if fresh_proxies:
-            # Adicionar apenas as novas (que não estão já na lista)
-            existing = set(self.proxies)
-            added = 0
-            for p in fresh_proxies:
-                if p not in existing:
-                    self.proxies.append(p)
-                    added += 1
+        # Tentar com o timeout atual e, se não houver novas, alargar gradualmente
+        timeouts_to_try = [self._proxyscrape_provider.timeout_ms, 500, 1000, 2500, 5000]
+        # Remover duplicados mantendo ordem crescente
+        seen_t = set()
+        unique_timeouts = []
+        for t in timeouts_to_try:
+            if t not in seen_t and t >= self._proxyscrape_provider.timeout_ms:
+                seen_t.add(t)
+                unique_timeouts.append(t)
+
+        existing = set(self.proxies)
+        failed_set = set(self.failed_proxies)
+
+        for timeout_val in unique_timeouts:
+            self._proxyscrape_provider.timeout_ms = timeout_val
+            new_proxies = self._proxyscrape_provider.fetch_proxies(max_proxies=self.proxyscrape_max)
+            fresh_proxies = [p for p in new_proxies if p not in failed_set and p not in existing]
             
-            logger.info(f"✅ {added} proxies novas adicionadas ({len(self.proxies)} total)")
-            return added
-        else:
-            logger.warning("⚠️ Nenhuma proxy nova encontrada")
-            return 0
+            if fresh_proxies:
+                for p in fresh_proxies:
+                    self.proxies.append(p)
+                    existing.add(p)
+                logger.info(f"✅ {len(fresh_proxies)} proxies novas adicionadas com timeout={timeout_val}ms ({len(self.proxies)} total)")
+                return len(fresh_proxies)
+        
+        logger.warning("⚠️ Nenhuma proxy nova encontrada")
+        return 0
     
     def _load_from_file(self) -> List[str]:
         """Carrega proxies do ficheiro."""
@@ -291,7 +301,9 @@ class SimpleProxyManager:
             logger.info(f"Proxy removido (falhou): {self._mask_proxy(proxy)} ({len(self.proxies)} restantes)")
     
     def has_proxies(self) -> bool:
-        """Verifica se há proxies disponíveis."""
+        """Verifica se há proxies disponíveis (refrescando se necessário)."""
+        if len(self.proxies) == 0 and self.use_proxyscrape:
+            self.refresh_proxies()
         return len(self.proxies) > 0
     
     def remaining_count(self) -> int:
