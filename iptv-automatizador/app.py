@@ -11,7 +11,6 @@ import uuid
 import threading
 import logging
 import copy
-import hmac
 import time
 import sqlite3
 from functools import wraps
@@ -23,7 +22,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
-from config import PERSONAL_GMAIL, GMAIL_APP_PASSWORD, DIAGNOSTICS_TOKEN, DIAGNOSTICS_DB_PATH
+from config import PERSONAL_GMAIL, GMAIL_APP_PASSWORD, DIAGNOSTICS_DB_PATH
 from config import EMAIL_TIMEOUT, EMAIL_POLL_INTERVAL, MAX_PROXY_RETRIES, PROXYSCRAPE_TYPES, PROXYSCRAPE_TIMEOUT
 from email_service import TempMailService
 from scraper import IPTVScraper
@@ -40,7 +39,6 @@ logger = logging.getLogger(__name__)
 install_log_capture()
 
 app = Flask(__name__, template_folder=os.path.join(current_dir, "templates"))
-app.config["DIAGNOSTICS_TOKEN"] = DIAGNOSTICS_TOKEN
 
 # Estado dos Jobs em memória
 jobs: Dict[str, Dict[str, Any]] = {}
@@ -159,15 +157,9 @@ def diagnostics_page():
     return render_template("diagnostics.html")
 
 
-def diagnostics_access(view):
+def diagnostics_storage_errors(view):
     @wraps(view)
     def protected(*args, **kwargs):
-        expected = app.config.get("DIAGNOSTICS_TOKEN", "")
-        if not expected:
-            return jsonify(success=False, message="Configura DIAGNOSTICS_TOKEN no servidor para consultar os relatórios."), 503
-        supplied = request.headers.get("Authorization", "")
-        if not hmac.compare_digest(supplied.encode("utf-8"), ("Bearer " + expected).encode("utf-8")):
-            return jsonify(success=False, message="Chave de diagnóstico inválida."), 401
         try:
             return view(*args, **kwargs)
         except (OSError, sqlite3.Error):
@@ -181,7 +173,6 @@ def private_diagnostics(response):
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
-        response.headers["Vary"] = "Authorization"
     return response
 
 
@@ -199,13 +190,13 @@ def report_download(payload, filename):
 
 
 @app.get("/api/diagnostics/runs")
-@diagnostics_access
+@diagnostics_storage_errors
 def diagnostics_runs():
     return jsonify(diagnostic_report(get_history().list()))
 
 
 @app.get("/api/diagnostics/runs/<job_id>")
-@diagnostics_access
+@diagnostics_storage_errors
 def diagnostics_run(job_id):
     run = get_history().get(job_id)
     if not run:
@@ -214,13 +205,13 @@ def diagnostics_run(job_id):
 
 
 @app.get("/api/diagnostics/export")
-@diagnostics_access
+@diagnostics_storage_errors
 def diagnostics_export():
     return report_download(diagnostic_report(get_history().list(include_events=True)), "diagnostico-ultimas-10.json")
 
 
 @app.get("/api/diagnostics/runs/<job_id>/export")
-@diagnostics_access
+@diagnostics_storage_errors
 def diagnostics_run_export(job_id):
     run = get_history().get(job_id)
     if not run:
@@ -241,7 +232,7 @@ def generate_trial():
                     "message": "Já existe uma automação em curso. A acompanhar progresso..."
                 })
         job_id = uuid.uuid4().hex
-        redactor = Redactor((PERSONAL_GMAIL, GMAIL_APP_PASSWORD, app.config["DIAGNOSTICS_TOKEN"]))
+        redactor = Redactor((PERSONAL_GMAIL, GMAIL_APP_PASSWORD))
         try:
             store = get_history()
             metadata = runtime_metadata()

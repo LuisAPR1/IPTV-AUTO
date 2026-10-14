@@ -2,14 +2,13 @@
 
 A aplicação guarda automaticamente as últimas **10 execuções**, incluindo sucessos, falhas e a execução em curso. Abre **Diagnóstico das últimas execuções** na página do gerador ou **Abrir diagnóstico** no aviso de erro, seleciona a execução e descarrega o JSON para enviar nesta conversa. Também podes descarregar as últimas 10 de uma vez.
 
-## Ativar no servidor
+## Consultar os relatórios
 
-1. Gera uma chave privada com `python -c "import secrets; print(secrets.token_urlsafe(32))"`.
-2. Define `DIAGNOSTICS_TOKEN` nas variáveis de ambiente do serviço ou no ficheiro local `iptv-automatizador/.env` e reinicia a aplicação.
-3. Abre `/diagnostics` no endereço do teu site e introduz essa chave. A página guarda-a apenas em memória, até saíres ou recarregares a página.
-4. Quando houver uma falha, escolhe **Descarregar esta execução (JSON)** e envia o ficheiro. Não precisas de enviar a chave, o `.env`, credenciais ou acesso ao servidor.
+1. Depois de publicar as alterações, abre `/diagnostics` no endereço do site.
+2. A página carrega automaticamente as últimas 10 execuções, sem token nem autenticação.
+3. Seleciona **Descarregar esta execução (JSON)** ou descarrega as últimas 10 e envia o ficheiro nesta conversa.
 
-Sem `DIAGNOSTICS_TOKEN`, a recolha continua ativa mas as APIs de consulta devolvem 503. Uma chave incorreta devolve 401. A chave só é aceite no cabeçalho `Authorization: Bearer ...`, nunca no URL. Usa HTTPS no alojamento público.
+A página e as APIs de diagnóstico são de acesso livre. A ocultação dos dados sensíveis continua ativa antes da gravação. Não é necessário configurar `DIAGNOSTICS_TOKEN`; uma variável antiga com esse nome não restringe o acesso.
 
 ## O que fica no relatório
 
@@ -46,7 +45,7 @@ Se o armazenamento falhar antes do arranque, a geração devolve 503 para não i
 | `/api/diagnostics/export` | Download JSON das últimas 10 execuções |
 | `/api/diagnostics/runs/<id>/export` | Download JSON de uma execução |
 
-Todas as APIs desta tabela exigem a chave e devolvem `Cache-Control: no-store`. O JSON inclui `schema_version: 1`. Uma execução removida pela retenção devolve 404. A proteção aplica-se aos novos endpoints de diagnóstico; os endpoints existentes de geração e consulta de credenciais conservam o seu modelo de acesso.
+Todas as APIs desta tabela são de acesso livre e devolvem `Cache-Control: no-store`. O JSON inclui `schema_version: 1`. Uma execução removida pela retenção devolve 404. Os endpoints existentes de geração e consulta de credenciais conservam o seu modelo de acesso.
 
 ## Análise do projeto e decisões
 
@@ -69,4 +68,4 @@ Na raiz do repositório:
 python -m unittest discover -s iptv-automatizador/tests -v
 ```
 
-Os testes usam diretórios temporários e serviços simulados: não enviam emails nem criam trials. Verificam retenção, recuperação, isolamento entre threads, ocultação antes da escrita, autorização/exportação e os caminhos de sucesso/falha da geração web.
+Os testes usam diretórios temporários e serviços simulados: não enviam emails nem criam trials. Verificam retenção, recuperação, isolamento entre threads, ocultação antes da escrita, acesso livre/exportação e os caminhos de sucesso/falha da geração web.

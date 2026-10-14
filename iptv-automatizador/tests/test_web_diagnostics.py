@@ -21,7 +21,7 @@ class WebDiagnosticsTests(unittest.TestCase):
         self.directory = tempfile.TemporaryDirectory()
         self.addCleanup(self.directory.cleanup)
         self.history = RunHistory(Path(self.directory.name) / "history.sqlite3")
-        self.start_patch(patch.dict(web.app.config, TESTING=True, DIAGNOSTICS_TOKEN=self.token))
+        self.start_patch(patch.dict(web.app.config, TESTING=True))
         self.start_patch(patch.object(web, "jobs", {}))
         self.history_mock = self.start_patch(patch.object(web, "get_history", return_value=self.history))
         self.start_patch(patch.object(web, "PERSONAL_GMAIL", "test-mail@example.com"))
@@ -36,7 +36,7 @@ class WebDiagnosticsTests(unittest.TestCase):
         self.scraper.last_error = ""
         self.scraper.run_automation.return_value = None
         self.client = web.app.test_client()
-        self.headers = {"Authorization": f"Bearer {self.token}"}
+        self.headers = {}
 
     def start_patch(self, item):
         result = item.start()
@@ -61,27 +61,22 @@ class WebDiagnosticsTests(unittest.TestCase):
             kwargs["target"](*kwargs["args"])
         return response.json["job_id"]
 
-    def test_all_diagnostic_apis_require_bearer_header(self):
+    def test_all_diagnostic_apis_are_public(self):
         self.create_run()
         routes = ("/api/diagnostics/runs", "/api/diagnostics/runs/existing-run",
                   "/api/diagnostics/export", "/api/diagnostics/runs/existing-run/export")
         for route in routes:
-            for headers in ({}, {"Authorization": "Bearer wrong"}, {"Authorization": self.token}):
-                with self.subTest(route=route, headers=headers):
-                    response = self.client.get(route, headers=headers)
-                    self.assertEqual(response.status_code, 401)
-                    self.assertEqual(response.headers["Cache-Control"], "no-store")
-                    self.assertNotIn("Fetching page", response.get_data(as_text=True))
-            self.assertEqual(self.client.get(route, headers=self.headers).status_code, 200)
-        self.assertEqual(self.client.get("/api/diagnostics/runs?token=" + self.token).status_code, 401)
+            with self.subTest(route=route):
+                response = self.client.get(route)
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.headers["Cache-Control"], "no-store")
+                self.assertNotIn("Authorization", response.headers.get("Vary", ""))
 
-    def test_missing_token_disables_api_without_exposing_reports(self):
-        self.create_run()
-        with patch.dict(web.app.config, DIAGNOSTICS_TOKEN=""):
-            response = self.client.get("/api/diagnostics/runs", headers=self.headers)
-        self.assertEqual(response.status_code, 503)
-        self.assertNotIn("existing-run", response.get_data(as_text=True))
-        self.history_mock.assert_not_called()
+    def test_legacy_token_configuration_does_not_restrict_access(self):
+        with patch.dict(web.app.config, DIAGNOSTICS_TOKEN="obsolete-key"):
+            response = self.client.get("/api/diagnostics/runs")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json["runs"], [])
 
     def test_page_serves_only_shell_without_saved_runs_or_secret(self):
         self.create_run("private-run-id")
@@ -91,6 +86,9 @@ class WebDiagnosticsTests(unittest.TestCase):
         self.assertNotIn("private-run-id", body)
         self.assertNotIn(self.token, body)
         self.assertNotIn("Fetching page", body)
+        self.assertNotIn("auth-form", body)
+        self.assertNotIn("Bearer", body)
+        self.assertNotIn('type="password"', body)
         self.assertNotIn("localStorage", body)
         self.assertNotIn("sessionStorage", body)
         self.assertEqual(response.headers["Cache-Control"], "no-store")
@@ -188,13 +186,13 @@ class WebDiagnosticsTests(unittest.TestCase):
 
     def test_worker_start_failure_finishes_the_created_report(self):
         with patch.object(web.threading, "Thread") as thread_class:
-            thread_class.return_value.start.side_effect = RuntimeError("Worker failed " + self.token)
+            thread_class.return_value.start.side_effect = RuntimeError("Worker failed mail-app-private-password")
             response = self.client.post("/api/generate")
         self.assertEqual(response.status_code, 503)
         run = self.history.get(response.json["job_id"])
         self.assertEqual(run["status"], "error")
         self.assertEqual(run["error_type"], "RuntimeError")
-        self.assertNotIn(self.token, json.dumps(run))
+        self.assertNotIn("mail-app-private-password", json.dumps(run))
         self.assertEqual(web.jobs[run["id"]]["status"], "error")
 
     def test_repeated_generation_joins_existing_worker_even_after_five_minutes(self):

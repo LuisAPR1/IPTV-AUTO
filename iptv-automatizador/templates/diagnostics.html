@@ -63,21 +63,11 @@
 <main>
     <header>
         <div><a href="/">← Voltar ao gerador</a><h1>Diagnóstico de execuções</h1><p class="muted">Consulta os passos de cada execução e descarrega o relatório para análise.</p></div>
-        <button id="logout" type="button" hidden>Terminar acesso</button>
     </header>
-
-    <form id="auth-form" class="card auth" autocomplete="off">
-        <h2>Acesso aos relatórios</h2>
-        <div class="auth-row">
-            <div class="field"><label for="token">Token de diagnóstico</label><input id="token" type="password" required autocomplete="off" spellcheck="false" autocapitalize="none" aria-describedby="token-help"></div>
-            <button id="connect" class="primary" type="submit">Abrir relatórios</button>
-        </div>
-        <p id="token-help" class="muted">Usa o token configurado no servidor. O token só fica em memória e não é incluído nos relatórios.</p>
-    </form>
 
     <div id="notice" role="status" aria-live="polite" hidden></div>
 
-    <section id="workspace" hidden aria-label="Relatórios de diagnóstico">
+    <section id="workspace" aria-label="Relatórios de diagnóstico">
         <div class="toolbar">
             <p id="retention" class="muted">Últimas 10 execuções</p>
             <div class="actions"><button id="refresh" type="button">Atualizar</button><button id="export-all" class="primary" type="button">Descarregar últimas 10 (JSON)</button></div>
@@ -93,7 +83,6 @@
     'use strict';
     const $ = id => document.getElementById(id);
     const labels = { running: 'Em execução', completed: 'Concluída', error: 'Falhou', interrupted: 'Interrompida' };
-    let token = '';
     let session = 0;
     let selectedId = '';
     let detailRequest = 0;
@@ -124,24 +113,15 @@
         try { return decodeURIComponent(location.hash.slice(1)); } catch (_) { return ''; }
     }
 
-    function resetAccess() {
+    function cancelRequests() {
         session += 1;
         controllers.forEach(controller => controller.abort());
         controllers.clear();
-        token = '';
-        selectedId = '';
         detailRequest += 1;
         refreshing = false;
         exporting = false;
-        $('token').value = '';
-        $('auth-form').hidden = false;
-        $('workspace').hidden = true;
-        $('logout').hidden = true;
-        $('connect').disabled = false;
         $('refresh').disabled = false;
         $('export-all').disabled = false;
-        $('runs').replaceChildren();
-        $('detail').replaceChildren();
     }
 
     async function api(path) {
@@ -151,7 +131,7 @@
         const timeout = setTimeout(() => controller.abort(), 20000);
         try {
             const response = await fetch(path, {
-                headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+                headers: { Accept: 'application/json' },
                 cache: 'no-store', signal: controller.signal, credentials: 'same-origin'
             });
             let data;
@@ -160,14 +140,8 @@
             }
             if (requestSession !== session) throw Object.assign(new Error(), { stale: true });
             if (!response.ok) {
-                if (response.status === 401) {
-                    resetAccess();
-                    notice('Token inválido ou expirado. Introduz o token de diagnóstico para voltar a aceder.', 'error');
-                    $('token').focus();
-                    throw Object.assign(new Error(), { stale: true });
-                }
                 const fallback = response.status === 503
-                    ? 'O diagnóstico ainda não está disponível. Configura DIAGNOSTICS_TOKEN no servidor.'
+                    ? 'O histórico está temporariamente indisponível. Tenta novamente.'
                     : response.status === 404
                     ? 'Esta execução já não está disponível; pode ter saído das últimas 10 guardadas.'
                     : `Não foi possível obter o relatório (HTTP ${response.status}).`;
@@ -250,7 +224,7 @@
     }
 
     async function loadDetail(id) {
-        if (!token || !id) return;
+        if (!id) return;
         selectedId = id;
         const request = ++detailRequest;
         $('runs').querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.runId === id)));
@@ -266,17 +240,14 @@
     }
 
     async function refresh() {
-        if (!token || refreshing) return;
+        if (refreshing) return;
         refreshing = true;
         const requestSession = session;
         $('refresh').disabled = true;
-        $('connect').disabled = true;
         notice('A carregar as execuções…');
         try {
             const data = await api('/api/diagnostics/runs');
-            $('auth-form').hidden = true;
             $('workspace').hidden = false;
-            $('logout').hidden = false;
             const runs = Array.isArray(data.runs) ? data.runs : [];
             $('retention').textContent = `Últimas ${data.retention || 10} execuções · ${runs.length} disponíveis`;
             selectedId = hashId() || selectedId || (runs[0] && runs[0].id) || '';
@@ -290,13 +261,12 @@
             if (requestSession === session) {
                 refreshing = false;
                 $('refresh').disabled = false;
-                $('connect').disabled = false;
             }
         }
     }
 
     async function downloadReport(path, filename, button) {
-        if (!token || exporting) return;
+        if (exporting) return;
         exporting = true;
         const requestSession = session;
         button.disabled = true;
@@ -320,25 +290,12 @@
         }
     }
 
-    $('auth-form').addEventListener('submit', event => {
-        event.preventDefault();
-        const enteredToken = $('token').value.trim();
-        if (!enteredToken) return;
-        resetAccess();
-        token = enteredToken;
-        $('logout').hidden = false;
-        refresh();
-    });
-    $('logout').addEventListener('click', () => {
-        resetAccess();
-        history.replaceState(null, '', location.pathname);
-        notice('Acesso terminado. O token e os relatórios foram removidos desta página.');
-        $('token').focus();
-    });
     $('refresh').addEventListener('click', refresh);
     $('export-all').addEventListener('click', () => downloadReport('/api/diagnostics/export', 'diagnostico-ultimas-10.json', $('export-all')));
-    window.addEventListener('hashchange', () => { if (token) loadDetail(hashId()); });
-    window.addEventListener('pagehide', resetAccess);
+    window.addEventListener('hashchange', () => loadDetail(hashId()));
+    window.addEventListener('pagehide', cancelRequests);
+    window.addEventListener('pageshow', event => { if (event.persisted) refresh(); });
+    refresh();
 })();
 </script>
 </body>
