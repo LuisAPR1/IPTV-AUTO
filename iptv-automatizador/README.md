@@ -1,5 +1,7 @@
 # IPTV Fiesta Automatizador
 
+> **Aplicação web atual:** o fluxo de `app.py`/`scraper.py` usa HTTP (`requests` + BeautifulSoup). Algumas instruções de terminal abaixo descrevem a versão antiga com Playwright. Para consultar e enviar os registos das últimas 10 gerações web, vê [Diagnóstico das execuções](../DIAGNOSTICS.md).
+
 Script Python que automatiza a obtenção de trials IPTV de 48h do site myfiestatrial.com.
 
 ## Funcionalidades

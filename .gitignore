@@ -35,6 +35,11 @@ iptv_automatizador.log
 iptv-automatizador/iptv_automatizador.log
 
 # Databases / config storage
+iptv-automatizador/data/
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
 proxy_counter.json
 iptv-automatizador/proxy_counter.json
 latest_trial.json

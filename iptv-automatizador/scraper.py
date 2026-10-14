@@ -1,4 +1,4 @@
-"""Automação do site Fast CCCam / ServicePortal IPTV Trial usando Playwright e HTTP Fallback."""
+"""Automação do site Fast CCCam / ServicePortal IPTV Trial usando sessões HTTP."""
 
 import os
 import re
@@ -6,6 +6,9 @@ import logging
 import random
 import time
 import requests
+import threading
+from collections import Counter
+from contextvars import copy_context
 from datetime import datetime
 from typing import Optional, Dict, Any
 from bs4 import BeautifulSoup
@@ -18,6 +21,7 @@ from config import (
 )
 from proxy_manager import SimpleProxyManager
 from email_service import TempMailService
+from diagnostics import diagnostic_event, has_active_run, register_secrets, sanitize_text
 
 logger = logging.getLogger(__name__)
 
@@ -31,11 +35,29 @@ class IPTVScraper:
         self.progress_callback = progress_callback
         self.proxy_manager: Optional[SimpleProxyManager] = None
         self._current_proxy: Optional[str] = None
-        self.session = requests.Session()
-        self.session.headers.update({"User-Agent": USER_AGENT})
+        self.session = self._new_session()
         self.current_step_name: str = "Início / Preparação"
         self.last_email_created: str = ""
         self.last_error: str = ""
+        self._probe_lock = threading.Lock()
+        self._probe_failures = Counter()
+
+    @staticmethod
+    def _record_http_response(response, *args, **kwargs):
+        """Regista apenas metadados HTTP; o coletor sanitiza o URL."""
+        diagnostic_event(
+            "http", "Resposta HTTP",
+            method=response.request.method,
+            url=response.url,
+            status_code=response.status_code,
+            duration_ms=round(response.elapsed.total_seconds() * 1000, 1),
+        )
+
+    def _new_session(self):
+        session = requests.Session()
+        session.headers.update({"User-Agent": USER_AGENT})
+        session.hooks["response"].append(self._record_http_response)
+        return session
 
     def _ui_step(self, step_index: int, message: str = ""):
         """Atualiza UI se disponível e guarda o passo atual."""
@@ -72,15 +94,20 @@ class IPTVScraper:
                 proxies={"http": proxy_url, "https": proxy_url},
                 timeout=timeout,
                 headers={"User-Agent": USER_AGENT},
-                allow_redirects=False
+                allow_redirects=False,
+                hooks={"response": self._record_http_response},
             )
             latency = time.time() - start
             if resp.status_code in (200, 301, 302):
                 logger.info(f"✅ {masked} → {latency:.1f}s (status {resp.status_code})")
                 return latency
             else:
+                with self._probe_lock:
+                    self._probe_failures[f"http_{resp.status_code}"] += 1
                 return None
-        except Exception:
+        except Exception as exc:
+            with self._probe_lock:
+                self._probe_failures[type(exc).__name__] += 1
             return None
 
     def _find_working_proxy(self, pm: SimpleProxyManager, max_tests: int = 500) -> Optional[str]:
@@ -89,6 +116,8 @@ class IPTVScraper:
         MAX_LATENCY = 8.0
         BATCH_SIZE = 5
         tested = 0
+        with self._probe_lock:
+            self._probe_failures.clear()
         
         while tested < max_tests and pm.has_proxies():
             batch = []
@@ -104,7 +133,10 @@ class IPTVScraper:
             
             results = {}
             with ThreadPoolExecutor(max_workers=len(batch)) as executor:
-                futures = {executor.submit(self._pre_test_proxy, p, 8): p for p in batch}
+                futures = {
+                    executor.submit(copy_context().run, self._pre_test_proxy, p, 8): p
+                    for p in batch
+                }
                 for future in as_completed(futures):
                     proxy = futures[future]
                     try:
@@ -120,9 +152,13 @@ class IPTVScraper:
                 for p in batch:
                     if p != best:
                         pm.mark_failed(p)
+                diagnostic_event("proxy_search", "Procura de proxy concluída", tested=tested,
+                                 found=True, failure_counts=dict(self._probe_failures))
                 return best
             for p in batch:
                 pm.mark_failed(p)
+        diagnostic_event("proxy_search", "Nenhum proxy funcional encontrado", tested=tested,
+                         found=False, failure_counts=dict(self._probe_failures))
         return None
 
     def _human_delay(self, min_seconds: float = 0.3, max_seconds: float = 1.0):
@@ -185,8 +221,8 @@ class IPTVScraper:
         REQUEST_TIMEOUT = 25
         try:
             # Reiniciar sessão HTTP para limpar cookies, carrinho e proxies de tentativas anteriores
-            self.session = requests.Session()
-            self.session.headers.update({"User-Agent": USER_AGENT})
+            self.session.close()
+            self.session = self._new_session()
             if proxy_url:
                 self.session.proxies = {"http": proxy_url, "https": proxy_url}
 
@@ -194,8 +230,9 @@ class IPTVScraper:
             self._ui_step(1, "Criando email temporário...")
             logger.info("=== PASSO 1: Criar email temporário ===")
             email = self.email_service.create_inbox()
+            register_secrets(email)
             self.last_email_created = email
-            logger.info(f"Email criado: {email}")
+            logger.info("Email criado com sucesso")
 
             # 2. Aceder ao portal de trial
             self._ui_step(2, "Acedendo ao portal de trial Fast CCCam...")
@@ -209,6 +246,8 @@ class IPTVScraper:
             soup1 = BeautifulSoup(r1.text, "html.parser")
             token1_el = soup1.find("input", {"name": "token"})
             token1 = token1_el.get("value") if token1_el else ""
+            register_secrets(token1)
+            diagnostic_event("portal", "Página inicial analisada", token_present=bool(token1))
 
             # 3. Configurar Produto de 48h
             self._ui_step(3, "Configurando produto 48h trial...")
@@ -234,6 +273,11 @@ class IPTVScraper:
             chk_form = soup3.find("form", {"id": "frmCheckout"})
             token3_el = chk_form.find("input", {"name": "token"}) if chk_form else soup3.find("input", {"name": "token"})
             token3 = token3_el.get("value") if token3_el else token1
+            register_secrets(token3)
+            diagnostic_event(
+                "checkout", "Página de checkout analisada",
+                form_present=chk_form is not None, token_present=bool(token3),
+            )
 
             # 5. Solicitar Código de Verificação por Email
             self._ui_step(5, "Solicitando código de verificação por email...")
@@ -244,19 +288,26 @@ class IPTVScraper:
                 data={"action": "sendvalidcode", "email": email},
                 timeout=REQUEST_TIMEOUT
             )
-            logger.info(f"Resposta envio código: {r_send.text}")
+            logger.info(
+                "Resposta envio código: HTTP %s, %s caracteres, sucesso=%s",
+                r_send.status_code, len(r_send.text), "success" in r_send.text,
+            )
 
             if "success" not in r_send.text:
-                raise RuntimeError(f"Falha ao enviar código de verificação: {r_send.text}")
+                raise RuntimeError(
+                    f"[email_send_failed] Falha ao enviar código de verificação "
+                    f"(HTTP {r_send.status_code}; resposta sem indicação de sucesso)"
+                )
 
             # 6. Aguardar Código por IMAP
             self._ui_step(6, "Aguardando código no email...")
             logger.info("=== PASSO 6: Aguardar código por email ===")
             code = self.email_service.get_verification_code()
+            register_secrets(code)
             if not code:
                 raise RuntimeError("Código de verificação não recebido por email (timeout)")
 
-            logger.info(f"✓ Código obtido: {code}")
+            logger.info("✓ Código de verificação obtido")
 
             # 7. Validar Código no Servidor
             self._ui_step(6, "Validando código no servidor...")
@@ -266,10 +317,16 @@ class IPTVScraper:
                 data={"action": "validatecode", "email": email, "validatecode": code},
                 timeout=REQUEST_TIMEOUT
             )
-            logger.info(f"Resposta validação código: '{r_val.text.strip()}'")
+            logger.info(
+                "Resposta validação código: HTTP %s, %s caracteres, validado=%s",
+                r_val.status_code, len(r_val.text), r_val.text.strip() == "1",
+            )
 
             if r_val.text.strip() != "1":
-                raise RuntimeError(f"Validação de código falhou no servidor (resposta: '{r_val.text.strip()}')")
+                raise RuntimeError(
+                    f"[verification_rejected] Validação de código falhou no servidor "
+                    f"(HTTP {r_val.status_code}; resposta diferente da confirmação esperada)"
+                )
 
             logger.info("✓ Código verificado com sucesso!")
 
@@ -284,7 +341,8 @@ class IPTVScraper:
             else:
                 token_fresh_el = soup3_fresh.find("input", {"name": "token"})
             token_fresh = token_fresh_el.get("value") if token_fresh_el else token3
-            logger.info(f"Token fresco obtido: {token_fresh[:20]}...")
+            register_secrets(token_fresh)
+            logger.info("Token de checkout presente: %s", bool(token_fresh))
 
             # Auto-detetar método de pagamento disponível na página
             payment_method = self._detect_payment_method(soup3_fresh)
@@ -295,6 +353,7 @@ class IPTVScraper:
             ln = f"Test{suffix[4:]}"
             # Password simples alfanumérica (8-64 chars, sem caracteres especiais)
             pw = f"Tr1alPass{suffix}"
+            register_secrets(pw)
 
             checkout_payload = {
                 "token": token_fresh,
@@ -322,7 +381,7 @@ class IPTVScraper:
                 data=checkout_payload,
                 timeout=REQUEST_TIMEOUT
             )
-            logger.info(f"Checkout submetido. URL: {r_checkout.url}")
+            logger.info("Checkout submetido. URL: %s", sanitize_text(r_checkout.url))
 
             # Verificar se o checkout foi bem sucedido
             if "a=complete" not in r_checkout.url:
@@ -331,7 +390,7 @@ class IPTVScraper:
                 for alert in soup_err.find_all("div", class_=lambda c: c and "alert" in c):
                     alert_text = alert.get_text(strip=True)
                     if alert_text and "correct" in alert_text.lower():
-                        err_msg = f"Erro no checkout: {alert_text}"
+                        err_msg = "[checkout_rejected] O formulário de checkout solicitou correções"
                 raise RuntimeError(err_msg)
 
             logger.info("✓ Checkout completado com sucesso!")
@@ -346,10 +405,8 @@ class IPTVScraper:
             return credentials
 
         except Exception as e:
-            logger.error(f"Erro na tentativa de automação: {e}")
-            import traceback
-            logger.debug(traceback.format_exc())
-            raise e
+            logger.error("Erro na tentativa de automação (%s): %s", type(e).__name__, sanitize_text(str(e)))
+            raise
 
     def extract_credentials_from_confirmation(self, html: str) -> Dict[str, str]:
         """Extrai credenciais IPTV da página de confirmação de encomenda (cart.php?a=complete).
@@ -383,13 +440,15 @@ class IPTVScraper:
             m3u_match = re.search(r'(https?://[^\s]+/get\.php\?username=[^\s]+)', page_text)
             if m3u_match:
                 credentials["m3u"] = m3u_match.group(1)
-                logger.info(f"✓ M3U URL: {credentials['m3u']}")
+                register_secrets(credentials["m3u"])
+                logger.info("✓ M3U URL extraído")
 
             # 2. Extrair EPG URL
             epg_match = re.search(r'(https?://[^\s]+/xmltv\.php\?username=[^\s]+)', page_text)
             if epg_match:
                 credentials["epg"] = epg_match.group(1)
-                logger.info(f"✓ EPG URL: {credentials['epg']}")
+                register_secrets(credentials["epg"])
+                logger.info("✓ EPG URL extraído")
 
             # 3. Extrair Username e Password — PRIORIDADE do M3U URL (texto colado causa problemas)
             if credentials["m3u"]:
@@ -397,34 +456,38 @@ class IPTVScraper:
                 p_match = re.search(r'password=([^&\s]+)', credentials["m3u"])
                 if u_match:
                     credentials["username"] = u_match.group(1)
-                    logger.info(f"✓ Username: {credentials['username']}")
+                    register_secrets(credentials["username"])
+                    logger.info("✓ Username extraído")
                 if p_match:
                     credentials["password"] = p_match.group(1)
-                    logger.info(f"✓ Password: {credentials['password']}")
+                    register_secrets(credentials["password"])
+                    logger.info("✓ Password extraída")
 
             # Fallback texto: tentar "Username: XXX" se não veio do M3U
             if not credentials["username"]:
                 user_match = re.search(r'Username:\s*([A-Za-z0-9_]+)', page_text)
                 if user_match:
                     credentials["username"] = user_match.group(1)
-                    logger.info(f"✓ Username (texto): {credentials['username']}")
+                    register_secrets(credentials["username"])
+                    logger.info("✓ Username extraído do texto")
 
             if not credentials["password"]:
                 pw_match = re.search(r'Password:\s*([A-Za-z0-9_]+)', page_text)
                 if pw_match:
                     credentials["password"] = pw_match.group(1)
-                    logger.info(f"✓ Password (texto): {credentials['password']}")
+                    register_secrets(credentials["password"])
+                    logger.info("✓ Password extraída do texto")
 
             # 4. Extrair Server URL / DNS — primeiro tentar "Server URL:", senão extrair do M3U host
             server_match = re.search(r'Server\s*URL:\s*(https?://[^\s\nA-Z]+)', page_text)
             if server_match:
                 credentials["dns"] = server_match.group(1)
-                logger.info(f"✓ DNS/Server: {credentials['dns']}")
+                logger.info("✓ DNS/Server extraído")
             elif credentials["m3u"]:
                 dns_match = re.search(r'(https?://[^/\s]+)', credentials["m3u"])
                 if dns_match:
                     credentials["dns"] = dns_match.group(1)
-                    logger.info(f"✓ DNS (do M3U): {credentials['dns']}")
+                    logger.info("✓ DNS extraído do M3U")
 
             # 5. URL da confirmação
             credentials["url"] = f"{PORTAL_URL}/cart.php?a=complete"
@@ -442,27 +505,29 @@ class IPTVScraper:
                 
                 logger.warning(f"⚠ Extração incompleta. Campos em falta: {', '.join(missing)}")
                 
-                # Guardar HTML para debug
-                try:
-                    debug_path = os.path.join(os.path.dirname(__file__), "debug_confirmation.html")
-                    with open(debug_path, "w", encoding="utf-8") as f:
-                        f.write(html)
-                    logger.info(f"HTML de confirmação guardado em: {debug_path}")
-                except Exception:
-                    pass
+                # O relatório web regista os campos em falta sem guardar HTML com segredos.
+                diagnostic_event("extraction", "Extração incompleta", missing_fields=missing)
+                if not has_active_run():
+                    try:
+                        debug_path = os.path.join(os.path.dirname(__file__), "debug_confirmation.html")
+                        with open(debug_path, "w", encoding="utf-8") as f:
+                            f.write(html)
+                        logger.info(f"HTML de confirmação guardado em: {debug_path}")
+                    except Exception:
+                        pass
                 
                 raise RuntimeError(f"Processo não completou a 100%: faltam dados essenciais ({', '.join(missing)})")
 
         except Exception as e:
-            logger.error(f"Erro ao extrair credenciais: {e}")
-            import traceback
-            logger.debug(traceback.format_exc())
-            raise e
+            logger.error("Erro ao extrair credenciais (%s): %s", type(e).__name__, sanitize_text(str(e)))
+            raise
 
         return credentials
 
     def _log_failure_to_file(self, attempt: int, total_attempts: int, error_msg: str, proxy_url: str = None, traceback_str: str = ""):
         """Regista detalhes de qualquer falha / reinício do processo num ficheiro de log dedicado."""
+        if has_active_run():
+            return
         try:
             log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ERROR_LOG_FILE)
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -486,7 +551,7 @@ class IPTVScraper:
             entry.append(divider + "\n\n")
             
             with open(log_path, "a", encoding="utf-8") as f:
-                f.write("\n".join(entry))
+                f.write(sanitize_text("\n".join(entry)))
             
             logger.info(f"📁 Detalhes da falha guardados em: {ERROR_LOG_FILE}")
         except Exception as ex:
@@ -499,6 +564,8 @@ class IPTVScraper:
         max_retries = MAX_PROXY_RETRIES if pm.has_proxies() else 5
 
         for attempt in range(max_retries):
+            diagnostic_event("attempt", "Início da tentativa", attempt=attempt + 1,
+                             total_attempts=max_retries)
             if attempt > 0:
                 logger.info(f"\n{'=' * 60}")
                 logger.info(f"RECOMEÇANDO O LOOP: TENTATIVA {attempt + 1}/{max_retries}")
@@ -511,6 +578,8 @@ class IPTVScraper:
                     self._ui_step(0, "A procurar proxy funcional...")
                 proxy_url = self._find_working_proxy(pm, max_tests=500)
 
+            diagnostic_event("connection", "Ligação selecionada", proxy=proxy_url,
+                             mode="proxy" if proxy_url else "direct")
             try:
                 result = self._run_single_attempt(proxy_url)
                 if result is not None:
@@ -518,7 +587,7 @@ class IPTVScraper:
             except Exception as e:
                 tb = traceback.format_exc()
                 self.last_error = str(e)
-                logger.error(f"[ERRO TENTATIVA {attempt + 1}]: {e}")
+                logger.exception("[ERRO TENTATIVA %s] (%s): %s", attempt + 1, type(e).__name__, sanitize_text(str(e)))
                 self._log_failure_to_file(
                     attempt=attempt + 1,
                     total_attempts=max_retries,
@@ -530,7 +599,10 @@ class IPTVScraper:
                     pm.mark_failed(proxy_url)
                 if attempt < max_retries - 1:
                     logger.warning(f"⚠️ Processo não concluído a 100%. A recomeçar o loop (Tentativa {attempt + 2}/{max_retries})...")
-                    logger.warning(f"ℹ️ Consulta '{ERROR_LOG_FILE}' para ver o motivo detalhado da falha.")
+                    if not has_active_run():
+                        logger.warning(f"ℹ️ Consulta '{ERROR_LOG_FILE}' para ver o motivo detalhado da falha.")
 
-        logger.error(f"Todas as {max_retries} tentativas falharam. Consulta '{ERROR_LOG_FILE}' para mais detalhes.")
+        logger.error("Todas as %s tentativas falharam.", max_retries)
+        if not has_active_run():
+            logger.error("Consulta '%s' para mais detalhes.", ERROR_LOG_FILE)
         return None

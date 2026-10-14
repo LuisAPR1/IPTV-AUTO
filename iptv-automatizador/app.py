@@ -10,6 +10,11 @@ import json
 import uuid
 import threading
 import logging
+import copy
+import hmac
+import time
+import sqlite3
+from functools import wraps
 from typing import Dict, Any
 from flask import Flask, render_template, jsonify, request, Response
 
@@ -18,9 +23,12 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
-from config import PERSONAL_GMAIL, GMAIL_APP_PASSWORD, ERROR_LOG_FILE
+from config import PERSONAL_GMAIL, GMAIL_APP_PASSWORD, DIAGNOSTICS_TOKEN, DIAGNOSTICS_DB_PATH
+from config import EMAIL_TIMEOUT, EMAIL_POLL_INTERVAL, MAX_PROXY_RETRIES, PROXYSCRAPE_TYPES, PROXYSCRAPE_TIMEOUT
 from email_service import TempMailService
 from scraper import IPTVScraper
+from diagnostics import (RunHistory, RunCapture, Redactor, RETENTION, install_log_capture,
+                         diagnostic_event, sanitize_text, runtime_metadata, utc_now)
 
 # Configurar logging
 logging.basicConfig(
@@ -29,12 +37,33 @@ logging.basicConfig(
     datefmt='%H:%M:%S'
 )
 logger = logging.getLogger(__name__)
+install_log_capture()
 
 app = Flask(__name__, template_folder=os.path.join(current_dir, "templates"))
+app.config["DIAGNOSTICS_TOKEN"] = DIAGNOSTICS_TOKEN
 
 # Estado dos Jobs em memória
 jobs: Dict[str, Dict[str, Any]] = {}
+jobs_lock = threading.RLock()
+history_lock = threading.Lock()
+history = None
+history_initialization_error = None
 LATEST_TRIAL_FILE = os.path.join(current_dir, "latest_trial.json")
+
+
+def get_history():
+    global history, history_initialization_error
+    with history_lock:
+        if history is None:
+            try:
+                store = RunHistory(DIAGNOSTICS_DB_PATH)
+                store.recover_interrupted()
+                history = store
+                history_initialization_error = None
+            except Exception as exc:
+                history_initialization_error = type(exc).__name__
+                raise
+        return history
 
 
 def save_latest_trial(creds: Dict[str, str]):
@@ -42,8 +71,8 @@ def save_latest_trial(creds: Dict[str, str]):
     try:
         with open(LATEST_TRIAL_FILE, "w", encoding="utf-8") as f:
             json.dump(creds, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        logger.error(f"Erro ao guardar último trial: {e}")
+    except Exception:
+        logger.exception("Erro ao guardar último trial")
 
 
 def load_latest_trial() -> Dict[str, str]:
@@ -57,57 +86,66 @@ def load_latest_trial() -> Dict[str, str]:
     return {}
 
 
-def run_scraper_task(job_id: str):
+def run_scraper_task(job_id: str, capture: RunCapture):
     """Executa a automação IPTV em segundo plano."""
-    job = jobs[job_id]
+    with capture.activate():
+        job = jobs[job_id]
+        email_service = None
+        scraper = None
+        status, error, error_type, credentials = "error", None, None, None
 
-    def on_progress(step_index: int, message: str):
-        percent = max(5, min(95, int((step_index / 8.0) * 100)))
-        job["step"] = step_index
-        job["percent"] = percent
-        job["message"] = message
-        log_entry = f"[Passo {step_index}] {message}"
-        if not job["logs"] or job["logs"][-1] != log_entry:
-            job["logs"].append(log_entry)
+        def on_progress(step_index: int, message: str):
+            message = sanitize_text(message)
+            with jobs_lock:
+                job.update(step=step_index, percent=max(5, min(95, int(step_index / 8.0 * 100))),
+                           message=message)
+                log_entry = f"[Passo {step_index}] {message}"
+                if not job["logs"] or job["logs"][-1] != log_entry:
+                    job["logs"].append(log_entry)
+                    job["logs"] = job["logs"][-100:]
+            diagnostic_event("progress", message, step=step_index)
 
-    try:
-        on_progress(1, "Inicializando serviço de email e parâmetros...")
-        
-        email_service = TempMailService(
-            personal_gmail=PERSONAL_GMAIL,
-            app_password=GMAIL_APP_PASSWORD
-        )
-
-        scraper = IPTVScraper(
-            email_service=email_service,
-            progress_callback=on_progress
-        )
-
-        # Executar automação
-        credentials = scraper.run_automation()
-
-        if credentials and credentials.get("username") and credentials.get("password"):
-            job["status"] = "completed"
-            job["percent"] = 100
-            job["message"] = "Trial de 48h gerado com sucesso!"
-            job["credentials"] = credentials
-            save_latest_trial(credentials)
-            logger.info(f"Job {job_id} concluído com sucesso.")
-        else:
-            job["status"] = "error"
-            detail = f" Último erro: {scraper.last_error}" if getattr(scraper, "last_error", "") else ""
-            job["error"] = f"Não foi possível extrair todas as credenciais.{detail}"
-            logger.warning(f"Job {job_id} falhou na extração de credenciais.{detail}")
-
-    except Exception as e:
-        logger.error(f"Job {job_id} falhou com erro: {e}")
-        job["status"] = "error"
-        job["error"] = str(e)
-    finally:
         try:
-            email_service.cleanup()
-        except Exception:
-            pass
+            diagnostic_event("start", "Execução iniciada")
+            on_progress(1, "Inicializando serviço de email e parâmetros...")
+            email_service = TempMailService(personal_gmail=PERSONAL_GMAIL, app_password=GMAIL_APP_PASSWORD)
+            scraper = IPTVScraper(email_service=email_service, progress_callback=on_progress)
+            credentials = scraper.run_automation()
+            if credentials and credentials.get("username") and credentials.get("password"):
+                capture.redactor.register(*credentials.values())
+                save_latest_trial(credentials)
+                status = "completed"
+                logger.info("Job %s concluído com sucesso.", job_id)
+            else:
+                detail = getattr(scraper, "last_error", "")
+                error = "Não foi possível extrair todas as credenciais." + (f" Último erro: {detail}" if detail else "")
+                error_type = "GenerationFailed"
+                logger.error("Job %s falhou: %s", job_id, error)
+        except Exception as exc:
+            error, error_type = str(exc), type(exc).__name__
+            logger.exception("Job %s falhou com erro", job_id)
+        finally:
+            if email_service is not None:
+                try:
+                    email_service.cleanup()
+                except Exception:
+                    logger.exception("Falha na limpeza do serviço de email")
+            if scraper is not None:
+                try:
+                    scraper.session.close()
+                except Exception:
+                    logger.exception("Falha na limpeza da sessão HTTP")
+            error = sanitize_text(error) if error else None
+            diagnostic_event("finish", "Execução concluída" if status == "completed" else "Execução falhou",
+                             status=status, error=error, error_type=error_type)
+            capture.finish(status, error, error_type)
+            with jobs_lock:
+                job.update(status=status, error=error,
+                           message="Trial de 48h gerado com sucesso!" if status == "completed" else error,
+                           credentials=credentials if status == "completed" else None,
+                           finished_at=time.time(), diagnostics_available=not (capture.lost_events or capture.finish_failed))
+                if status == "completed":
+                    job["percent"] = 100
 
 
 @app.route("/")
@@ -116,40 +154,123 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/diagnostics")
+def diagnostics_page():
+    return render_template("diagnostics.html")
+
+
+def diagnostics_access(view):
+    @wraps(view)
+    def protected(*args, **kwargs):
+        expected = app.config.get("DIAGNOSTICS_TOKEN", "")
+        if not expected:
+            return jsonify(success=False, message="Configura DIAGNOSTICS_TOKEN no servidor para consultar os relatórios."), 503
+        supplied = request.headers.get("Authorization", "")
+        if not hmac.compare_digest(supplied.encode("utf-8"), ("Bearer " + expected).encode("utf-8")):
+            return jsonify(success=False, message="Chave de diagnóstico inválida."), 401
+        try:
+            return view(*args, **kwargs)
+        except (OSError, sqlite3.Error):
+            return jsonify(success=False, message="Histórico indisponível. Verifica o armazenamento do servidor."), 503
+    return protected
+
+
+@app.after_request
+def private_diagnostics(response):
+    if request.path == "/diagnostics" or request.path.startswith("/api/diagnostics"):
+        response.headers["Cache-Control"] = "no-store"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Vary"] = "Authorization"
+    return response
+
+
+def diagnostic_report(runs):
+    store = get_history()
+    return {"schema_version": 1, "exported_at": utc_now(), "retention": RETENTION,
+            "storage_warning": "Alguns eventos podem não ter sido guardados." if
+            store.storage_error or any(run.get("storage_warning") for run in runs) else None,
+            "runs": runs}
+
+
+def report_download(payload, filename):
+    return Response(json.dumps(payload, ensure_ascii=False, indent=2), mimetype="application/json",
+                    headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+
+
+@app.get("/api/diagnostics/runs")
+@diagnostics_access
+def diagnostics_runs():
+    return jsonify(diagnostic_report(get_history().list()))
+
+
+@app.get("/api/diagnostics/runs/<job_id>")
+@diagnostics_access
+def diagnostics_run(job_id):
+    run = get_history().get(job_id)
+    if not run:
+        return jsonify(success=False, message="Execução não encontrada nas últimas 10."), 404
+    return jsonify(schema_version=1, run=run)
+
+
+@app.get("/api/diagnostics/export")
+@diagnostics_access
+def diagnostics_export():
+    return report_download(diagnostic_report(get_history().list(include_events=True)), "diagnostico-ultimas-10.json")
+
+
+@app.get("/api/diagnostics/runs/<job_id>/export")
+@diagnostics_access
+def diagnostics_run_export(job_id):
+    run = get_history().get(job_id)
+    if not run:
+        return jsonify(success=False, message="Execução não encontrada nas últimas 10."), 404
+    return report_download(diagnostic_report([run]), f"diagnostico-{run['id']}.json")
+
+
 @app.route("/api/generate", methods=["POST"])
 def generate_trial():
     """Inicia um novo processo de geração de trial IPTV."""
-    import time
-    now = time.time()
-    # Verificar se já existe algum job ativo (menos de 300s) a correr
-    for j_id, j_data in jobs.items():
-        if j_data.get("status") == "running":
-            if now - j_data.get("created_at", now) < 300:
+    with jobs_lock:
+        # A background thread is not cancelled by Gunicorn's request timeout.
+        for j_id, j_data in jobs.items():
+            if j_data.get("status") == "running":
                 return jsonify({
                     "success": True,
                     "job_id": j_id,
                     "message": "Já existe uma automação em curso. A acompanhar progresso..."
                 })
-            else:
-                j_data["status"] = "error"
-                j_data["error"] = "Tempo limite excedido."
-
-    job_id = str(uuid.uuid4())[:8]
-    jobs[job_id] = {
-        "id": job_id,
-        "status": "running",
-        "step": 1,
-        "percent": 5,
-        "message": "Iniciando sessão de automação...",
-        "logs": [],
-        "credentials": None,
-        "error": None,
-        "created_at": now
-    }
-
-    # Iniciar worker thread
-    thread = threading.Thread(target=run_scraper_task, args=(job_id,), daemon=True)
-    thread.start()
+        job_id = uuid.uuid4().hex
+        redactor = Redactor((PERSONAL_GMAIL, GMAIL_APP_PASSWORD, app.config["DIAGNOSTICS_TOKEN"]))
+        try:
+            store = get_history()
+            metadata = runtime_metadata()
+            metadata["settings"] = {"gmail_configured": bool(PERSONAL_GMAIL and GMAIL_APP_PASSWORD),
+                                    "email_timeout_seconds": EMAIL_TIMEOUT,
+                                    "email_poll_seconds": EMAIL_POLL_INTERVAL,
+                                    "max_proxy_retries": MAX_PROXY_RETRIES,
+                                    "proxyscrape_types": PROXYSCRAPE_TYPES,
+                                    "proxyscrape_timeout_ms": PROXYSCRAPE_TIMEOUT,
+                                    "workers_supported": 1}
+            store.create(job_id, metadata, redactor)
+        except Exception:
+            return jsonify(success=False, message="Não foi possível guardar o diagnóstico. Verifica o armazenamento do servidor."), 503
+        capture = RunCapture(store, job_id, redactor)
+        while len(jobs) >= RETENTION:
+            del jobs[next(iter(jobs))]
+        jobs[job_id] = {"id": job_id, "status": "running", "step": 1, "percent": 5,
+                        "message": "Iniciando sessão de automação...", "logs": [],
+                        "credentials": None, "error": None, "created_at": time.time(),
+                        "diagnostics_url": f"/diagnostics#{job_id}"}
+        try:
+            threading.Thread(target=run_scraper_task, args=(job_id, capture), daemon=True).start()
+        except Exception as exc:
+            with capture.activate():
+                logger.exception("Falha ao iniciar worker de geração")
+                error = sanitize_text(str(exc))
+            capture.finish("error", error, type(exc).__name__)
+            jobs[job_id].update(status="error", error=error)
+            return jsonify(success=False, job_id=job_id, message="Falha ao iniciar execução. Consulta o diagnóstico."), 503
 
     return jsonify({
         "success": True,
@@ -161,9 +282,19 @@ def generate_trial():
 @app.route("/api/progress/<job_id>", methods=["GET"])
 def get_progress(job_id: str):
     """Retorna o estado e progresso actual de um job."""
-    job = jobs.get(job_id)
+    with jobs_lock:
+        job = copy.deepcopy(jobs.get(job_id))
     if not job:
-        return jsonify({"success": False, "message": "Job não encontrado"}), 404
+        try:
+            saved = get_history().get(job_id)
+        except Exception:
+            return jsonify(success=False, message="Diagnóstico temporariamente indisponível."), 503
+        if not saved:
+            return jsonify({"success": False, "message": "Job não encontrado. Consulta o histórico de diagnóstico."}), 404
+        job = {"id": job_id, "status": "error" if saved["status"] == "interrupted" else saved["status"],
+               "step": saved["step"], "percent": 100 if saved["status"] == "completed" else 0,
+               "message": saved["message"], "error": saved["error"], "logs": [], "credentials": None,
+               "diagnostics_url": f"/diagnostics#{job_id}"}
     return jsonify(job)
 
 
@@ -204,7 +335,8 @@ def health():
     return jsonify({
         "status": "online",
         "service": "IPTV Trial Generator Web",
-        "gmail_configured": bool(PERSONAL_GMAIL and GMAIL_APP_PASSWORD)
+        "gmail_configured": bool(PERSONAL_GMAIL and GMAIL_APP_PASSWORD),
+        "diagnostics": "degraded" if history_initialization_error or (history and history.storage_error) else "ready"
     })
 
 

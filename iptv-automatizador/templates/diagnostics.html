@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <title>Diagnóstico de execuções — IPTV Trial Auto</title>
+    <style>
+        :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0b0f19; color: #f3f4f6; }
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 28px 20px; }
+        main { max-width: 1120px; margin: auto; }
+        header, .toolbar, .run-top { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        header { margin-bottom: 26px; }
+        h1 { font-size: 26px; margin: 8px 0; letter-spacing: -.5px; }
+        h2 { font-size: 18px; margin: 0 0 14px; }
+        h3 { font-size: 15px; margin: 0 0 12px; }
+        p { line-height: 1.6; margin: 8px 0; }
+        a { color: #c4b5fd; }
+        .muted, small { color: #a1a9ba; }
+        .card { padding: 22px; border: 1px solid #2a3142; border-radius: 18px; background: #111827; }
+        .auth { margin-bottom: 18px; }
+        .auth-row { display: flex; align-items: end; gap: 12px; flex-wrap: wrap; }
+        .field { flex: 1; min-width: 220px; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; }
+        input { width: 100%; background: #0b0f19; border: 1px solid #424b60; border-radius: 10px; color: inherit; padding: 12px; font: inherit; }
+        button, .button { border: 1px solid #424b60; border-radius: 10px; background: #20293b; color: #f3f4f6; padding: 11px 14px; font: inherit; font-size: 14px; cursor: pointer; text-decoration: none; }
+        button:hover, .button:hover { background: #303b52; }
+        .primary { background: #6d28d9; border-color: #8b5cf6; }
+        .primary:hover { background: #7c3aed; }
+        button:disabled { opacity: .5; cursor: wait; }
+        :focus-visible { outline: 3px solid #c4b5fd; outline-offset: 3px; }
+        .toolbar { margin-bottom: 18px; }
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .layout { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 18px; align-items: start; }
+        #runs { display: grid; gap: 10px; }
+        .run { width: 100%; text-align: left; padding: 14px; background: #0b0f19; }
+        .run[aria-pressed="true"] { border-color: #a78bfa; background: #251c40; }
+        .run small { display: block; margin-top: 8px; line-height: 1.5; overflow-wrap: anywhere; }
+        .badge { font-size: 12px; font-weight: 600; border-radius: 20px; padding: 4px 9px; background: #303b52; }
+        .badge.error, .badge.interrupted { color: #fecaca; background: #57232d; }
+        .badge.completed { color: #a7f3d0; background: #124636; }
+        .badge.running { color: #fde68a; background: #514123; }
+        #notice { padding: 13px 16px; margin-bottom: 18px; border: 1px solid #424b60; border-radius: 10px; line-height: 1.5; overflow-wrap: anywhere; }
+        #notice[data-kind="error"] { background: #361d29; border-color: #9f4055; color: #fecaca; }
+        #notice[data-kind="success"] { background: #15332d; border-color: #347865; }
+        #notice[data-kind="warning"] { background: #382d16; border-color: #987c3d; color: #fde68a; }
+        .storage-warning { padding: 12px; border: 1px solid #987c3d; border-radius: 10px; background: #382d16; color: #fde68a; font-size: 14px; }
+        dl { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 9px 12px; margin: 18px 0; font-size: 14px; }
+        dt { color: #a1a9ba; }
+        dd { margin: 0; overflow-wrap: anywhere; }
+        pre { margin: 10px 0; padding: 13px; border: 1px solid #2a3142; border-radius: 9px; background: #080d17; font: 12px/1.6 Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+        details { margin: 14px 0; }
+        summary { cursor: pointer; color: #c4b5fd; font-size: 14px; }
+        .event { border-top: 1px solid #2a3142; padding: 14px 0; }
+        .event p { font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .event small { font-size: 11px; overflow-wrap: anywhere; }
+        [hidden] { display: none !important; }
+        @media (max-width: 760px) { body { padding: 20px 12px; } .layout { grid-template-columns: 1fr; } .card { padding: 17px; } h1 { font-size: 23px; } #runs { max-height: 360px; overflow-y: auto; } }
+    </style>
+</head>
+<body>
+<main>
+    <header>
+        <div><a href="/">← Voltar ao gerador</a><h1>Diagnóstico de execuções</h1><p class="muted">Consulta os passos de cada execução e descarrega o relatório para análise.</p></div>
+        <button id="logout" type="button" hidden>Terminar acesso</button>
+    </header>
+
+    <form id="auth-form" class="card auth" autocomplete="off">
+        <h2>Acesso aos relatórios</h2>
+        <div class="auth-row">
+            <div class="field"><label for="token">Token de diagnóstico</label><input id="token" type="password" required autocomplete="off" spellcheck="false" autocapitalize="none" aria-describedby="token-help"></div>
+            <button id="connect" class="primary" type="submit">Abrir relatórios</button>
+        </div>
+        <p id="token-help" class="muted">Usa o token configurado no servidor. O token só fica em memória e não é incluído nos relatórios.</p>
+    </form>
+
+    <div id="notice" role="status" aria-live="polite" hidden></div>
+
+    <section id="workspace" hidden aria-label="Relatórios de diagnóstico">
+        <div class="toolbar">
+            <p id="retention" class="muted">Últimas 10 execuções</p>
+            <div class="actions"><button id="refresh" type="button">Atualizar</button><button id="export-all" class="primary" type="button">Descarregar últimas 10 (JSON)</button></div>
+        </div>
+        <div class="layout">
+            <section class="card" aria-label="Lista de execuções"><h2>Execuções recentes</h2><div id="runs"></div></section>
+            <section id="detail" class="card" aria-label="Detalhes da execução"><h2>Detalhes da execução</h2><p class="muted">Seleciona uma execução para consultar os eventos.</p></section>
+        </div>
+    </section>
+</main>
+<script>
+(() => {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const labels = { running: 'Em execução', completed: 'Concluída', error: 'Falhou', interrupted: 'Interrompida' };
+    let token = '';
+    let session = 0;
+    let selectedId = '';
+    let detailRequest = 0;
+    let refreshing = false;
+    let exporting = false;
+    const controllers = new Set();
+
+    function element(tag, text, className) {
+        const node = document.createElement(tag);
+        if (text !== undefined && text !== null) node.textContent = String(text);
+        if (className) node.className = className;
+        return node;
+    }
+
+    function notice(message, kind = '') {
+        $('notice').textContent = message;
+        $('notice').dataset.kind = kind;
+        $('notice').hidden = !message;
+    }
+
+    function formatDate(value) {
+        if (!value) return '—';
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString('pt-PT');
+    }
+
+    function hashId() {
+        try { return decodeURIComponent(location.hash.slice(1)); } catch (_) { return ''; }
+    }
+
+    function resetAccess() {
+        session += 1;
+        controllers.forEach(controller => controller.abort());
+        controllers.clear();
+        token = '';
+        selectedId = '';
+        detailRequest += 1;
+        refreshing = false;
+        exporting = false;
+        $('token').value = '';
+        $('auth-form').hidden = false;
+        $('workspace').hidden = true;
+        $('logout').hidden = true;
+        $('connect').disabled = false;
+        $('refresh').disabled = false;
+        $('export-all').disabled = false;
+        $('runs').replaceChildren();
+        $('detail').replaceChildren();
+    }
+
+    async function api(path) {
+        const requestSession = session;
+        const controller = new AbortController();
+        controllers.add(controller);
+        const timeout = setTimeout(() => controller.abort(), 20000);
+        try {
+            const response = await fetch(path, {
+                headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+                cache: 'no-store', signal: controller.signal, credentials: 'same-origin'
+            });
+            let data;
+            try { data = await response.json(); } catch (_) {
+                throw new Error(`O servidor devolveu uma resposta inválida (HTTP ${response.status}).`);
+            }
+            if (requestSession !== session) throw Object.assign(new Error(), { stale: true });
+            if (!response.ok) {
+                if (response.status === 401) {
+                    resetAccess();
+                    notice('Token inválido ou expirado. Introduz o token de diagnóstico para voltar a aceder.', 'error');
+                    $('token').focus();
+                    throw Object.assign(new Error(), { stale: true });
+                }
+                const fallback = response.status === 503
+                    ? 'O diagnóstico ainda não está disponível. Configura DIAGNOSTICS_TOKEN no servidor.'
+                    : response.status === 404
+                    ? 'Esta execução já não está disponível; pode ter saído das últimas 10 guardadas.'
+                    : `Não foi possível obter o relatório (HTTP ${response.status}).`;
+                throw new Error(data.message || fallback);
+            }
+            return data;
+        } catch (error) {
+            if (requestSession !== session || error.stale) throw Object.assign(new Error(), { stale: true });
+            if (error.name === 'AbortError') throw new Error('O servidor demorou demasiado a responder. Tenta atualizar novamente.');
+            if (error instanceof TypeError) throw new Error('Não foi possível ligar ao servidor. Verifica a ligação e tenta novamente.');
+            throw error;
+        } finally {
+            clearTimeout(timeout);
+            controllers.delete(controller);
+        }
+    }
+
+    function renderList(runs) {
+        $('runs').replaceChildren();
+        if (!runs.length) {
+            $('runs').append(element('p', 'Ainda não existem execuções registadas. Gera um trial para iniciar o histórico.', 'muted'));
+            return;
+        }
+        for (const run of runs) {
+            const button = element('button', null, 'run');
+            button.type = 'button';
+            button.dataset.runId = run.id;
+            button.setAttribute('aria-pressed', String(run.id === selectedId));
+            const top = element('span', null, 'run-top');
+            const state = Object.prototype.hasOwnProperty.call(labels, run.status) ? run.status : '';
+            top.append(element('span', labels[run.status] || run.status || 'Desconhecida', `badge ${state}`));
+            top.append(element('small', formatDate(run.created_at)));
+            button.append(top, element('small', `ID: ${run.id}`), element('small', run.error || run.message || 'Sem mensagem.'));
+            button.addEventListener('click', () => {
+                history.replaceState(null, '', `${location.pathname}#${encodeURIComponent(run.id)}`);
+                loadDetail(run.id);
+            });
+            $('runs').append(button);
+        }
+    }
+
+    function renderDetail(run) {
+        const container = $('detail');
+        container.replaceChildren(element('h2', 'Detalhes da execução'));
+        if (run.storage_warning) container.append(element('p', run.storage_warning, 'storage-warning'));
+        const download = element('button', 'Descarregar esta execução (JSON)', 'primary');
+        download.type = 'button';
+        download.addEventListener('click', () => downloadReport(`/api/diagnostics/runs/${encodeURIComponent(run.id)}/export`, 'diagnostico-execucao.json', download));
+        container.append(download);
+        const summary = element('dl');
+        const fields = [
+            ['ID', run.id], ['Estado', labels[run.status] || run.status], ['Início', formatDate(run.created_at)],
+            ['Fim', formatDate(run.finished_at)], ['Duração', run.duration_seconds == null ? '—' : `${run.duration_seconds} s`],
+            ['Passo', run.step == null ? '—' : run.step], ['Tentativa', `${run.attempt || 0} / ${run.total_attempts || '—'}`],
+            ['Mensagem', run.message || '—'], ['Erro', run.error || '—'], ['Tipo de erro', run.error_type || '—']
+        ];
+        for (const [name, value] of fields) summary.append(element('dt', name), element('dd', value));
+        container.append(summary);
+        if (run.metadata && Object.keys(run.metadata).length) {
+            const metadata = element('details');
+            metadata.append(element('summary', 'Contexto da execução'), element('pre', JSON.stringify(run.metadata, null, 2)));
+            container.append(metadata);
+        }
+        const events = Array.isArray(run.events) ? run.events : [];
+        container.append(element('h3', `Eventos (${events.length})`));
+        if (run.dropped_events) container.append(element('p', `${run.dropped_events} eventos mais antigos foram removidos por limite de tamanho.`, 'muted'));
+        if (!events.length) container.append(element('p', 'Não existem eventos disponíveis para esta execução.', 'muted'));
+        for (const event of events) {
+            const row = element('article', null, 'event');
+            row.append(element('small', [formatDate(event.timestamp), event.level, event.source, event.kind].filter(Boolean).join(' · ')));
+            row.append(element('p', event.message || '(sem mensagem)'));
+            if (event.details && Object.keys(event.details).length) row.append(element('pre', JSON.stringify(event.details, null, 2)));
+            if (event.traceback) {
+                const stack = element('details');
+                stack.append(element('summary', 'Detalhe técnico do erro'), element('pre', event.traceback));
+                row.append(stack);
+            }
+            container.append(row);
+        }
+    }
+
+    async function loadDetail(id) {
+        if (!token || !id) return;
+        selectedId = id;
+        const request = ++detailRequest;
+        $('runs').querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.runId === id)));
+        $('detail').replaceChildren(element('h2', 'Detalhes da execução'), element('p', 'A carregar eventos…', 'muted'));
+        try {
+            const data = await api(`/api/diagnostics/runs/${encodeURIComponent(id)}`);
+            if (request !== detailRequest) return;
+            renderDetail(data.run);
+        } catch (error) {
+            if (error.stale || request !== detailRequest) return;
+            $('detail').replaceChildren(element('h2', 'Detalhes da execução'), element('p', error.message));
+        }
+    }
+
+    async function refresh() {
+        if (!token || refreshing) return;
+        refreshing = true;
+        const requestSession = session;
+        $('refresh').disabled = true;
+        $('connect').disabled = true;
+        notice('A carregar as execuções…');
+        try {
+            const data = await api('/api/diagnostics/runs');
+            $('auth-form').hidden = true;
+            $('workspace').hidden = false;
+            $('logout').hidden = false;
+            const runs = Array.isArray(data.runs) ? data.runs : [];
+            $('retention').textContent = `Últimas ${data.retention || 10} execuções · ${runs.length} disponíveis`;
+            selectedId = hashId() || selectedId || (runs[0] && runs[0].id) || '';
+            renderList(runs);
+            notice(data.storage_warning || '', data.storage_warning ? 'warning' : '');
+            if (selectedId) await loadDetail(selectedId);
+            else $('detail').replaceChildren(element('h2', 'Detalhes da execução'), element('p', 'O relatório ficará disponível depois da primeira execução.', 'muted'));
+        } catch (error) {
+            if (!error.stale) notice(error.message, 'error');
+        } finally {
+            if (requestSession === session) {
+                refreshing = false;
+                $('refresh').disabled = false;
+                $('connect').disabled = false;
+            }
+        }
+    }
+
+    async function downloadReport(path, filename, button) {
+        if (!token || exporting) return;
+        exporting = true;
+        const requestSession = session;
+        button.disabled = true;
+        notice('A preparar o relatório…');
+        try {
+            const data = await api(path);
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = element('a');
+            link.href = url;
+            link.download = filename;
+            document.body.append(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            notice(`Relatório descarregado. Podes enviar este ficheiro JSON para análise.${data.storage_warning ? ' ' + data.storage_warning : ''}`, data.storage_warning ? 'warning' : 'success');
+        } catch (error) {
+            if (!error.stale) notice(error.message, 'error');
+        } finally {
+            if (requestSession === session) { exporting = false; button.disabled = false; }
+        }
+    }
+
+    $('auth-form').addEventListener('submit', event => {
+        event.preventDefault();
+        const enteredToken = $('token').value.trim();
+        if (!enteredToken) return;
+        resetAccess();
+        token = enteredToken;
+        $('logout').hidden = false;
+        refresh();
+    });
+    $('logout').addEventListener('click', () => {
+        resetAccess();
+        history.replaceState(null, '', location.pathname);
+        notice('Acesso terminado. O token e os relatórios foram removidos desta página.');
+        $('token').focus();
+    });
+    $('refresh').addEventListener('click', refresh);
+    $('export-all').addEventListener('click', () => downloadReport('/api/diagnostics/export', 'diagnostico-ultimas-10.json', $('export-all')));
+    window.addEventListener('hashchange', () => { if (token) loadDetail(hashId()); });
+    window.addEventListener('pagehide', resetAccess);
+})();
+</script>
+</body>
+</html>

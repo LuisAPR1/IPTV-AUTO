@@ -41,6 +41,11 @@ Na mesma página, rola até à secção **"Environment Variables"** e adiciona a
   * **Valor**: `a_tua_app_password_de_16_digitos`
 * **Chave 3 (Opcional)**: `USE_PROXYSCRAPE`
   * **Valor**: `true` *(necessário para rodar proxies SOCKS5 e evitar bloqueio do IP do servidor no checkout)*
+* **Chave 4**: `DIAGNOSTICS_TOKEN`
+  * **Valor**: uma chave privada longa, gerada com `python -c "import secrets; print(secrets.token_urlsafe(32))"`.
+  * Permite abrir **Diagnóstico** e descarregar os logs das últimas 10 execuções. Sem esta chave, os registos são recolhidos mas não podem ser consultados pela API.
+
+O histórico fica em SQLite no servidor. No plano gratuito do Render, o disco é efémero: descarrega o relatório antes de reiniciar ou fazer deploy. Para retenção entre reinícios, configura `DIAGNOSTICS_DB_PATH` dentro de um disco persistente. Mantém `--workers 1`. Consulta [DIAGNOSTICS.md](DIAGNOSTICS.md) para configuração, endpoints e limites.
 
 ### Passo 5: Iniciar o Deploy!
 1. Clica no botão final **"Create Web Service"**.

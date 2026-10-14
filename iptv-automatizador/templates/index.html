@@ -105,6 +105,7 @@
                 <div class="space-y-1">
                     <h2 class="text-xl font-bold text-white tracking-tight" id="hero-title">Pronto para Gerar</h2>
                     <p class="text-xs text-gray-400" id="hero-desc">Clica no botão abaixo para iniciar a automação completa do trial de 48 horas.</p>
+                    <a id="completion-diagnostics" href="/diagnostics" class="hidden block pt-2 text-xs text-purple-300 underline break-all">Consultar diagnóstico da execução</a>
                 </div>
 
                 <!-- Big Action Button -->
@@ -149,9 +150,10 @@
                     <div class="flex-1">
                         <p class="font-semibold text-red-200" id="error-title">Erro na geração do trial</p>
                         <p class="text-red-300/80 text-[11px] mt-0.5" id="error-message">Ocorreu um erro durante a automação.</p>
+                        <a id="error-diagnostics" href="/diagnostics" class="block mt-2 text-purple-300 underline break-all">Abrir diagnóstico</a>
                     </div>
                 </div>
-                <button onclick="startGeneration()" class="w-full py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-200 text-xs font-medium transition">
+                <button id="btn-retry" onclick="retryGeneration()" class="w-full py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-200 text-xs font-medium transition">
                     Tentar Novamente
                 </button>
             </div>
@@ -268,6 +270,7 @@
     <!-- Footer -->
     <footer class="w-full max-w-lg mx-auto text-center py-3 text-[11px] text-gray-500">
         IPTV Trial Auto • Powered by LuisR
+        <a href="/diagnostics" class="block mt-2 text-purple-300 underline">Diagnóstico das últimas execuções</a>
     </footer>
 
     <!-- Toast Notification -->
@@ -283,6 +286,8 @@
 
         let pollInterval = null;
         let currentJobId = null;
+        let pollingInterrupted = false;
+        let pollVersion = 0;
 
         // Auto-check for latest trial on load
         window.addEventListener('DOMContentLoaded', () => {
@@ -300,12 +305,19 @@
             const resultsCard = document.getElementById('results-card');
 
             // Reset UI states
+            clearTimeout(pollInterval);
+            pollVersion += 1;
+            currentJobId = null;
+            pollingInterrupted = false;
+            document.getElementById('btn-retry').textContent = 'Tentar Novamente';
             btn.disabled = true;
             btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i><span>A Gerar Trial...</span>`;
             lucide.createIcons();
 
             progressArea.classList.remove('hidden');
             errorBanner.classList.add('hidden');
+            document.getElementById('completion-diagnostics').classList.add('hidden');
+            resultsCard.classList.add('hidden');
             statusBadge.classList.remove('hidden');
             statusBadge.classList.add('flex');
             document.getElementById('status-badge-text').innerText = 'Iniciando automação...';
@@ -320,12 +332,13 @@
             try {
                 const response = await fetch('/api/generate', { method: 'POST' });
                 const data = await response.json();
+                if (typeof data.job_id === 'string') currentJobId = data.job_id;
 
                 if (!response.ok || !data.success) {
                     throw new Error(data.message || 'Falha ao iniciar processo');
                 }
+                if (!currentJobId) throw new Error('O servidor não devolveu o ID da execução. Consulta o diagnóstico.');
 
-                currentJobId = data.job_id;
                 startPolling(currentJobId);
 
             } catch (err) {
@@ -337,36 +350,76 @@
         let lastLoggedMessage = '';
 
         function startPolling(jobId) {
-            if (pollInterval) clearInterval(pollInterval);
-
-            pollInterval = setInterval(async () => {
+            clearTimeout(pollInterval);
+            const version = ++pollVersion;
+            let failures = 0;
+            async function poll() {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 10000);
                 try {
-                    const res = await fetch(`/api/progress/${jobId}`);
+                    const res = await fetch(`/api/progress/${encodeURIComponent(jobId)}`, { signal: controller.signal, cache: 'no-store' });
+                    if (version !== pollVersion) return;
                     if (res.status === 404) {
-                        clearInterval(pollInterval);
-                        showError('Sessão Expirada', 'O servidor reiniciou a sessão. Clica em Tentar Novamente.');
+                        showError('Sessão Expirada', 'O estado desta sessão já não está disponível. Consulta o diagnóstico para verificar a execução.');
                         resetButton(false);
                         return;
                     }
                     if (!res.ok) throw new Error('Falha ao obter estado');
                     const job = await res.json();
+                    if (version !== pollVersion) return;
+                    if (!job || !['running', 'completed', 'error', 'interrupted'].includes(job.status)) {
+                        throw new Error('Estado de execução inválido');
+                    }
+                    failures = 0;
 
                     if (job.status === 'running') {
                         updateProgress(job.step, job.message, job.percent);
                     } else if (job.status === 'completed') {
-                        clearInterval(pollInterval);
                         updateProgress(8, 'Concluído com sucesso!', 100);
-                        showResults(job.credentials);
+                        if (job.credentials) showResults(job.credentials);
+                        else showCompletedWithoutCredentials(jobId);
                         resetButton(true);
-                    } else if (job.status === 'error') {
-                        clearInterval(pollInterval);
+                        return;
+                    } else if (job.status === 'error' || job.status === 'interrupted') {
                         showError('Erro na Automação', job.error || 'O processo falhou antes de obter credenciais.');
                         resetButton(false);
+                        return;
                     }
                 } catch (e) {
-                    console.error('Polling error:', e);
+                    if (version !== pollVersion) return;
+                    failures += 1;
+                    if (failures >= 4) {
+                        pollingInterrupted = true;
+                        document.getElementById('btn-retry').textContent = 'Retomar acompanhamento';
+                        showError('Ligação ao servidor interrompida', 'Não foi possível obter o estado após várias tentativas. A geração pode continuar no servidor. Retoma o acompanhamento ou abre o diagnóstico.');
+                        document.getElementById('hero-title').textContent = 'Acompanhamento interrompido';
+                        document.getElementById('hero-desc').textContent = 'O estado da geração é desconhecido enquanto não houver ligação.';
+                        document.getElementById('status-badge').classList.add('hidden');
+                        document.getElementById('status-badge').classList.remove('flex');
+                        return;
+                    }
+                } finally {
+                    clearTimeout(timeout);
                 }
-            }, 1500);
+                if (version === pollVersion) pollInterval = setTimeout(poll, 1500);
+            }
+            pollInterval = setTimeout(poll, 1500);
+        }
+
+        function retryGeneration() {
+            if (pollingInterrupted && currentJobId) {
+                pollingInterrupted = false;
+                document.getElementById('btn-retry').textContent = 'Tentar Novamente';
+                document.getElementById('error-banner').classList.add('hidden');
+                document.getElementById('status-badge').classList.remove('hidden');
+                document.getElementById('status-badge').classList.add('flex');
+                document.getElementById('status-badge-text').textContent = 'A retomar acompanhamento…';
+                document.getElementById('hero-title').textContent = 'A consultar a execução';
+                document.getElementById('hero-desc').textContent = 'A obter o estado mais recente do servidor…';
+                startPolling(currentJobId);
+                return;
+            }
+            startGeneration();
         }
 
         function updateProgress(step, message, percent) {
@@ -382,7 +435,7 @@
 
         function clearLogs() {
             lastLoggedMessage = '';
-            document.getElementById('log-details').innerHTML = '';
+            document.getElementById('log-details').textContent = '';
         }
 
         function addLog(msg) {
@@ -390,13 +443,32 @@
             const logBox = document.getElementById('log-details');
             const time = new Date().toLocaleTimeString('pt-PT');
             const row = document.createElement('div');
-            row.innerHTML = `<span class="text-gray-500">[${time}]</span> ${msg}`;
+            const timestamp = document.createElement('span');
+            timestamp.className = 'text-gray-500';
+            timestamp.textContent = `[${time}] `;
+            row.append(timestamp, document.createTextNode(String(msg)));
             logBox.appendChild(row);
             logBox.scrollTop = logBox.scrollHeight;
         }
 
+        function showCompletedWithoutCredentials(jobId) {
+            document.getElementById('results-card').classList.add('hidden');
+            document.getElementById('error-banner').classList.add('hidden');
+            document.getElementById('hero-title').textContent = 'Execução concluída';
+            document.getElementById('hero-desc').textContent = 'Esta execução terminou com sucesso, mas as credenciais já não estão disponíveis nesta sessão. Podes consultar o diagnóstico da execução.';
+            const heroIcon = document.getElementById('hero-icon');
+            heroIcon.className = 'w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400';
+            heroIcon.innerHTML = '<i data-lucide="check-check" class="w-8 h-8"></i>';
+            const link = document.getElementById('completion-diagnostics');
+            link.href = `/diagnostics#${encodeURIComponent(jobId)}`;
+            link.textContent = `Consultar diagnóstico · execução ${jobId}`;
+            link.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
         function showResults(creds) {
             if (!creds) return;
+            document.getElementById('completion-diagnostics').classList.add('hidden');
             const card = document.getElementById('results-card');
             const heroIcon = document.getElementById('hero-icon');
             const heroTitle = document.getElementById('hero-title');
@@ -426,8 +498,12 @@
 
         function showError(title, msg) {
             const errorBanner = document.getElementById('error-banner');
+            document.getElementById('completion-diagnostics').classList.add('hidden');
             document.getElementById('error-title').innerText = title;
             document.getElementById('error-message').innerText = msg;
+            const diagnosticLink = document.getElementById('error-diagnostics');
+            diagnosticLink.href = currentJobId ? `/diagnostics#${encodeURIComponent(currentJobId)}` : '/diagnostics';
+            diagnosticLink.textContent = currentJobId ? `Abrir diagnóstico · execução ${currentJobId}` : 'Abrir diagnóstico';
             errorBanner.classList.remove('hidden');
 
             const heroIcon = document.getElementById('hero-icon');

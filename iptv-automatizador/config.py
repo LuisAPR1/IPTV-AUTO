@@ -77,5 +77,11 @@ OUTPUT_DIR = "trash"
 OUTPUT_FILE = "output.html"
 ERROR_LOG_FILE = os.getenv("ERROR_LOG_FILE", "erros_automacao.log")
 
+# Diagnóstico web: só dados sanitizados, últimas 10 execuções.
+DIAGNOSTICS_TOKEN = os.getenv("DIAGNOSTICS_TOKEN", "").strip()
+DIAGNOSTICS_DB_PATH = os.getenv(
+    "DIAGNOSTICS_DB_PATH", str(Path(__file__).parent / "data" / "diagnostics.sqlite3")
+)
+
 # User agent realista
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"

@@ -10,6 +10,7 @@ import email
 from email.header import decode_header
 from typing import Optional, Dict, Any, List
 from config import EMAIL_TIMEOUT, EMAIL_POLL_INTERVAL
+from diagnostics import diagnostic_event, register_secrets, sanitize_text
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +39,7 @@ class PersonalGmailService:
         """
         self.gmail_account = gmail_account.strip() if gmail_account else ""
         self.app_password = app_password.replace(" ", "").strip() if app_password else ""
+        register_secrets(self.gmail_account, self.app_password)
         self.email: Optional[str] = None
         self.generated_suffix: Optional[str] = None
         self.imap_server = "imap.gmail.com"
@@ -51,8 +53,9 @@ class PersonalGmailService:
         domain = self.gmail_account.split('@')[1]
         
         self.email = f"{local_part}+{self.generated_suffix}@{domain}"
+        register_secrets(self.email)
         
-        logger.info(f"✓ Gmail gerado: {self.email}")
+        logger.info("✓ Endereço Gmail com plus-addressing gerado")
         return self.email
     
     def check_messages(self) -> List[Dict]:
@@ -106,16 +109,19 @@ class PersonalGmailService:
         except imaplib.IMAP4.error as e:
             err_str = str(e)
             if "AUTHENTICATIONFAILED" in err_str or "Invalid credentials" in err_str:
-                logger.error(f"❌ Erro de Autenticação no Gmail ({self.gmail_account}): Palavra-passe de aplicação rejeitada.")
+                diagnostic_event("email", "Autenticação IMAP recusada", error_type=type(e).__name__, reason="authentication_failed")
+                logger.error("❌ Erro de Autenticação no Gmail: Palavra-passe de aplicação rejeitada.")
                 logger.error("👉 Como resolver:")
                 logger.error("  1. Verifica se a variável GMAIL_APP_PASSWORD no Render contém a Palavra-passe de Aplicação de 16 letras (e NÃO a password normal da conta Google).")
                 logger.error("  2. Gera uma nova em: https://myaccount.google.com/apppasswords")
                 logger.error("  3. Confirma se o IMAP está ATIVO em: Gmail -> Definições -> Encaminhamento e POP/IMAP -> Ativar IMAP.")
             else:
-                logger.warning(f"Erro IMAP: {e}")
+                diagnostic_event("email", "Erro IMAP", error_type=type(e).__name__, reason="imap_error")
+                logger.warning("Erro IMAP (%s): %s", type(e).__name__, sanitize_text(str(e)))
             return []
         except Exception as e:
-            logger.warning(f"Erro IMAP: {e}")
+            diagnostic_event("email", "Falha ao consultar mensagens", error_type=type(e).__name__, reason="mailbox_check_failed")
+            logger.warning("Erro IMAP (%s): %s", type(e).__name__, sanitize_text(str(e)))
             return []
     
     def _decode_header(self, header: str) -> str:
@@ -170,11 +176,13 @@ class PersonalGmailService:
     
     def get_verification_code(self, timeout: int = EMAIL_TIMEOUT) -> Optional[str]:
         """Aguarda e extrai código de verificação."""
-        logger.info(f"Aguardando email em {self.gmail_account}...")
+        logger.info("Aguardando email de verificação...")
         start_time = time.time()
+        polls = 0
         
         while time.time() - start_time < timeout:
             messages = self.check_messages()
+            polls += 1
             
             for msg in messages:
                 content = msg.get("content", "")
@@ -185,11 +193,14 @@ class PersonalGmailService:
                     code = self.extract_verification_code(subject)
                 
                 if code:
-                    logger.info(f"✓ Código encontrado: {code}")
+                    register_secrets(code)
+                    diagnostic_event("email", "Código de verificação encontrado", polls=polls)
+                    logger.info("✓ Código de verificação encontrado")
                     return code
             
             time.sleep(EMAIL_POLL_INTERVAL)
         
+        diagnostic_event("email", "Timeout aguardando email", polls=polls, timeout_seconds=timeout)
         logger.error("Timeout aguardando email")
         return None
     
@@ -209,6 +220,7 @@ class TempMailService:
         """
         self.personal_gmail = personal_gmail
         self.app_password = app_password
+        register_secrets(self.personal_gmail, self.app_password)
         self.backend: Optional[str] = None
         self.personal_service: Optional[PersonalGmailService] = None
         self.email: Optional[str] = None
