@@ -2,8 +2,8 @@
 <html lang="pt" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>IPTV Trial Generator - Mobile Web</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPTV Access Portal — Provisionamento de Trials</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons CDN -->
@@ -14,268 +14,364 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            50: '#f5f3ff',
-                            500: '#8b5cf6',
-                            600: '#7c3aed',
-                            700: '#6d28d9',
-                            900: '#4c1d95',
+                        zinc: {
+                            750: '#212126',
+                            850: '#141418',
+                            950: '#090a0f',
                         }
                     },
-                    animation: {
-                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'glow': 'glow 2s ease-in-out infinite alternate',
-                    },
-                    keyframes: {
-                        glow: {
-                            '0%': { boxShadow: '0 0 15px -3px rgba(139, 92, 246, 0.4)' },
-                            '100%': { boxShadow: '0 0 25px 5px rgba(139, 92, 246, 0.8)' }
-                        }
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Inter', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', 'monospace'],
                     }
                 }
             }
         }
     </script>
     <style>
-        /* Touch feedback & smooth mobile scroll */
+        /* Base typography & smoothing */
         * {
             -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #0b0f19;
-            color: #f3f4f6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, system-ui, sans-serif;
+            background-color: #090a0f;
+            color: #f4f4f5;
+            min-height: 100vh;
         }
-        .glass-card {
-            background: rgba(17, 24, 39, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+
+        /* Ambient subtle backdrop */
+        .ambient-glow {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 900px;
+            height: 380px;
+            background: radial-gradient(ellipse 65% 50% at 50% 0%, rgba(255, 255, 255, 0.045) 0%, rgba(0, 0, 0, 0) 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Sleek card architecture */
+        .pro-card {
+            background: #111217;
             border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
         }
-        .glow-button {
-            background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
-            box-shadow: 0 4px 20px -2px rgba(124, 58, 237, 0.5);
+
+        .pro-card-subtle {
+            background: #0d0e13;
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
-        .glow-button:active {
-            transform: scale(0.98);
+
+        /* High-contrast primary action button */
+        .primary-action-btn {
+            background: #f4f4f5;
+            color: #090a0f;
+            border: 1px solid #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        .primary-action-btn:hover:not(:disabled) {
+            background: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 1);
+        }
+        .primary-action-btn:active:not(:disabled) {
+            transform: translateY(0);
+            background: #e4e4e7;
+        }
+        .primary-action-btn:disabled {
+            opacity: 0.55;
+            cursor: wait;
+            transform: none;
+        }
+
+        /* Secondary interactive button */
+        .secondary-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            color: #d4d4d8;
+            transition: all 0.15s ease;
+        }
+        .secondary-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+        }
+        .secondary-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Accessible focus rings */
+        button:focus-visible, a:focus-visible, input:focus-visible {
+            outline: 2px solid #a1a1aa !important;
+            outline-offset: 2px !important;
+        }
+
+        /* Progress fill animation */
         .progress-bar-fill {
-            transition: width 0.4s ease;
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Terminal scroll styling */
+        .terminal-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .terminal-scroll::-webkit-scrollbar-track {
+            background: #090a0f;
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 4px;
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46;
+        }
+
+        /* Motion preference respect */
+        @media (prefers-reduced-motion: reduce) {
+            *, ::before, ::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-3 sm:p-6 antialiased selection:bg-purple-500 selection:text-white">
+<body class="min-h-screen flex flex-col justify-between p-3.5 sm:p-6 antialiased selection:bg-zinc-800 selection:text-white relative">
 
-    <!-- Top Header -->
-    <header class="w-full max-w-lg mx-auto mb-4 flex items-center justify-between pt-2">
-        <div class="flex items-center space-x-2.5">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
-                <i data-lucide="tv" class="w-5 h-5 text-white"></i>
+    <div class="ambient-glow"></div>
+
+    <!-- Header -->
+    <header class="w-full max-w-lg mx-auto mb-4 flex items-center justify-between pt-1 relative z-10">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-zinc-850 border border-zinc-700/60 flex items-center justify-center text-zinc-100 shadow-sm">
+                <i data-lucide="tv" class="w-4 h-4"></i>
             </div>
             <div>
-                <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
-                    IPTV Trial Auto
-                    <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30">48h Free</span>
-                </h1>
-                <p class="text-xs text-gray-400">Gerador rápido e automático</p>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-sm sm:text-base font-semibold tracking-tight text-zinc-100">
+                        IPTV Access Portal
+                    </h1>
+                    <span class="text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 rounded-full bg-zinc-800/80 text-zinc-300 border border-zinc-700/70">
+                        48H Pass
+                    </span>
+                </div>
+                <p class="text-xs text-zinc-400">Provisionamento automatizado de trials</p>
             </div>
         </div>
 
-        <button id="btn-refresh-latest" onclick="loadLatestTrial()" title="Ver último trial gerado" class="p-2 rounded-xl glass-card text-gray-400 hover:text-white active:scale-95 transition">
-            <i data-lucide="history" class="w-5 h-5"></i>
+        <button id="btn-refresh-latest" onclick="loadLatestTrial()" title="Ver último trial gerado" aria-label="Consultar último trial gerado" class="p-2.5 rounded-xl secondary-btn">
+            <i data-lucide="history" class="w-4 h-4"></i>
         </button>
     </header>
 
-    <!-- Main Mobile Container -->
-    <main class="w-full max-w-lg mx-auto flex-1 flex flex-col space-y-4">
+    <!-- Main Mobile/Desktop Container -->
+    <main class="w-full max-w-lg mx-auto flex-1 flex flex-col space-y-4 relative z-10">
 
         <!-- Main Action Card -->
-        <section class="glass-card rounded-2xl p-5 sm:p-6 relative overflow-hidden shadow-2xl">
-            <!-- Background Glow Decor -->
-            <div class="absolute -top-16 -right-16 w-36 h-36 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -bottom-16 -left-16 w-36 h-36 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+        <section class="pro-card rounded-2xl p-5 sm:p-6 relative overflow-hidden">
+            <!-- Subtle accent border line -->
+            <div class="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-zinc-400/20 to-transparent"></div>
 
-            <div class="relative z-10 flex flex-col items-center text-center space-y-4">
+            <div class="flex flex-col items-center text-center space-y-4">
                 
-                <!-- Icon Circle -->
-                <div id="hero-icon" class="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 transition-all duration-300">
-                    <i data-lucide="zap" class="w-8 h-8"></i>
+                <!-- Status Icon Badge -->
+                <div id="hero-icon" class="w-14 h-14 rounded-2xl pro-card-subtle flex items-center justify-center text-zinc-300 transition-all duration-200">
+                    <i data-lucide="terminal" class="w-6 h-6"></i>
                 </div>
 
                 <div class="space-y-1">
-                    <h2 class="text-xl font-bold text-white tracking-tight" id="hero-title">Pronto para Gerar</h2>
-                    <p class="text-xs text-gray-400" id="hero-desc">Clica no botão abaixo para iniciar a automação completa do trial de 48 horas.</p>
-                    <a id="completion-diagnostics" href="/diagnostics" class="hidden block pt-2 text-xs text-purple-300 underline break-all">Consultar diagnóstico da execução</a>
+                    <h2 class="text-lg sm:text-xl font-semibold text-zinc-50 tracking-tight" id="hero-title">Pronto para Iniciar</h2>
+                    <p class="text-xs sm:text-[13px] text-zinc-400 max-w-xs mx-auto leading-relaxed" id="hero-desc">
+                        Clica no botão para iniciar a extração segura de credenciais de teste válidas por 48 horas.
+                    </p>
+                    <a id="completion-diagnostics" href="/diagnostics" class="hidden inline-block pt-2 text-xs text-zinc-300 hover:text-white underline underline-offset-4 break-all">
+                        Consultar relatório de diagnóstico
+                    </a>
                 </div>
 
-                <!-- Big Action Button -->
-                <button id="btn-generate" onclick="startGeneration()" class="w-full py-4 px-6 rounded-xl font-semibold text-base text-white glow-button flex items-center justify-center space-x-2 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
-                    <i data-lucide="play" class="w-5 h-5 fill-current"></i>
-                    <span>⚡ Gerar Novo Trial 48h</span>
+                <!-- Primary CTA Button -->
+                <button id="btn-generate" onclick="startGeneration()" class="w-full py-3.5 px-6 rounded-xl font-semibold text-sm primary-action-btn flex items-center justify-center space-x-2 cursor-pointer">
+                    <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+                    <span>Iniciar Provisionamento 48h</span>
                 </button>
 
                 <!-- Status Live Badge -->
-                <div id="status-badge" class="hidden items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-800/80 border border-gray-700 text-gray-300">
-                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-                    <span id="status-badge-text">Iniciando automação...</span>
+                <div id="status-badge" class="hidden items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium pro-card-subtle text-zinc-300">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="status-badge-text">A inicializar processo...</span>
                 </div>
 
             </div>
 
             <!-- Progress Area (Hidden initially) -->
-            <div id="progress-area" class="hidden mt-6 pt-5 border-t border-gray-800 space-y-3">
+            <div id="progress-area" class="hidden mt-6 pt-5 border-t border-zinc-800/80 space-y-3">
                 <div class="flex justify-between items-center text-xs">
-                    <span id="progress-step-text" class="font-medium text-purple-400 flex items-center gap-1.5">
-                        <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
-                        <span id="step-label">Passo 1/8: A preparar...</span>
+                    <span id="progress-step-text" class="font-medium text-zinc-300 flex items-center gap-1.5">
+                        <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin text-zinc-400"></i>
+                        <span id="step-label">Passo 1/8: A preparar ambiente...</span>
                     </span>
-                    <span id="progress-percent" class="font-bold text-gray-300">0%</span>
+                    <span id="progress-percent" class="font-mono font-semibold text-zinc-200">0%</span>
                 </div>
 
                 <!-- Progress Bar -->
-                <div class="w-full h-2.5 bg-gray-800/90 rounded-full overflow-hidden p-0.5 border border-gray-700/50">
-                    <div id="progress-bar" class="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full progress-bar-fill w-[5%]"></div>
+                <div class="w-full h-2 bg-zinc-950 rounded-full overflow-hidden p-0.5 border border-zinc-800">
+                    <div id="progress-bar" class="h-full bg-gradient-to-r from-zinc-400 to-zinc-100 rounded-full progress-bar-fill w-[5%]"></div>
                 </div>
 
-                <!-- Live Logs / Status Log Details -->
-                <div id="log-details" class="p-2.5 rounded-lg bg-gray-950/70 border border-gray-800/70 text-[11px] font-mono text-gray-400 max-h-24 overflow-y-auto space-y-1">
-                    <div class="text-gray-500">A iniciar sessão de automação segura...</div>
+                <!-- Live Logs Console -->
+                <div id="log-details" class="terminal-scroll p-3 rounded-xl bg-black/75 border border-zinc-850 text-[11px] font-mono text-zinc-400 max-h-28 overflow-y-auto space-y-1">
+                    <div class="text-zinc-500">A iniciar sessão de automação segura...</div>
                 </div>
             </div>
 
             <!-- Error Banner (Hidden initially) -->
-            <div id="error-banner" class="hidden mt-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs space-y-2">
-                <div class="flex items-start space-x-2">
-                    <i data-lucide="alert-triangle" class="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5"></i>
+            <div id="error-banner" class="hidden mt-5 p-4 rounded-xl bg-rose-950/20 border border-rose-800/40 text-rose-300 text-xs space-y-3 text-left">
+                <div class="flex items-start space-x-2.5">
+                    <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i>
                     <div class="flex-1">
-                        <p class="font-semibold text-red-200" id="error-title">Erro na geração do trial</p>
-                        <p class="text-red-300/80 text-[11px] mt-0.5" id="error-message">Ocorreu um erro durante a automação.</p>
-                        <a id="error-diagnostics" href="/diagnostics" class="block mt-2 text-purple-300 underline break-all">Abrir diagnóstico</a>
+                        <p class="font-semibold text-rose-200 text-sm" id="error-title">Falha no provisionamento</p>
+                        <p class="text-rose-300/90 text-xs mt-1 leading-relaxed" id="error-message">Ocorreu um erro durante a automação.</p>
+                        <a id="error-diagnostics" href="/diagnostics" class="inline-block mt-2 text-zinc-300 hover:text-white underline underline-offset-4 break-all">
+                            Abrir diagnóstico detalhado
+                        </a>
                     </div>
                 </div>
-                <button id="btn-retry" onclick="retryGeneration()" class="w-full py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-200 text-xs font-medium transition">
+                <button id="btn-retry" onclick="retryGeneration()" class="w-full py-2 px-3 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-200 text-xs font-medium transition active:scale-98">
                     Tentar Novamente
                 </button>
             </div>
         </section>
 
         <!-- Result Card (Credentials) -->
-        <section id="results-card" class="hidden glass-card rounded-2xl p-5 sm:p-6 space-y-4 border-emerald-500/30 shadow-2xl">
+        <section id="results-card" class="hidden pro-card rounded-2xl p-5 sm:p-6 space-y-4">
             <!-- Header Success -->
-            <div class="flex items-center justify-between pb-3 border-b border-gray-800">
-                <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                        <i data-lucide="check-circle" class="w-5 h-5"></i>
+            <div class="flex items-center justify-between pb-3.5 border-b border-zinc-800/80">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-950/40 border border-emerald-800/50 text-emerald-400 flex items-center justify-center">
+                        <i data-lucide="check" class="w-4 h-4"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm font-bold text-white">Trial Gerado com Sucesso!</h3>
-                        <p class="text-[11px] text-emerald-400/80" id="result-timestamp">Válido por 48 horas</p>
+                        <h3 class="text-sm font-semibold text-zinc-100">Credenciais Ativas</h3>
+                        <p class="text-[11px] text-zinc-400" id="result-timestamp">Válido por 48 horas</p>
                     </div>
                 </div>
 
-                <button onclick="copyAllCredentials()" class="px-3 py-1.5 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 text-purple-300 text-xs font-semibold flex items-center space-x-1 transition active:scale-95">
-                    <i data-lucide="copy-check" class="w-3.5 h-3.5"></i>
+                <button onclick="copyAllCredentials()" class="px-3 py-1.5 rounded-lg secondary-btn text-xs font-medium flex items-center space-x-1.5">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                     <span>Copiar Tudo</span>
                 </button>
             </div>
 
             <!-- Credential Fields List -->
-            <div class="space-y-2.5 text-xs">
+            <div class="space-y-2 text-xs">
 
                 <!-- Username -->
-                <div class="p-2.5 rounded-xl bg-gray-900/60 border border-gray-800 flex items-center justify-between">
+                <div class="p-3 rounded-xl pro-card-subtle flex items-center justify-between">
                     <div class="min-w-0 pr-2">
-                        <span class="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">Username</span>
-                        <span id="cred-username" class="font-mono font-semibold text-white truncate block text-sm select-all">--</span>
+                        <span class="text-[10px] uppercase font-semibold text-zinc-400 block tracking-wider">Username</span>
+                        <span id="cred-username" class="font-mono font-medium text-zinc-100 truncate block text-sm select-all">--</span>
                     </div>
-                    <button onclick="copyField('cred-username', this)" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition active:scale-90 flex-shrink-0">
+                    <button onclick="copyField('cred-username', this)" aria-label="Copiar Username" title="Copiar Username" class="p-2 rounded-lg secondary-btn flex-shrink-0">
                         <i data-lucide="copy" class="w-4 h-4"></i>
                     </button>
                 </div>
 
                 <!-- Password -->
-                <div class="p-2.5 rounded-xl bg-gray-900/60 border border-gray-800 flex items-center justify-between">
+                <div class="p-3 rounded-xl pro-card-subtle flex items-center justify-between">
                     <div class="min-w-0 pr-2">
-                        <span class="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">Password</span>
-                        <span id="cred-password" class="font-mono font-semibold text-white truncate block text-sm select-all">--</span>
+                        <span class="text-[10px] uppercase font-semibold text-zinc-400 block tracking-wider">Password</span>
+                        <span id="cred-password" class="font-mono font-medium text-zinc-100 truncate block text-sm select-all">--</span>
                     </div>
-                    <button onclick="copyField('cred-password', this)" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition active:scale-90 flex-shrink-0">
+                    <button onclick="copyField('cred-password', this)" aria-label="Copiar Password" title="Copiar Password" class="p-2 rounded-lg secondary-btn flex-shrink-0">
                         <i data-lucide="copy" class="w-4 h-4"></i>
                     </button>
                 </div>
 
                 <!-- DNS / Host -->
-                <div class="p-2.5 rounded-xl bg-gray-900/60 border border-gray-800 flex items-center justify-between">
+                <div class="p-3 rounded-xl pro-card-subtle flex items-center justify-between">
                     <div class="min-w-0 pr-2">
-                        <span class="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">Host / DNS (Xtream Codes)</span>
-                        <span id="cred-dns" class="font-mono font-semibold text-purple-300 truncate block text-xs select-all">--</span>
+                        <span class="text-[10px] uppercase font-semibold text-zinc-400 block tracking-wider">Host / DNS (Xtream API)</span>
+                        <span id="cred-dns" class="font-mono font-medium text-zinc-200 truncate block text-xs select-all">--</span>
                     </div>
-                    <button onclick="copyField('cred-dns', this)" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition active:scale-90 flex-shrink-0">
+                    <button onclick="copyField('cred-dns', this)" aria-label="Copiar Host" title="Copiar Host" class="p-2 rounded-lg secondary-btn flex-shrink-0">
                         <i data-lucide="copy" class="w-4 h-4"></i>
                     </button>
                 </div>
 
                 <!-- M3U Playlist URL -->
-                <div class="p-2.5 rounded-xl bg-gray-900/60 border border-gray-800 flex items-center justify-between">
+                <div class="p-3 rounded-xl pro-card-subtle flex items-center justify-between">
                     <div class="min-w-0 pr-2">
-                        <span class="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">M3U Playlist URL</span>
-                        <span id="cred-m3u" class="font-mono text-gray-300 truncate block text-[11px] select-all">--</span>
+                        <span class="text-[10px] uppercase font-semibold text-zinc-400 block tracking-wider">M3U Playlist URL</span>
+                        <span id="cred-m3u" class="font-mono text-zinc-300 truncate block text-[11px] select-all">--</span>
                     </div>
-                    <div class="flex items-center space-x-1 flex-shrink-0">
-                        <button onclick="copyField('cred-m3u', this)" title="Copiar URL" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition active:scale-90">
+                    <div class="flex items-center space-x-1.5 flex-shrink-0">
+                        <button onclick="copyField('cred-m3u', this)" aria-label="Copiar URL M3U" title="Copiar URL" class="p-2 rounded-lg secondary-btn">
                             <i data-lucide="copy" class="w-4 h-4"></i>
                         </button>
-                        <a id="btn-download-m3u" href="#" target="_blank" download="iptv_trial.m3u" title="Descarregar M3U" class="p-2 rounded-lg bg-purple-600/30 text-purple-300 hover:bg-purple-600/50 transition active:scale-90">
+                        <a id="btn-download-m3u" href="#" target="_blank" download="iptv_trial.m3u" aria-label="Descarregar ficheiro M3U" title="Descarregar M3U" class="p-2 rounded-lg secondary-btn">
                             <i data-lucide="download" class="w-4 h-4"></i>
                         </a>
                     </div>
                 </div>
 
                 <!-- EPG URL -->
-                <div class="p-2.5 rounded-xl bg-gray-900/60 border border-gray-800 flex items-center justify-between">
+                <div class="p-3 rounded-xl pro-card-subtle flex items-center justify-between">
                     <div class="min-w-0 pr-2">
-                        <span class="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">EPG TV Guide</span>
-                        <span id="cred-epg" class="font-mono text-gray-300 truncate block text-[11px] select-all">--</span>
+                        <span class="text-[10px] uppercase font-semibold text-zinc-400 block tracking-wider">Guia de Canais (EPG)</span>
+                        <span id="cred-epg" class="font-mono text-zinc-300 truncate block text-[11px] select-all">--</span>
                     </div>
-                    <button onclick="copyField('cred-epg', this)" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition active:scale-90 flex-shrink-0">
+                    <button onclick="copyField('cred-epg', this)" aria-label="Copiar EPG" title="Copiar EPG" class="p-2 rounded-lg secondary-btn flex-shrink-0">
                         <i data-lucide="copy" class="w-4 h-4"></i>
                     </button>
                 </div>
 
                 <!-- Email Usado -->
-                <div class="p-2.5 rounded-xl bg-gray-900/40 border border-gray-800/60 flex items-center justify-between">
+                <div class="p-3 rounded-xl pro-card-subtle flex items-center justify-between">
                     <div class="min-w-0 pr-2">
-                        <span class="text-[10px] uppercase font-bold text-gray-500 block tracking-wider">Email Temporário</span>
-                        <span id="cred-email" class="font-mono text-gray-400 truncate block text-[11px]">--</span>
+                        <span class="text-[10px] uppercase font-semibold text-zinc-500 block tracking-wider">Email Temporário</span>
+                        <span id="cred-email" class="font-mono text-zinc-400 truncate block text-[11px]">--</span>
                     </div>
-                    <button onclick="copyField('cred-email', this)" class="p-1.5 rounded-lg bg-gray-800/60 text-gray-400 hover:text-gray-200 transition active:scale-90 flex-shrink-0">
+                    <button onclick="copyField('cred-email', this)" aria-label="Copiar Email" title="Copiar Email" class="p-1.5 rounded-lg secondary-btn flex-shrink-0">
                         <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                     </button>
                 </div>
 
             </div>
 
-            <!-- App Config Tips -->
-            <div class="p-3 rounded-xl bg-indigo-950/30 border border-indigo-900/40 text-[11px] text-indigo-200/90 space-y-1">
-                <div class="font-bold flex items-center gap-1 text-indigo-300">
-                    <i data-lucide="smartphone" class="w-3.5 h-3.5"></i> Como usar na TV / Telemóvel:
+            <!-- Quick Integration Guide -->
+            <div class="p-3.5 rounded-xl pro-card-subtle text-xs text-zinc-300 space-y-1.5">
+                <div class="font-medium flex items-center gap-1.5 text-zinc-200">
+                    <i data-lucide="layers" class="w-4 h-4 text-zinc-400"></i> Como configurar na TV ou leitor:
                 </div>
-                <p>1. Abre a app (ex: <b>IPTV Smarters Pro</b> ou <b>TiviMate</b>).</p>
-                <p>2. Escolhe <b>Xtream Codes API</b> e insere o Host, Username e Password acima.</p>
+                <p class="text-zinc-400 leading-relaxed">
+                    1. No leitor (ex.: <strong class="text-zinc-200">IPTV Smarters Pro</strong> ou <strong class="text-zinc-200">TiviMate</strong>), seleciona <span class="text-zinc-200">Xtream Codes API</span>.
+                </p>
+                <p class="text-zinc-400 leading-relaxed">
+                    2. Insere os campos de <span class="text-zinc-200">Host, Username e Password</span> gerados acima.
+                </p>
             </div>
         </section>
 
     </main>
 
     <!-- Footer -->
-    <footer class="w-full max-w-lg mx-auto text-center py-3 text-[11px] text-gray-500">
-        IPTV Trial Auto • Powered by LuisR
-        <a href="/diagnostics" class="block mt-2 text-purple-300 underline">Diagnóstico das últimas execuções</a>
+    <footer class="w-full max-w-lg mx-auto text-center py-4 text-xs text-zinc-500 relative z-10">
+        <p>IPTV Access Portal • Ambiente de Provisionamento</p>
+        <a href="/diagnostics" class="inline-block mt-1 text-zinc-400 hover:text-zinc-200 underline underline-offset-4 transition">
+            Diagnóstico de execuções
+        </a>
     </footer>
 
     <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-emerald-500 text-white font-medium text-xs shadow-lg shadow-emerald-500/30 flex items-center space-x-1.5 opacity-0 pointer-events-none transition-all duration-300 z-50">
-        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+    <div id="toast" role="status" aria-live="polite" class="fixed bottom-5 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-full pro-card text-zinc-100 font-medium text-xs shadow-2xl flex items-center space-x-2 opacity-0 pointer-events-none transition-all duration-200 z-50">
+        <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
         <span id="toast-text">Copiado com sucesso!</span>
     </div>
 
@@ -311,7 +407,7 @@
             pollingInterrupted = false;
             document.getElementById('btn-retry').textContent = 'Tentar Novamente';
             btn.disabled = true;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i><span>A Gerar Trial...</span>`;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>A Provisionar...</span>`;
             lucide.createIcons();
 
             progressArea.classList.remove('hidden');
@@ -320,11 +416,11 @@
             resultsCard.classList.add('hidden');
             statusBadge.classList.remove('hidden');
             statusBadge.classList.add('flex');
-            document.getElementById('status-badge-text').innerText = 'Iniciando automação...';
+            document.getElementById('status-badge-text').innerText = 'A inicializar automação...';
             
-            heroIcon.className = 'w-16 h-16 rounded-2xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 animate-pulse';
+            heroIcon.className = 'w-14 h-14 rounded-2xl pro-card-subtle flex items-center justify-center text-zinc-100 animate-pulse border-zinc-600';
             heroTitle.innerText = 'Processo em Execução';
-            heroDesc.innerText = 'A ligar aos serviços de email e ao portal IPTV...';
+            heroDesc.innerText = 'A conectar aos serviços de verificação e portal seguro...';
 
             updateProgress(1, 'A preparar ambiente e criar email...', 10);
             clearLogs();
@@ -444,8 +540,8 @@
             const time = new Date().toLocaleTimeString('pt-PT');
             const row = document.createElement('div');
             const timestamp = document.createElement('span');
-            timestamp.className = 'text-gray-500';
-            timestamp.textContent = `[${time}] `;
+            timestamp.className = 'text-zinc-500 mr-1.5';
+            timestamp.textContent = `[${time}]`;
             row.append(timestamp, document.createTextNode(String(msg)));
             logBox.appendChild(row);
             logBox.scrollTop = logBox.scrollHeight;
@@ -457,11 +553,11 @@
             document.getElementById('hero-title').textContent = 'Execução concluída';
             document.getElementById('hero-desc').textContent = 'Esta execução terminou com sucesso, mas as credenciais já não estão disponíveis nesta sessão. Podes consultar o diagnóstico da execução.';
             const heroIcon = document.getElementById('hero-icon');
-            heroIcon.className = 'w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400';
-            heroIcon.innerHTML = '<i data-lucide="check-check" class="w-8 h-8"></i>';
+            heroIcon.className = 'w-14 h-14 rounded-2xl bg-emerald-950/40 border border-emerald-800/60 flex items-center justify-center text-emerald-400';
+            heroIcon.innerHTML = '<i data-lucide="check-check" class="w-6 h-6"></i>';
             const link = document.getElementById('completion-diagnostics');
             link.href = `/diagnostics#${encodeURIComponent(jobId)}`;
-            link.textContent = `Consultar diagnóstico · execução ${jobId}`;
+            link.textContent = `Consultar relatório · execução ${jobId}`;
             link.classList.remove('hidden');
             lucide.createIcons();
         }
@@ -489,10 +585,10 @@
             card.classList.remove('hidden');
             card.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-            heroIcon.className = 'w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400';
-            heroIcon.innerHTML = `<i data-lucide="check-check" class="w-8 h-8"></i>`;
-            heroTitle.innerText = 'Trial Pronto a Usar!';
-            heroDesc.innerText = 'Credenciais extraídas com sucesso. Copia os dados abaixo para a tua aplicação.';
+            heroIcon.className = 'w-14 h-14 rounded-2xl bg-emerald-950/40 border border-emerald-800/60 flex items-center justify-center text-emerald-400';
+            heroIcon.innerHTML = `<i data-lucide="check" class="w-6 h-6"></i>`;
+            heroTitle.innerText = 'Trial Provisionado!';
+            heroDesc.innerText = 'Credenciais extraídas com sucesso. Copia os parâmetros abaixo para a tua aplicação.';
             lucide.createIcons();
         }
 
@@ -507,17 +603,17 @@
             errorBanner.classList.remove('hidden');
 
             const heroIcon = document.getElementById('hero-icon');
-            heroIcon.className = 'w-16 h-16 rounded-2xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400';
-            heroIcon.innerHTML = `<i data-lucide="x-circle" class="w-8 h-8"></i>`;
-            document.getElementById('hero-title').innerText = 'Falha na Tentativa';
-            document.getElementById('hero-desc').innerText = 'Ocorreu um erro durante o processo. Podes tentar novamente.';
+            heroIcon.className = 'w-14 h-14 rounded-2xl bg-rose-950/40 border border-rose-800/60 flex items-center justify-center text-rose-400';
+            heroIcon.innerHTML = `<i data-lucide="alert-circle" class="w-6 h-6"></i>`;
+            document.getElementById('hero-title').innerText = 'Falha no Processamento';
+            document.getElementById('hero-desc').innerText = 'Ocorreu um erro durante a automação. Podes tentar novamente.';
             lucide.createIcons();
         }
 
         function resetButton(success = false) {
             const btn = document.getElementById('btn-generate');
             btn.disabled = false;
-            btn.innerHTML = `<i data-lucide="zap" class="w-5 h-5 fill-current"></i><span>⚡ Gerar Novo Trial 48h</span>`;
+            btn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-current"></i><span>Iniciar Provisionamento 48h</span>`;
             lucide.createIcons();
             document.getElementById('status-badge').classList.add('hidden');
             document.getElementById('status-badge').classList.remove('flex');
@@ -532,7 +628,7 @@
                     showResults(data);
                     if (!silent) showToast('Último trial carregado!');
                 } else if (!silent) {
-                    showToast('Nenhum trial gerado anteriormente.');
+                    showToast('Nenhum trial registado anteriormente.');
                 }
             } catch (e) {
                 if (!silent) showToast('Erro ao carregar histórico.');

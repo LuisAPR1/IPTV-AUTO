@@ -41,162 +41,244 @@ def generate_output_html(data: Dict[str, str], output_path: str = None) -> str:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPTV Fiesta - Credenciais Trial</title>
+    <title>IPTV Access Portal — Credenciais de Teste</title>
     <style>
         * {{
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }}
         
         body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, system-ui, sans-serif;
+            background-color: #090a0f;
+            color: #f4f4f5;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 24px 16px;
+            line-height: 1.5;
         }}
         
         .container {{
-            background: white;
+            background: #111217;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 40px;
-            max-width: 800px;
+            box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+            padding: 36px;
+            max-width: 760px;
             width: 100%;
         }}
         
         .header {{
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
+        }}
+        
+        .success-badge {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.12);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 14px;
         }}
         
         .header h1 {{
-            color: #333;
-            font-size: 2em;
-            margin-bottom: 10px;
+            color: #ffffff;
+            font-size: 1.5em;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
         }}
         
         .header .subtitle {{
-            color: #666;
+            color: #a1a1aa;
             font-size: 0.9em;
         }}
         
         .timestamp {{
             text-align: center;
-            color: #999;
+            color: #71717a;
+            font-size: 0.8em;
+            margin-bottom: 24px;
+        }}
+        
+        .email-info {{
+            background: #0d0e13;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
             font-size: 0.85em;
-            margin-bottom: 30px;
+            color: #a1a1aa;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }}
+        
+        .email-info strong {{
+            color: #e4e4e7;
+            font-weight: 500;
         }}
         
         .credentials-table {{
             width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            margin-bottom: 24px;
         }}
         
         .credentials-table th {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px;
+            color: #71717a;
+            padding: 8px 14px;
             text-align: left;
+            font-size: 11px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }}
+        
+        .credentials-table tr.row-item {{
+            background: #0d0e13;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
         }}
         
         .credentials-table td {{
-            padding: 15px;
-            border-bottom: 1px solid #eee;
+            padding: 12px 14px;
+            vertical-align: middle;
         }}
         
-        .credentials-table tr:hover {{
-            background-color: #f8f9fa;
+        .credentials-table td:first-child {{
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }}
+        
+        .credentials-table td:last-child {{
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+            text-align: right;
         }}
         
         .field-name {{
-            font-weight: 600;
-            color: #333;
-            width: 30%;
+            font-weight: 500;
+            color: #d4d4d8;
+            font-size: 0.85em;
+            width: 25%;
+            white-space: nowrap;
         }}
         
         .field-value {{
-            color: #555;
-            font-family: 'Courier New', monospace;
-            background: #f4f4f4;
-            padding: 8px 12px;
-            border-radius: 6px;
+            color: #f4f4f5;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.85em;
             word-break: break-all;
+            user-select: all;
         }}
         
         .copy-btn {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #d4d4d8;
+            padding: 6px 14px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.85em;
-            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 0.8em;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            white-space: nowrap;
         }}
         
         .copy-btn:hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
         }}
         
         .copy-btn:active {{
-            transform: translateY(0);
+            transform: scale(0.96);
+        }}
+        
+        :focus-visible {{
+            outline: 2px solid #a1a1aa;
+            outline-offset: 2px;
         }}
         
         .footer {{
             text-align: center;
-            margin-top: 30px;
+            margin-top: 24px;
             padding-top: 20px;
-            border-top: 1px solid #eee;
-            color: #999;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            color: #71717a;
             font-size: 0.8em;
         }}
         
-        .success-badge {{
-            display: inline-block;
-            background: #28a745;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            margin-bottom: 20px;
+        .footer a {{
+            color: #a1a1aa;
+            text-decoration: underline;
+            text-underline-offset: 3px;
         }}
-        
-        .email-info {{
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border-left: 4px solid #2196f3;
-        }}
-        
-        .email-info strong {{
-            color: #1976d2;
+        .footer a:hover {{
+            color: #ffffff;
         }}
         
         @media (max-width: 600px) {{
             .container {{
-                padding: 20px;
+                padding: 20px 16px;
             }}
             
             .header h1 {{
-                font-size: 1.5em;
+                font-size: 1.25em;
             }}
             
-            .credentials-table th,
+            .credentials-table th {{
+                display: none;
+            }}
+            
+            .credentials-table, .credentials-table tbody, .credentials-table tr.row-item {{
+                display: block;
+                width: 100%;
+            }}
+            
+            .credentials-table tr.row-item {{
+                margin-bottom: 10px;
+                padding: 12px;
+            }}
+            
             .credentials-table td {{
-                padding: 10px;
-                font-size: 0.9em;
+                display: block;
+                padding: 4px 0;
+                width: 100% !important;
+                text-align: left !important;
             }}
             
-            .field-name {{
-                width: 40%;
+            .field-value {{
+                margin: 6px 0;
+            }}
+            
+            .copy-btn {{
+                width: 100%;
+                padding: 8px;
+                margin-top: 6px;
+            }}
+        }}
+        
+        @media (prefers-reduced-motion: reduce) {{
+            *, ::before, ::after {{
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
             }}
         }}
     </style>
@@ -204,79 +286,79 @@ def generate_output_html(data: Dict[str, str], output_path: str = None) -> str:
 <body>
     <div class="container">
         <div class="header">
-            <span class="success-badge">✓ Trial Gerado com Sucesso</span>
-            <h1>IPTV Fiesta - Credenciais</h1>
-            <p class="subtitle">48h de acesso grátis</p>
+            <span class="success-badge">✓ Sessão Ativa • 48 Horas</span>
+            <h1>IPTV Access Portal</h1>
+            <p class="subtitle">Credenciais de teste provisionadas</p>
         </div>
         
-        <div class="timestamp">Gerado em: {timestamp}</div>
+        <div class="timestamp">Gerado a: {timestamp}</div>
         
         <div class="email-info">
-            <strong>Email utilizado:</strong> {email_used}
+            <span><strong>Email de verificação:</strong></span>
+            <span style="font-family: ui-monospace, monospace; color: #d4d4d8;">{email_used}</span>
         </div>
         
         <table class="credentials-table">
             <thead>
                 <tr>
-                    <th>Campo</th>
+                    <th>Parâmetro</th>
                     <th>Valor</th>
-                    <th>Ação</th>
+                    <th style="text-align: right;">Ação</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
+                <tr class="row-item">
                     <td class="field-name">Username</td>
                     <td class="field-value" id="username">{username}</td>
-                    <td><button class="copy-btn" onclick="copyToClipboard('username')">Copiar</button></td>
+                    <td><button class="copy-btn" onclick="copyToClipboard('username', this)">Copiar</button></td>
                 </tr>
-                <tr>
+                <tr class="row-item">
                     <td class="field-name">Password</td>
                     <td class="field-value" id="password">{password}</td>
-                    <td><button class="copy-btn" onclick="copyToClipboard('password')">Copiar</button></td>
+                    <td><button class="copy-btn" onclick="copyToClipboard('password', this)">Copiar</button></td>
                 </tr>
-                <tr>
-                    <td class="field-name">DNS/Domain</td>
+                <tr class="row-item">
+                    <td class="field-name">DNS / Host</td>
                     <td class="field-value" id="dns">{dns}</td>
-                    <td><button class="copy-btn" onclick="copyToClipboard('dns')">Copiar</button></td>
+                    <td><button class="copy-btn" onclick="copyToClipboard('dns', this)">Copiar</button></td>
                 </tr>
-                <tr>
-                    <td class="field-name">EPG (TV Guide)</td>
+                <tr class="row-item">
+                    <td class="field-name">EPG (Guia)</td>
                     <td class="field-value" id="epg">{epg}</td>
-                    <td><button class="copy-btn" onclick="copyToClipboard('epg')">Copiar</button></td>
+                    <td><button class="copy-btn" onclick="copyToClipboard('epg', this)">Copiar</button></td>
                 </tr>
-                <tr>
-                    <td class="field-name">M3U Playlist</td>
+                <tr class="row-item">
+                    <td class="field-name">Playlist M3U</td>
                     <td class="field-value" id="m3u">{m3u}</td>
-                    <td><button class="copy-btn" onclick="copyToClipboard('m3u')">Copiar</button></td>
+                    <td><button class="copy-btn" onclick="copyToClipboard('m3u', this)">Copiar</button></td>
                 </tr>
             </tbody>
         </table>
         
         <div class="footer">
-            <p>Automatizador IPTV Fiesta • Dados extraídos automaticamente</p>
-            {f'<p><a href="{url}" target="_blank">Abrir página original</a></p>' if url else ''}
+            <p>IPTV Access Portal • Provisionamento Seguro</p>
+            {f'<p style="margin-top: 6px;"><a href="{url}" target="_blank" rel="noopener">Página original do serviço</a></p>' if url else ''}
         </div>
     </div>
     
     <script>
-        function copyToClipboard(elementId) {{
+        function copyToClipboard(elementId, btn) {{
             const element = document.getElementById(elementId);
             const text = element.innerText;
             
             navigator.clipboard.writeText(text).then(function() {{
-                // Feedback visual
-                const btn = event.target;
                 const originalText = btn.innerText;
-                btn.innerText = '✓ Copiado!';
-                btn.style.background = '#28a745';
+                btn.innerText = '✓ Copiado';
+                btn.style.color = '#34d399';
+                btn.style.borderColor = 'rgba(16, 185, 129, 0.4)';
                 
                 setTimeout(function() {{
                     btn.innerText = originalText;
-                    btn.style.background = '';
+                    btn.style.color = '';
+                    btn.style.borderColor = '';
                 }}, 2000);
             }}).catch(function(err) {{
-                console.error('Erro ao copiar:', err);
-                alert('Erro ao copiar. Selecione manualmente e copie com Ctrl+C.');
+                alert('Erro ao copiar. Seleciona manualmente.');
             }});
         }}
     </script>

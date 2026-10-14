@@ -332,9 +332,15 @@ def health():
 
 
 if __name__ == "__main__":
+    if sys.platform == "win32":
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
     port = int(os.environ.get("PORT", 5000))
     print(f"\n=======================================================")
-    print(f"  ⚡ IPTV Trial Web App em execução:")
+    print(f"  ⚡ IPTV Access Portal em execução:")
     print(f"  📱 Abre no teu browser: http://localhost:{port}")
     print(f"=======================================================\n")
     app.run(host="0.0.0.0", port=port, debug=False)
+
