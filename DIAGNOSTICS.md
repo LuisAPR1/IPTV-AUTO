@@ -1,6 +1,6 @@
 # Diagnóstico das gerações web
 
-A aplicação guarda automaticamente as últimas **10 execuções**, incluindo sucessos, falhas e a execução em curso. Abre **Diagnóstico das últimas execuções** na página do gerador ou **Abrir diagnóstico** no aviso de erro, seleciona a execução e descarrega o JSON para enviar nesta conversa. Também podes descarregar as últimas 10 de uma vez.
+A aplicação guarda automaticamente as últimas **10 execuções**, incluindo sucessos, falhas e a execução em curso. Abre diretamente `/diagnostics` no endereço do site, seleciona a execução e descarrega o JSON para enviar nesta conversa. Também podes descarregar as últimas 10 de uma vez.
 
 ## Consultar os relatórios
 
@@ -51,7 +51,7 @@ Todas as APIs desta tabela são de acesso livre e devolvem `Cache-Control: no-st
 
 | Área | Situação encontrada e consequência |
 | --- | --- |
-| `app.py` e `templates/index.html` | Flask inicia a geração numa thread e o browser consulta o progresso. O histórico só existia em memória; erros de ligação no browser podiam ficar silenciosos. Agora há registo persistido e acesso direto ao diagnóstico. |
+| `app.py` e `templates/index.html` | Flask inicia a geração numa thread e o browser consulta o progresso. O histórico só existia em memória; erros de ligação no browser podiam ficar silenciosos. Agora há registo persistido; o diagnóstico está disponível pelo URL direto, sem ligações na interface do cliente. |
 | `scraper.py` | O fluxo atual usa `requests` e BeautifulSoup, com procura de proxies, checkout, verificação por email e extração. Vários erros são capturados e provocam novas tentativas; por isso é necessário conservar os logs de cada tentativa, além da falha final. |
 | `email_service.py` | Uma falha de autenticação ou de rede podia acabar apresentada apenas como timeout do email. O relatório conserva a causa IMAP e o número de consultas, sem guardar conteúdo das mensagens. |
 | `proxy_manager.py` | Produz eventos durante a obtenção/seleção de proxies. Os testes paralelos do scraper precisam de propagação explícita do contexto para associarem os eventos à execução certa. |

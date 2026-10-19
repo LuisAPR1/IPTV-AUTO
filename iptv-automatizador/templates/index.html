@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt" class="dark">
+<html lang="pt-PT" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPTV Access Portal — Provisionamento de Trials</title>
+    <title>IPTV Access Portal — LuisR</title>
+    <meta name="author" content="LuisR">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons CDN -->
@@ -117,21 +118,6 @@
             transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Terminal scroll styling */
-        .terminal-scroll::-webkit-scrollbar {
-            width: 4px;
-        }
-        .terminal-scroll::-webkit-scrollbar-track {
-            background: #090a0f;
-        }
-        .terminal-scroll::-webkit-scrollbar-thumb {
-            background: #27272a;
-            border-radius: 4px;
-        }
-        .terminal-scroll::-webkit-scrollbar-thumb:hover {
-            background: #3f3f46;
-        }
-
         /* Motion preference respect */
         @media (prefers-reduced-motion: reduce) {
             *, ::before, ::after {
@@ -158,15 +144,11 @@
                     <h1 class="text-sm sm:text-base font-semibold tracking-tight text-zinc-100">
                         IPTV Access Portal
                     </h1>
-                    <span class="text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 rounded-full bg-zinc-800/80 text-zinc-300 border border-zinc-700/70">
-                        48H Pass
-                    </span>
                 </div>
-                <p class="text-xs text-zinc-400">Provisionamento automatizado de trials</p>
             </div>
         </div>
 
-        <button id="btn-refresh-latest" onclick="loadLatestTrial()" title="Ver último trial gerado" aria-label="Consultar último trial gerado" class="p-2.5 rounded-xl secondary-btn">
+        <button id="btn-refresh-latest" onclick="loadLatestTrial()" title="Ver últimos códigos" aria-label="Ver últimos códigos" class="p-2.5 rounded-xl secondary-btn">
             <i data-lucide="history" class="w-4 h-4"></i>
         </button>
     </header>
@@ -183,30 +165,22 @@
                 
                 <!-- Status Icon Badge -->
                 <div id="hero-icon" class="w-14 h-14 rounded-2xl pro-card-subtle flex items-center justify-center text-zinc-300 transition-all duration-200">
-                    <i data-lucide="terminal" class="w-6 h-6"></i>
+                    <i data-lucide="tv" class="w-6 h-6"></i>
                 </div>
 
                 <div class="space-y-1">
-                    <h2 class="text-lg sm:text-xl font-semibold text-zinc-50 tracking-tight" id="hero-title">Pronto para Iniciar</h2>
+                    <h2 class="text-lg sm:text-xl font-semibold text-zinc-50 tracking-tight" id="hero-title">O teu acesso IPTV</h2>
                     <p class="text-xs sm:text-[13px] text-zinc-400 max-w-xs mx-auto leading-relaxed" id="hero-desc">
-                        Clica no botão para iniciar a extração segura de credenciais de teste válidas por 48 horas.
+                        Códigos de acesso válidos por 48 horas.
                     </p>
-                    <a id="completion-diagnostics" href="/diagnostics" class="hidden inline-block pt-2 text-xs text-zinc-300 hover:text-white underline underline-offset-4 break-all">
-                        Consultar relatório de diagnóstico
-                    </a>
                 </div>
 
                 <!-- Primary CTA Button -->
                 <button id="btn-generate" onclick="startGeneration()" class="w-full py-3.5 px-6 rounded-xl font-semibold text-sm primary-action-btn flex items-center justify-center space-x-2 cursor-pointer">
                     <i data-lucide="play" class="w-4 h-4 fill-current"></i>
-                    <span>Iniciar Provisionamento 48h</span>
+                    <span>Gerar códigos</span>
                 </button>
 
-                <!-- Status Live Badge -->
-                <div id="status-badge" class="hidden items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium pro-card-subtle text-zinc-300">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span id="status-badge-text">A inicializar processo...</span>
-                </div>
 
             </div>
 
@@ -215,7 +189,7 @@
                 <div class="flex justify-between items-center text-xs">
                     <span id="progress-step-text" class="font-medium text-zinc-300 flex items-center gap-1.5">
                         <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin text-zinc-400"></i>
-                        <span id="step-label">Passo 1/8: A preparar ambiente...</span>
+                        <span id="step-label">A preparar…</span>
                     </span>
                     <span id="progress-percent" class="font-mono font-semibold text-zinc-200">0%</span>
                 </div>
@@ -225,10 +199,7 @@
                     <div id="progress-bar" class="h-full bg-gradient-to-r from-zinc-400 to-zinc-100 rounded-full progress-bar-fill w-[5%]"></div>
                 </div>
 
-                <!-- Live Logs Console -->
-                <div id="log-details" class="terminal-scroll p-3 rounded-xl bg-black/75 border border-zinc-850 text-[11px] font-mono text-zinc-400 max-h-28 overflow-y-auto space-y-1">
-                    <div class="text-zinc-500">A iniciar sessão de automação segura...</div>
-                </div>
+
             </div>
 
             <!-- Error Banner (Hidden initially) -->
@@ -236,11 +207,8 @@
                 <div class="flex items-start space-x-2.5">
                     <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i>
                     <div class="flex-1">
-                        <p class="font-semibold text-rose-200 text-sm" id="error-title">Falha no provisionamento</p>
-                        <p class="text-rose-300/90 text-xs mt-1 leading-relaxed" id="error-message">Ocorreu um erro durante a automação.</p>
-                        <a id="error-diagnostics" href="/diagnostics" class="inline-block mt-2 text-zinc-300 hover:text-white underline underline-offset-4 break-all">
-                            Abrir diagnóstico detalhado
-                        </a>
+                        <p class="font-semibold text-rose-200 text-sm" id="error-title">Não foi possível gerar os códigos</p>
+                        <p class="text-rose-300/90 text-xs mt-1 leading-relaxed" id="error-message">Tenta novamente dentro de alguns instantes.</p>
                     </div>
                 </div>
                 <button id="btn-retry" onclick="retryGeneration()" class="w-full py-2 px-3 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-200 text-xs font-medium transition active:scale-98">
@@ -258,7 +226,7 @@
                         <i data-lucide="check" class="w-4 h-4"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm font-semibold text-zinc-100">Credenciais Ativas</h3>
+                        <h3 class="text-sm font-semibold text-zinc-100">Os teus códigos</h3>
                         <p class="text-[11px] text-zinc-400" id="result-timestamp">Válido por 48 horas</p>
                     </div>
                 </div>
@@ -275,10 +243,10 @@
                 <!-- Username -->
                 <div class="p-3 rounded-xl pro-card-subtle flex items-center justify-between">
                     <div class="min-w-0 pr-2">
-                        <span class="text-[10px] uppercase font-semibold text-zinc-400 block tracking-wider">Username</span>
+                        <span class="text-[10px] uppercase font-semibold text-zinc-400 block tracking-wider">Utilizador</span>
                         <span id="cred-username" class="font-mono font-medium text-zinc-100 truncate block text-sm select-all">--</span>
                     </div>
-                    <button onclick="copyField('cred-username', this)" aria-label="Copiar Username" title="Copiar Username" class="p-2 rounded-lg secondary-btn flex-shrink-0">
+                    <button onclick="copyField('cred-username', this)" aria-label="Copiar utilizador" title="Copiar utilizador" class="p-2 rounded-lg secondary-btn flex-shrink-0">
                         <i data-lucide="copy" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -286,10 +254,10 @@
                 <!-- Password -->
                 <div class="p-3 rounded-xl pro-card-subtle flex items-center justify-between">
                     <div class="min-w-0 pr-2">
-                        <span class="text-[10px] uppercase font-semibold text-zinc-400 block tracking-wider">Password</span>
+                        <span class="text-[10px] uppercase font-semibold text-zinc-400 block tracking-wider">Palavra-passe</span>
                         <span id="cred-password" class="font-mono font-medium text-zinc-100 truncate block text-sm select-all">--</span>
                     </div>
-                    <button onclick="copyField('cred-password', this)" aria-label="Copiar Password" title="Copiar Password" class="p-2 rounded-lg secondary-btn flex-shrink-0">
+                    <button onclick="copyField('cred-password', this)" aria-label="Copiar palavra-passe" title="Copiar palavra-passe" class="p-2 rounded-lg secondary-btn flex-shrink-0">
                         <i data-lucide="copy" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -297,7 +265,7 @@
                 <!-- DNS / Host -->
                 <div class="p-3 rounded-xl pro-card-subtle flex items-center justify-between">
                     <div class="min-w-0 pr-2">
-                        <span class="text-[10px] uppercase font-semibold text-zinc-400 block tracking-wider">Host / DNS (Xtream API)</span>
+                        <span class="text-[10px] uppercase font-semibold text-zinc-400 block tracking-wider">Servidor</span>
                         <span id="cred-dns" class="font-mono font-medium text-zinc-200 truncate block text-xs select-all">--</span>
                     </div>
                     <button onclick="copyField('cred-dns', this)" aria-label="Copiar Host" title="Copiar Host" class="p-2 rounded-lg secondary-btn flex-shrink-0">
@@ -305,10 +273,10 @@
                     </button>
                 </div>
 
-                <!-- M3U Playlist URL -->
+                <!-- Playlist M3U -->
                 <div class="p-3 rounded-xl pro-card-subtle flex items-center justify-between">
                     <div class="min-w-0 pr-2">
-                        <span class="text-[10px] uppercase font-semibold text-zinc-400 block tracking-wider">M3U Playlist URL</span>
+                        <span class="text-[10px] uppercase font-semibold text-zinc-400 block tracking-wider">Playlist M3U</span>
                         <span id="cred-m3u" class="font-mono text-zinc-300 truncate block text-[11px] select-all">--</span>
                     </div>
                     <div class="flex items-center space-x-1.5 flex-shrink-0">
@@ -332,29 +300,19 @@
                     </button>
                 </div>
 
-                <!-- Email Usado -->
-                <div class="p-3 rounded-xl pro-card-subtle flex items-center justify-between">
-                    <div class="min-w-0 pr-2">
-                        <span class="text-[10px] uppercase font-semibold text-zinc-500 block tracking-wider">Email Temporário</span>
-                        <span id="cred-email" class="font-mono text-zinc-400 truncate block text-[11px]">--</span>
-                    </div>
-                    <button onclick="copyField('cred-email', this)" aria-label="Copiar Email" title="Copiar Email" class="p-1.5 rounded-lg secondary-btn flex-shrink-0">
-                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                    </button>
-                </div>
 
             </div>
 
             <!-- Quick Integration Guide -->
             <div class="p-3.5 rounded-xl pro-card-subtle text-xs text-zinc-300 space-y-1.5">
                 <div class="font-medium flex items-center gap-1.5 text-zinc-200">
-                    <i data-lucide="layers" class="w-4 h-4 text-zinc-400"></i> Como configurar na TV ou leitor:
+                    <i data-lucide="layers" class="w-4 h-4 text-zinc-400"></i> Como usar
                 </div>
                 <p class="text-zinc-400 leading-relaxed">
-                    1. No leitor (ex.: <strong class="text-zinc-200">IPTV Smarters Pro</strong> ou <strong class="text-zinc-200">TiviMate</strong>), seleciona <span class="text-zinc-200">Xtream Codes API</span>.
+                    1. Na tua aplicação (ex.: <strong class="text-zinc-200">IPTV Smarters Pro</strong> ou <strong class="text-zinc-200">TiviMate</strong>), seleciona <span class="text-zinc-200">Xtream Codes API</span>.
                 </p>
                 <p class="text-zinc-400 leading-relaxed">
-                    2. Insere os campos de <span class="text-zinc-200">Host, Username e Password</span> gerados acima.
+                    2. Insere os campos de <span class="text-zinc-200">Servidor, Utilizador e Palavra-passe</span> gerados acima.
                 </p>
             </div>
         </section>
@@ -363,10 +321,7 @@
 
     <!-- Footer -->
     <footer class="w-full max-w-lg mx-auto text-center py-4 text-xs text-zinc-500 relative z-10">
-        <p>IPTV Access Portal • Ambiente de Provisionamento</p>
-        <a href="/diagnostics" class="inline-block mt-1 text-zinc-400 hover:text-zinc-200 underline underline-offset-4 transition">
-            Diagnóstico de execuções
-        </a>
+        <p class="text-sm text-zinc-400">Developed by <strong class="font-semibold text-zinc-100">LuisR</strong></p>
     </footer>
 
     <!-- Toast Notification -->
@@ -394,7 +349,6 @@
             const btn = document.getElementById('btn-generate');
             const progressArea = document.getElementById('progress-area');
             const errorBanner = document.getElementById('error-banner');
-            const statusBadge = document.getElementById('status-badge');
             const heroIcon = document.getElementById('hero-icon');
             const heroTitle = document.getElementById('hero-title');
             const heroDesc = document.getElementById('hero-desc');
@@ -407,23 +361,18 @@
             pollingInterrupted = false;
             document.getElementById('btn-retry').textContent = 'Tentar Novamente';
             btn.disabled = true;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>A Provisionar...</span>`;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>A gerar…</span>`;
             lucide.createIcons();
 
             progressArea.classList.remove('hidden');
             errorBanner.classList.add('hidden');
-            document.getElementById('completion-diagnostics').classList.add('hidden');
             resultsCard.classList.add('hidden');
-            statusBadge.classList.remove('hidden');
-            statusBadge.classList.add('flex');
-            document.getElementById('status-badge-text').innerText = 'A inicializar automação...';
             
             heroIcon.className = 'w-14 h-14 rounded-2xl pro-card-subtle flex items-center justify-center text-zinc-100 animate-pulse border-zinc-600';
-            heroTitle.innerText = 'Processo em Execução';
-            heroDesc.innerText = 'A conectar aos serviços de verificação e portal seguro...';
+            heroTitle.innerText = 'A gerar os teus códigos';
+            heroDesc.innerText = 'Pode demorar alguns minutos.';
 
-            updateProgress(1, 'A preparar ambiente e criar email...', 10);
-            clearLogs();
+            updateProgress(1, 10);
 
             try {
                 const response = await fetch('/api/generate', { method: 'POST' });
@@ -433,17 +382,16 @@
                 if (!response.ok || !data.success) {
                     throw new Error(data.message || 'Falha ao iniciar processo');
                 }
-                if (!currentJobId) throw new Error('O servidor não devolveu o ID da execução. Consulta o diagnóstico.');
+                if (!currentJobId) throw new Error('Resposta inválida');
 
                 startPolling(currentJobId);
 
             } catch (err) {
-                showError('Falha ao Iniciar', err.message || 'Não foi possível comunicar com o servidor.');
+                showError('Não foi possível iniciar', 'Tenta novamente dentro de alguns instantes.');
                 resetButton();
             }
         }
 
-        let lastLoggedMessage = '';
 
         function startPolling(jobId) {
             clearTimeout(pollInterval);
@@ -456,7 +404,7 @@
                     const res = await fetch(`/api/progress/${encodeURIComponent(jobId)}`, { signal: controller.signal, cache: 'no-store' });
                     if (version !== pollVersion) return;
                     if (res.status === 404) {
-                        showError('Sessão Expirada', 'O estado desta sessão já não está disponível. Consulta o diagnóstico para verificar a execução.');
+                        showError('Sessão expirada', 'Gera novos códigos para continuar.');
                         resetButton(false);
                         return;
                     }
@@ -469,15 +417,15 @@
                     failures = 0;
 
                     if (job.status === 'running') {
-                        updateProgress(job.step, job.message, job.percent);
+                        updateProgress(job.step, job.percent);
                     } else if (job.status === 'completed') {
-                        updateProgress(8, 'Concluído com sucesso!', 100);
+                        updateProgress(8, 100);
                         if (job.credentials) showResults(job.credentials);
-                        else showCompletedWithoutCredentials(jobId);
+                        else showCompletedWithoutCredentials();
                         resetButton(true);
                         return;
                     } else if (job.status === 'error' || job.status === 'interrupted') {
-                        showError('Erro na Automação', job.error || 'O processo falhou antes de obter credenciais.');
+                        showError('Não foi possível gerar os códigos', 'Tenta novamente dentro de alguns instantes.');
                         resetButton(false);
                         return;
                     }
@@ -487,11 +435,9 @@
                     if (failures >= 4) {
                         pollingInterrupted = true;
                         document.getElementById('btn-retry').textContent = 'Retomar acompanhamento';
-                        showError('Ligação ao servidor interrompida', 'Não foi possível obter o estado após várias tentativas. A geração pode continuar no servidor. Retoma o acompanhamento ou abre o diagnóstico.');
+                        showError('Ligação interrompida', 'A geração pode continuar. Verifica a ligação e retoma o acompanhamento.');
                         document.getElementById('hero-title').textContent = 'Acompanhamento interrompido';
-                        document.getElementById('hero-desc').textContent = 'O estado da geração é desconhecido enquanto não houver ligação.';
-                        document.getElementById('status-badge').classList.add('hidden');
-                        document.getElementById('status-badge').classList.remove('flex');
+                        document.getElementById('hero-desc').textContent = 'Verifica a tua ligação à Internet.';
                         return;
                     }
                 } finally {
@@ -507,64 +453,39 @@
                 pollingInterrupted = false;
                 document.getElementById('btn-retry').textContent = 'Tentar Novamente';
                 document.getElementById('error-banner').classList.add('hidden');
-                document.getElementById('status-badge').classList.remove('hidden');
-                document.getElementById('status-badge').classList.add('flex');
-                document.getElementById('status-badge-text').textContent = 'A retomar acompanhamento…';
-                document.getElementById('hero-title').textContent = 'A consultar a execução';
-                document.getElementById('hero-desc').textContent = 'A obter o estado mais recente do servidor…';
+                document.getElementById('progress-area').classList.remove('hidden');
+                document.getElementById('hero-title').textContent = 'A verificar o acesso';
+                document.getElementById('hero-desc').textContent = 'Só mais um momento…';
                 startPolling(currentJobId);
                 return;
             }
             startGeneration();
         }
 
-        function updateProgress(step, message, percent) {
-            document.getElementById('step-label').innerText = `Passo ${step}/8: ${message}`;
-            document.getElementById('progress-percent').innerText = `${percent}%`;
-            document.getElementById('progress-bar').style.width = `${percent}%`;
-            document.getElementById('status-badge-text').innerText = message;
-            if (message && message !== lastLoggedMessage) {
-                lastLoggedMessage = message;
-                addLog(message);
-            }
+        function updateProgress(step, percent) {
+            const label = percent >= 100 ? 'Concluído' : step <= 1 ? 'A preparar…'
+                : step <= 5 ? 'A gerar os códigos…' : step === 6 ? 'A confirmar o acesso…' : 'A finalizar…';
+            const value = Math.max(0, Math.min(100, Number(percent) || 0));
+            document.getElementById('step-label').innerText = label;
+            document.getElementById('progress-percent').innerText = `${value}%`;
+            document.getElementById('progress-bar').style.width = `${value}%`;
         }
 
-        function clearLogs() {
-            lastLoggedMessage = '';
-            document.getElementById('log-details').textContent = '';
-        }
-
-        function addLog(msg) {
-            if (!msg) return;
-            const logBox = document.getElementById('log-details');
-            const time = new Date().toLocaleTimeString('pt-PT');
-            const row = document.createElement('div');
-            const timestamp = document.createElement('span');
-            timestamp.className = 'text-zinc-500 mr-1.5';
-            timestamp.textContent = `[${time}]`;
-            row.append(timestamp, document.createTextNode(String(msg)));
-            logBox.appendChild(row);
-            logBox.scrollTop = logBox.scrollHeight;
-        }
-
-        function showCompletedWithoutCredentials(jobId) {
+        function showCompletedWithoutCredentials() {
+            document.getElementById('progress-area').classList.add('hidden');
             document.getElementById('results-card').classList.add('hidden');
             document.getElementById('error-banner').classList.add('hidden');
-            document.getElementById('hero-title').textContent = 'Execução concluída';
-            document.getElementById('hero-desc').textContent = 'Esta execução terminou com sucesso, mas as credenciais já não estão disponíveis nesta sessão. Podes consultar o diagnóstico da execução.';
+            document.getElementById('hero-title').textContent = 'Códigos indisponíveis';
+            document.getElementById('hero-desc').textContent = 'Estes códigos já não estão disponíveis. Gera novos códigos.';
             const heroIcon = document.getElementById('hero-icon');
             heroIcon.className = 'w-14 h-14 rounded-2xl bg-emerald-950/40 border border-emerald-800/60 flex items-center justify-center text-emerald-400';
             heroIcon.innerHTML = '<i data-lucide="check-check" class="w-6 h-6"></i>';
-            const link = document.getElementById('completion-diagnostics');
-            link.href = `/diagnostics#${encodeURIComponent(jobId)}`;
-            link.textContent = `Consultar relatório · execução ${jobId}`;
-            link.classList.remove('hidden');
             lucide.createIcons();
         }
 
         function showResults(creds) {
             if (!creds) return;
-            document.getElementById('completion-diagnostics').classList.add('hidden');
+            document.getElementById('progress-area').classList.add('hidden');
             const card = document.getElementById('results-card');
             const heroIcon = document.getElementById('hero-icon');
             const heroTitle = document.getElementById('hero-title');
@@ -575,8 +496,7 @@
             document.getElementById('cred-dns').innerText = creds.dns || 'N/A';
             document.getElementById('cred-m3u').innerText = creds.m3u || 'N/A';
             document.getElementById('cred-epg').innerText = creds.epg || 'N/A';
-            document.getElementById('cred-email').innerText = creds.email_used || 'N/A';
-            document.getElementById('result-timestamp').innerText = `Gerado a ${new Date().toLocaleDateString('pt-PT')} ${new Date().toLocaleTimeString('pt-PT')}`;
+            document.getElementById('result-timestamp').innerText = 'Válido por 48 horas';
 
             if (creds.m3u) {
                 document.getElementById('btn-download-m3u').href = `/api/download-m3u?url=${encodeURIComponent(creds.m3u)}`;
@@ -587,36 +507,31 @@
 
             heroIcon.className = 'w-14 h-14 rounded-2xl bg-emerald-950/40 border border-emerald-800/60 flex items-center justify-center text-emerald-400';
             heroIcon.innerHTML = `<i data-lucide="check" class="w-6 h-6"></i>`;
-            heroTitle.innerText = 'Trial Provisionado!';
-            heroDesc.innerText = 'Credenciais extraídas com sucesso. Copia os parâmetros abaixo para a tua aplicação.';
+            heroTitle.innerText = 'Códigos prontos';
+            heroDesc.innerText = 'Copia os dados abaixo para a tua aplicação.';
             lucide.createIcons();
         }
 
         function showError(title, msg) {
+            document.getElementById('progress-area').classList.add('hidden');
             const errorBanner = document.getElementById('error-banner');
-            document.getElementById('completion-diagnostics').classList.add('hidden');
             document.getElementById('error-title').innerText = title;
             document.getElementById('error-message').innerText = msg;
-            const diagnosticLink = document.getElementById('error-diagnostics');
-            diagnosticLink.href = currentJobId ? `/diagnostics#${encodeURIComponent(currentJobId)}` : '/diagnostics';
-            diagnosticLink.textContent = currentJobId ? `Abrir diagnóstico · execução ${currentJobId}` : 'Abrir diagnóstico';
             errorBanner.classList.remove('hidden');
 
             const heroIcon = document.getElementById('hero-icon');
             heroIcon.className = 'w-14 h-14 rounded-2xl bg-rose-950/40 border border-rose-800/60 flex items-center justify-center text-rose-400';
             heroIcon.innerHTML = `<i data-lucide="alert-circle" class="w-6 h-6"></i>`;
-            document.getElementById('hero-title').innerText = 'Falha no Processamento';
-            document.getElementById('hero-desc').innerText = 'Ocorreu um erro durante a automação. Podes tentar novamente.';
+            document.getElementById('hero-title').innerText = 'Não foi possível concluir';
+            document.getElementById('hero-desc').innerText = '';
             lucide.createIcons();
         }
 
         function resetButton(success = false) {
             const btn = document.getElementById('btn-generate');
             btn.disabled = false;
-            btn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-current"></i><span>Iniciar Provisionamento 48h</span>`;
+            btn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-current"></i><span>Gerar códigos</span>`;
             lucide.createIcons();
-            document.getElementById('status-badge').classList.add('hidden');
-            document.getElementById('status-badge').classList.remove('flex');
         }
 
         async function loadLatestTrial(silent = false) {
@@ -626,22 +541,22 @@
                 const data = await res.json();
                 if (data && data.username) {
                     showResults(data);
-                    if (!silent) showToast('Último trial carregado!');
+                    if (!silent) showToast('Últimos códigos carregados.');
                 } else if (!silent) {
-                    showToast('Nenhum trial registado anteriormente.');
+                    showToast('Ainda não existem códigos guardados.');
                 }
             } catch (e) {
-                if (!silent) showToast('Erro ao carregar histórico.');
+                if (!silent) showToast('Não foi possível obter os últimos códigos.');
             }
         }
 
         function copyField(elementId, btn) {
             const el = document.getElementById(elementId);
             const text = el.innerText.trim();
-            if (!text || text === '--') return;
+            if (!text || text === '--' || text === 'N/A') return;
 
             navigator.clipboard.writeText(text).then(() => {
-                showToast(`Copiado: ${text.length > 25 ? text.substring(0, 25) + '...' : text}`);
+                showToast('Copiado!');
                 if (btn) {
                     const orig = btn.innerHTML;
                     btn.innerHTML = `<i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>`;
@@ -666,7 +581,7 @@
             const text = `=== IPTV TRIAL 48H ===\nUsername: ${u}\nPassword: ${p}\nDNS/Host: ${d}\nM3U Playlist: ${m}\nEPG TV Guide: ${e}\n======================`;
 
             navigator.clipboard.writeText(text).then(() => {
-                showToast('Todas as credenciais copiadas!');
+                showToast('Códigos copiados!');
             }).catch(() => {
                 showToast('Erro ao copiar dados.');
             });
