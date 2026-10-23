@@ -54,3 +54,11 @@ trash/
 iptv-automatizador/trash/
 debug_confirmation.html
 iptv-automatizador/debug_confirmation.html
+
+# Local DBZ source artwork, prompts, demos and visual checks.
+# Production animation lives in iptv-automatizador/static/dbz/ and stays tracked.
+/dbz/
+
+# Local-only asset preparation and simulated preview server.
+/iptv-automatizador/tools/build_dbz_assets.py
+/iptv-automatizador/tools/preview_dbz.py

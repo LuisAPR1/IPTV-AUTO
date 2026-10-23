@@ -118,6 +118,18 @@
             transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        .progress-character {
+            display: flex;
+            justify-content: center;
+            margin: -8px auto -4px;
+            pointer-events: none;
+        }
+        .progress-character[hidden] { display: none; }
+        .progress-character canvas { width: 180px; height: 180px; max-width: 100%; }
+        @media (max-width: 480px) {
+            .progress-character canvas { width: 156px; height: 156px; }
+        }
+
         /* Motion preference respect */
         @media (prefers-reduced-motion: reduce) {
             *, ::before, ::after {
@@ -186,6 +198,10 @@
 
             <!-- Progress Area (Hidden initially) -->
             <div id="progress-area" class="hidden mt-6 pt-5 border-t border-zinc-800/80 space-y-3">
+                <div id="progress-character" class="progress-character" aria-hidden="true" hidden>
+                    <canvas id="progress-character-canvas" width="512" height="512"
+                        data-asset-base="{{ url_for('static', filename='dbz/') }}"></canvas>
+                </div>
                 <div class="flex justify-between items-center text-xs">
                     <span id="progress-step-text" class="font-medium text-zinc-300 flex items-center gap-1.5">
                         <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin text-zinc-400"></i>
@@ -330,6 +346,8 @@
         <span id="toast-text">Copiado com sucesso!</span>
     </div>
 
+    <script src="{{ url_for('static', filename='dbz/evolution-timeline.js') }}?v=2"></script>
+    <script src="{{ url_for('static', filename='dbz/evolution-player.js') }}?v=2"></script>
     <!-- Frontend Logic -->
     <script>
         // Initialize Lucide icons
@@ -339,6 +357,20 @@
         let currentJobId = null;
         let pollingInterrupted = false;
         let pollVersion = 0;
+        let progressEvolution = null;
+        // Decorative animation is optional; a missing asset cannot break generation.
+        try {
+            if (window.DBZEvolutionPlayer && window.DBZEvolutionTimeline) {
+                progressEvolution = new window.DBZEvolutionPlayer(
+                    document.getElementById('progress-character-canvas'),
+                    document.getElementById('progress-character'));
+            }
+        } catch (_) { /* Keep the normal progress UI available. */ }
+
+        function hideProgress() {
+            progressEvolution?.stop();
+            document.getElementById('progress-area').classList.add('hidden');
+        }
 
         // Auto-check for latest trial on load
         window.addEventListener('DOMContentLoaded', () => {
@@ -365,6 +397,7 @@
             lucide.createIcons();
 
             progressArea.classList.remove('hidden');
+            progressEvolution?.start();
             errorBanner.classList.add('hidden');
             resultsCard.classList.add('hidden');
             
@@ -420,8 +453,11 @@
                         updateProgress(job.step, job.percent);
                     } else if (job.status === 'completed') {
                         updateProgress(8, 100);
-                        if (job.credentials) showResults(job.credentials);
-                        else showCompletedWithoutCredentials();
+                        // Results are available immediately while the character catches up.
+                        if (job.credentials) showResults(job.credentials, true);
+                        else showCompletedWithoutCredentials(true);
+                        if (progressEvolution) progressEvolution.finish(hideProgress);
+                        else hideProgress();
                         resetButton(true);
                         return;
                     } else if (job.status === 'error' || job.status === 'interrupted') {
@@ -454,6 +490,7 @@
                 document.getElementById('btn-retry').textContent = 'Tentar Novamente';
                 document.getElementById('error-banner').classList.add('hidden');
                 document.getElementById('progress-area').classList.remove('hidden');
+                progressEvolution?.start(false);
                 document.getElementById('hero-title').textContent = 'A verificar o acesso';
                 document.getElementById('hero-desc').textContent = 'Só mais um momento…';
                 startPolling(currentJobId);
@@ -469,10 +506,11 @@
             document.getElementById('step-label').innerText = label;
             document.getElementById('progress-percent').innerText = `${value}%`;
             document.getElementById('progress-bar').style.width = `${value}%`;
+            progressEvolution?.setStep(value >= 100 ? 8 : step);
         }
 
-        function showCompletedWithoutCredentials() {
-            document.getElementById('progress-area').classList.add('hidden');
+        function showCompletedWithoutCredentials(keepProgress = false) {
+            if (!keepProgress) hideProgress();
             document.getElementById('results-card').classList.add('hidden');
             document.getElementById('error-banner').classList.add('hidden');
             document.getElementById('hero-title').textContent = 'Códigos indisponíveis';
@@ -483,9 +521,9 @@
             lucide.createIcons();
         }
 
-        function showResults(creds) {
+        function showResults(creds, keepProgress = false) {
             if (!creds) return;
-            document.getElementById('progress-area').classList.add('hidden');
+            if (!keepProgress) hideProgress();
             const card = document.getElementById('results-card');
             const heroIcon = document.getElementById('hero-icon');
             const heroTitle = document.getElementById('hero-title');
@@ -513,7 +551,7 @@
         }
 
         function showError(title, msg) {
-            document.getElementById('progress-area').classList.add('hidden');
+            hideProgress();
             const errorBanner = document.getElementById('error-banner');
             document.getElementById('error-title').innerText = title;
             document.getElementById('error-message').innerText = msg;
@@ -535,10 +573,13 @@
         }
 
         async function loadLatestTrial(silent = false) {
+            const version = pollVersion;
             try {
                 const res = await fetch('/api/latest');
                 if (!res.ok) return;
                 const data = await res.json();
+                // A late history response must not hide an active generation or its animation.
+                if (version !== pollVersion || document.getElementById('btn-generate').disabled) return;
                 if (data && data.username) {
                     showResults(data);
                     if (!silent) showToast('Últimos códigos carregados.');
