@@ -203,6 +203,28 @@ test('finish reaches phase 8 and waits a full 900ms after showing it, invoking c
   assert.equal(h.frames.size, 0);
 });
 
+test('completed progress stays visible in phase 8 with a continuous pingpong aura', async () => {
+  const h = createHarness();
+  await h.ready();
+  h.frame();
+  h.player.setStep(8);
+  h.advance(12000);
+  assert.equal(h.player.timeline.getState().phase, 8);
+  assert.equal(h.player.timeline.getState().mode, 'idle');
+  const seen = new Set();
+  for (let i=0; i<40; i++) {
+    h.advance(50);
+    const state = h.player.timeline.getState();
+    assert.equal(state.phase, 8);
+    seen.add(state.frame);
+  }
+  assert.deepEqual([...seen].sort(), [0,1,2,3]);
+  assert.equal(h.player.active, true);
+  assert.equal(h.container.hidden, false);
+  h.player.start();
+  assert.equal(h.player.timeline.getState().phase, 1);
+});
+
 test('reduced motion holds a still frame per phase without aura or crossfade flicker', async () => {
   const h = createHarness({ reduced: true });
   await h.ready();

@@ -456,8 +456,8 @@
                         // Results are available immediately while the character catches up.
                         if (job.credentials) showResults(job.credentials, true);
                         else showCompletedWithoutCredentials(true);
-                        if (progressEvolution) progressEvolution.finish(hideProgress);
-                        else hideProgress();
+                        // Keep Goku visible: settle at Ultra Instinct and continue the aura loop.
+                        // updateProgress has already set the target to phase 8.
                         resetButton(true);
                         return;
                     } else if (job.status === 'error' || job.status === 'interrupted') {
